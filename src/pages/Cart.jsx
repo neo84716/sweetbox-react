@@ -1,6 +1,9 @@
+import Header from "../layouts/Header";
+
 function Cart() {
     return (
         <>
+            <Header />
             <div className="bg-neutral-300 cart-body">
                 <div className="cart-main">
                     <ol
@@ -21,12 +24,9 @@ function Cart() {
                     </ol>
                     <form className="container px-3 p-lg-0">
                         <div
-                            className="d-flex justify-content-between align-items-center mb-2 mb-lg-6"
-                        >
+                            className="d-flex justify-content-between align-items-center mb-2 mb-lg-6">
                             <h1 className="cart-title p-3 py-lg-2 px-lg-4">購物車</h1>
-                            <a href="#" className="btn py-3 px-4 px-lg-8 border-0 btn-shopping"
-                            >繼續購物</a
-                            >
+                            <a href="#" className="btn py-3 px-4 px-lg-8 border-0 btn-shopping">繼續購物</a>
                         </div>
                         <div className="row mx-0 mx-sm-n3">
                             <div className="col-lg-8 px-0 px-lg-4 mb-2 mb-lg-0">
