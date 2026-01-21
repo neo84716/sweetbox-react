@@ -1,4 +1,5 @@
 import Header from "../layouts/Header";
+import Footer from "../layouts/Footer";
 
 function Cart() {
     return (
@@ -702,6 +703,7 @@ function Cart() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </>
     )
 }
