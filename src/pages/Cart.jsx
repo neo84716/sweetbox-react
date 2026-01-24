@@ -1,7 +1,19 @@
+import { useEffect, useState } from "react";
 import Header from "../layouts/Header";
 import Footer from "../layouts/Footer";
+import api from "../api";
+
 
 function Cart() {
+    const [data,setData] = useState([]);
+
+    useEffect(()=>{
+        api.get("/posts")
+        .then(res => setData(res.data))
+        .catch(err => console.log(err))
+    },[]);
+
+    console.log(data);
     return (
         <>
             <Header />
