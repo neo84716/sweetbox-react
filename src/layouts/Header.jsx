@@ -5,7 +5,7 @@ function Header() {
                 <a href="index.html">
                     <picture>
                         <source
-                            srcset="./images/Home_Page/sweetBox_logo.svg"
+                            srcSet="./images/Home_Page/sweetBox_logo.svg"
                             media="(min-width: 992px)"
                         />
                         <img
@@ -74,9 +74,9 @@ function Header() {
                             <path
                                 d="M3.97461 5.97461H19.9746M3.97461 11.9746H19.9746M3.97461 17.9746H19.9746"
                                 stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             />
                         </svg>
                     </button>
@@ -104,7 +104,8 @@ function Header() {
                                 type="button"
                                 className="btn border-0 dropdown-item"
                                 aria-expanded="true"
-                                onClick="this.closest('.dropdown-menu').classNameList.remove('show')"
+                                // 會報錯，暫時隱藏，切元件再處理
+                                // onClick="this.closest('.dropdown-menu').classNameList.remove('show')"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
