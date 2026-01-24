@@ -2,7 +2,7 @@ function Footer() {
     return (
         <footer className="footer bg-neutral-250 position-relative">
             <nav className="container d-flex flex-column flex-lg-row justify-content-between align-items-center mb-3 px-0">
-                <a href="index.html"><img className="footer-logo mb-3 mb-lg-0" src="/assets/images/Home_Page/sweetBox_logo.svg"
+                <a href="index.html"><img className="footer-logo mb-3 mb-lg-0" src="./images/Home_Page/sweetBox_logo.svg"
                     alt="一盒甜logo" /></a>
                 <ul className="d-flex gap-1 gap-lg-6 mb-3 mb-lg-0">
                     <li className="footer-nav-item"><a href="theme.html">主題一覽</a></li>

@@ -8,12 +8,12 @@ function Theme() {
             <main className="main overflow-hidden">
                 <section className="theme-banner bg-neutral-200">
                     <picture>
-                        <source media="(min-width: 767px)" srcSet="/assets/images/Theme_Page/Banner.svg" />
-                        <img src="/assets/images/Theme_Page/Banner_mobile.svg" alt="theme-banner-img" className="theme-banner-img" />
+                        <source media="(min-width: 767px)" srcSet="./images/Theme_Page/Banner.svg" />
+                        <img src="./images/Theme_Page/Banner_mobile.svg" alt="theme-banner-img" className="theme-banner-img" />
                     </picture>
 
                     <div className="d-lg-none container text-center title-mobile">
-                        <img src="/assets/images/Theme_Page/Title_display_mobile.svg" alt="總有一盒剛好是你想吃的甜" />
+                        <img src="./images/Theme_Page/Title_display_mobile.svg" alt="總有一盒剛好是你想吃的甜" />
                     </div>
                 </section>
                 {/* <!-- <section className="container"> --> */}
@@ -22,8 +22,8 @@ function Theme() {
                         <div className="mb-15 text-center">
                             <p className="mb-6 text-primary-600 en-font fw-bold ls-1">Theme</p>
                             <picture>
-                                <source srcSet="/assets/images/Theme_Page/Title_section_mobile.svg" media="(max-width: 992px)" />
-                                <img src="/assets/images/Theme_Page/Title_section.svg" alt="主題一覽" />
+                                <source srcSet="./images/Theme_Page/Title_section_mobile.svg" media="(max-width: 992px)" />
+                                <img src="./images/Theme_Page/Title_section.svg" alt="主題一覽" />
                             </picture>
                         </div>
                         <section className="container">
@@ -33,7 +33,7 @@ function Theme() {
                                     <div className="card w-100 p-5 p-lg-9 mb-9 mb-lg-17 text-center border-light theme-card"
                                         style={{ width: 416 }}>
                                         <h3 className="mb-8 text-primary-600 theme-title">精選甜點</h3>
-                                        <img src="/assets/images/Theme_Page/pic_theme_feature.png" className="card-img-top mb-6" alt="精選甜點圖片" />
+                                        <img src="./images/Theme_Page/pic_theme_feature.png" className="card-img-top mb-6" alt="精選甜點圖片" />
                                         <div className="card-body py-0">
                                             <h5 className="card-title fw-bold mb-3">
                                                 我們幫你挑最值得期待的那一盒
@@ -52,7 +52,7 @@ function Theme() {
                                     <div className="card w-100 p-5 p-lg-9 mb-9 mb-lg-17 text-center border-light theme-card"
                                         style={{ width: 416 }}>
                                         <h3 className="mb-8 text-primary-600 theme-title">季節限定</h3>
-                                        <img src="/assets/images/Theme_Page/pic_theme_season.png" className="card-img-top mb-6" alt="精選甜點圖片" />
+                                        <img src="./images/Theme_Page/pic_theme_season.png" className="card-img-top mb-6" alt="精選甜點圖片" />
                                         <div className="card-body py-0">
                                             <h5 className="card-title fw-bold mb-3">
                                                 春夏秋冬,不同甜點陪你過日子
@@ -71,7 +71,7 @@ function Theme() {
                                     <div className="card w-100 p-5 p-lg-9 mb-9 mb-lg-17 text-center border-light theme-card"
                                         style={{ width: 416 }}>
                                         <h3 className="mb-8 text-primary-600 theme-title">在地甜點</h3>
-                                        <img src="/assets/images/Theme_Page/pic_theme_local.png" className="card-img-top mb-6" alt="精選甜點圖片" />
+                                        <img src="./images/Theme_Page/pic_theme_local.png" className="card-img-top mb-6" alt="精選甜點圖片" />
                                         <div className="card-body py-0">
                                             <h5 className="card-title fw-bold mb-3">
                                                 重溫土地的美味，熟悉中感受驚喜
@@ -90,7 +90,7 @@ function Theme() {
                                     <div className="card w-100 p-5 p-lg-9 mb-9 mb-lg-17 text-center border-light theme-card"
                                         style={{ width: 416 }}>
                                         <h3 className="mb-8 text-primary-600 theme-title">異國風味</h3>
-                                        <img src="/assets/images/Theme_Page/pic_theme_world.png" className="card-img-top mb-6" alt="精選甜點圖片" />
+                                        <img src="./images/Theme_Page/pic_theme_world.png" className="card-img-top mb-6" alt="精選甜點圖片" />
                                         <div className="card-body py-0">
                                             <h5 className="card-title fw-bold mb-3">
                                                 我們幫你挑最值得期待的那一盒
@@ -109,7 +109,7 @@ function Theme() {
                                     <div className="card w-100 p-5 p-lg-9 mb-9 mb-lg-17 text-center border-light theme-card"
                                         style={{ width: 416 }}>
                                         <h3 className="mb-8 text-primary-600 theme-title">無負擔甜點</h3>
-                                        <img src="/assets/images/Theme_Page/pic_theme_health.png" className="card-img-top mb-6" alt="精選甜點圖片" />
+                                        <img src="./images/Theme_Page/pic_theme_health.png" className="card-img-top mb-6" alt="精選甜點圖片" />
                                         <div className="card-body py-0">
                                             <h5 className="card-title fw-bold mb-3">
                                                 剛剛好的甜，無負擔的美好
@@ -127,7 +127,7 @@ function Theme() {
                                     {/* <!-- 卡片 --> */}
                                     <div className="card w-100 p-5 p-lg-9 mb-lg-17 text-center border-light theme-card" style={{ width: 416 }}>
                                         <h3 className="mb-8 text-primary-600 theme-title">素食甜點</h3>
-                                        <img src="/assets/images/Theme_Page/pic_theme_veg.png" className="card-img-top mb-6" alt="精選甜點圖片" />
+                                        <img src="./images/Theme_Page/pic_theme_veg.png" className="card-img-top mb-6" alt="精選甜點圖片" />
                                         <div className="card-body py-0">
                                             <h5 className="card-title fw-bold mb-3">
                                                 不加動物成分,不減幸福滋味
@@ -145,8 +145,8 @@ function Theme() {
                         </section>
                     </div>
                     <picture>
-                        <source media="(min-width: 992px)" srcSet="/assets/images/Theme_Page/bg-cake-desktop.png" />
-                        <img className="position-absolute theme-background z-n1" src="/assets/images/Theme_Page/bg-cake-mobile.png"
+                        <source media="(min-width: 992px)" srcSet="./images/Theme_Page/bg-cake-desktop.png" />
+                        <img className="position-absolute theme-background z-n1" src="./images/Theme_Page/bg-cake-mobile.png"
                             alt="蛋糕背景圖" />
                     </picture>
 

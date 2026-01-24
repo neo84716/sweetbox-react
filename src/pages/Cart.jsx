@@ -47,7 +47,7 @@ function Cart() {
                                     <li className="d-flex align-items-center cart-item">
                                         <img
                                             className="rounded-4 me-3 me-lg-6 d-block theme-img"
-                                            src="/assets/images/Cart_Page/pic_season.jpg"
+                                            src="./images/Cart_Page/pic_season.jpg"
                                             alt="季節限定甜點盒圖片"
                                         />
                                         <div className="cart-intro">
@@ -137,7 +137,7 @@ function Cart() {
                                     <li className="d-flex align-items-center cart-item">
                                         <img
                                             className="rounded-4 me-3 me-lg-6 d-block theme-img"
-                                            src="/assets/images/Cart_Page/pic_feature.jpg"
+                                            src="./images/Cart_Page/pic_feature.jpg"
                                             alt="精選甜點盒圖片"
                                         />
                                         <div className="cart-intro">
@@ -227,7 +227,7 @@ function Cart() {
                                     <li className="d-flex align-items-center cart-item">
                                         <img
                                             className="rounded-4 me-3 me-lg-6 d-block theme-img"
-                                            src="/assets/images/Cart_Page/pic_health.jpg"
+                                            src="./images/Cart_Page/pic_health.jpg"
                                             alt="無負擔甜點盒圖片"
                                         />
                                         <div className="cart-intro">
@@ -317,7 +317,7 @@ function Cart() {
                                     <li className="d-flex align-items-center cart-item">
                                         <img
                                             className="rounded-4 me-3 me-lg-6 d-block theme-img"
-                                            src="/assets/images/Cart_Page/pic_world.jpg"
+                                            src="./images/Cart_Page/pic_world.jpg"
                                             alt="異國風味甜點盒圖片"
                                         />
                                         <div className="cart-intro">
@@ -407,7 +407,7 @@ function Cart() {
                                     <li className="d-flex align-items-center cart-item">
                                         <img
                                             className="rounded-4 me-3 me-lg-6 d-block theme-img"
-                                            src="/assets/images/Cart_Page/pic_veg.jpg"
+                                            src="./images/Cart_Page/pic_veg.jpg"
                                             alt="素食甜點盒圖片"
                                         />
                                         <div className="cart-intro">
@@ -497,7 +497,7 @@ function Cart() {
                                     <li className="d-flex align-items-center cart-item">
                                         <img
                                             className="rounded-4 me-3 me-lg-6 d-block theme-img"
-                                            src="/assets/images/Cart_Page/pic_local.jpg"
+                                            src="./images/Cart_Page/pic_local.jpg"
                                             alt="在地甜點盒圖片"
                                         />
                                         <div className="cart-intro">

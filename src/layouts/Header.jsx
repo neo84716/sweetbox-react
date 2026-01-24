@@ -5,12 +5,12 @@ function Header() {
                 <a href="index.html">
                     <picture>
                         <source
-                            srcset="/assets/images/Home_Page/sweetBox_logo.svg"
+                            srcset="./images/Home_Page/sweetBox_logo.svg"
                             media="(min-width: 992px)"
                         />
                         <img
                             className="logo-icon"
-                            src="/assets/images/Home_Page/sweetBox_logo_3.svg"
+                            src="./images/Home_Page/sweetBox_logo_3.svg"
                             alt="一盒甜logo"
                         />
                     </picture>
@@ -42,7 +42,7 @@ function Header() {
                                 <div className="avatar me-2">
                                     <img
                                         className="d-block"
-                                        src="/assets/images/Home_Page/avatar.jpg"
+                                        src="./images/Home_Page/avatar.jpg"
                                         alt="使用者頭像"
                                     />
                                 </div>
