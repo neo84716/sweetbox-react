@@ -8,7 +8,7 @@
     content: '';
     width: 100%;
     height: 20px;
-    background-image: url('/assets/images/Home_Page/wave_mobile.svg');
+    background-image: url('./images/Home_Page/wave_mobile.svg');
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -17,7 +17,7 @@
     @media (min-width: 375px) {
       height: 29px;
       top: -17px;
-      background-image: url('/assets/images/Home_Page/wave.svg');
+      background-image: url('./images/Home_Page/wave.svg');
     }
   }
   &-nav-item {
