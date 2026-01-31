@@ -504,53 +504,28 @@ $gradient: linear-gradient(
 // scss-docs-start spacer-variables-maps
 $spacer: 1rem !default;
 $spacers: (
-  // 0: 0,
-  // 1: $spacer * .25,
-  // 2: $spacer * .5,
-  // 3: $spacer,
-  // 4: $spacer * 1.5,
-  // 5: $spacer * 3,
-  0: 0,
-  // custom
-  1: $spacer * 0.25,
-  // 4px
-  2: $spacer * 0.5,
-  // 8px
-  3: $spacer * 0.75,
-  // 12px
-  4: $spacer,
-  // 16px
-  5: $spacer * 1.25,
-  // 20px
-  6: $spacer * 1.5,
-  // 24px
-  7: $spacer * 1.875,
-  // 30px
-  8: $spacer * 2,
-  // 32px
-  9: $spacer * 2.5,
-  // 40px
-  10: $spacer * 3.75,
-  // 60px
-  11: $spacer * 7.5,
-  // 120px
-  12: $spacer * 15,
-  // 240px
-  13: $spacer * 5.5,
-  // 88px
-  14: $spacer * 4,
-  // 64px
-  15: $spacer * 2.25,
-  // 36px
-  16: $spacer * 5.375,
-  // 86px
-  17: $spacer * 3,
-  // 48px
-  18: $spacer * 5,
-  // 80px
-  19: $spacer * 8.125,
-  // 130px
+  0: 0,              // 0px
+  1: $spacer * 0.25, // 4px
+  2: $spacer * 0.5,  // 8px
+  3: $spacer * 0.75, // 12px
+  4: $spacer,        // 16px
+  5: $spacer * 1.25, // 20px
+  6: $spacer * 1.5,  // 24px
+  7: $spacer * 1.875,// 30px
+  8: $spacer * 2,    // 32px
+  9: $spacer * 2.5,  // 40px
+  10: $spacer * 3.75,// 60px
+  11: $spacer * 7.5, // 120px
+  12: $spacer * 15,  // 240px
+  13: $spacer * 5.5, // 88px
+  14: $spacer * 4,   // 64px
+  15: $spacer * 2.25,// 36px
+  16: $spacer * 5.375,// 86px
+  17: $spacer * 3,   // 48px
+  18: $spacer * 5,   // 80px
+  19: $spacer * 8.125,// 130px
 ) !default;
+
 // scss-docs-end spacer-variables-maps
 
 // Position

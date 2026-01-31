@@ -17,7 +17,7 @@ function Cart() {
     return (
         <>
             <Header />
-            <div className="bg-neutral-300 cart-body">
+            <main className="bg-neutral-300 cart-body">
                 <div className="cart-main">
                     <ol
                         className="stepper mx-auto d-flex justify-content-center align-items-center"
@@ -714,7 +714,7 @@ function Cart() {
                         <button type="button" className="btn-primary-text w-100">前往結帳</button>
                     </div>
                 </div>
-            </div>
+            </main>
             <Footer />
         </>
     )
