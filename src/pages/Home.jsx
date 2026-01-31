@@ -31,8 +31,7 @@ function Home() {
                 告別選擇困難，甜點人生更輕鬆
               </h2>
               <p className="slogan-subtitle">
-                <span className="text-primary-600">一盒甜</span>
-                幫你安排一場好吃又不膩的甜點旅程
+                <span className="text-primary-600">一盒甜</span> 幫你安排一場好吃又不膩的甜點旅程
               </p>
             </div>
             <a href="theme.html" className="btn-primary-icon">

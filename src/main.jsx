@@ -1,15 +1,11 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
+import routes from './routes/index.jsx'
 import './assets/scss/all.scss'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
-import App from './App.jsx'
 
+const router = createHashRouter(routes)
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter basename="/sweetbox-react">
-      <App />
-    </BrowserRouter>
-  </StrictMode>
+  <RouterProvider router={router} />,
 )
