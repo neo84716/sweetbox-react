@@ -35,14 +35,14 @@
 }
 
 .service-icon {
-  background-image: url("./images/icon/customer_service_outline.svg");
+  background-image: url("/images/icon/customer_service_outline.svg");
 
   &:hover {
-    background-image: url("./images/icon/customer_service_hover.svg");
+    background-image: url("/images/icon/customer_service_hover.svg");
   }
   &:active,
   &.active {
-    background-image: url("./images/icon/customer_service_selected.svg");
+    background-image: url("/images/icon/customer_service_selected.svg");
     &::after {
       @include icon-underline;
     }
@@ -50,21 +50,21 @@
 }
 
 .cart-icon {
-  background-image: url("./images/icon/cart_outline.svg");
+  background-image: url("/images/icon/cart_outline.svg");
 
   &:hover {
-    background-image: url("./images/icon/cart_hover.svg");
+    background-image: url("/images/icon/cart_hover.svg");
   }
   &:active,
   &.active {
-    background-image: url("./images/icon/cart_selected.svg");
+    background-image: url("/images/icon/cart_selected.svg");
     &::after {
       @include icon-underline;
     }
   }
   &.has-items {
     &.active {
-      background-image: url("./images/icon/cart_hover.svg");
+      background-image: url("/images/icon/cart_hover.svg");
       &::after {
         content: none;
       }
@@ -73,7 +73,7 @@
       content: "";
       width: 20px;
       height: 20px;
-      background-image: url("./images/icon/cart_badge.svg");
+      background-image: url("/images/icon/cart_badge.svg");
       background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
