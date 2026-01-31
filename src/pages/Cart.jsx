@@ -16,7 +16,6 @@ function Cart() {
     console.log(data);
     return (
         <>
-            <Header />
             <main className="bg-neutral-300 cart-body">
                 <div className="cart-main">
                     <ol
@@ -715,7 +714,6 @@ function Cart() {
                     </div>
                 </div>
             </main>
-            <Footer />
         </>
     )
 }

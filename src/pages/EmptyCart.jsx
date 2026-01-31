@@ -4,7 +4,6 @@ import Footer from "../layouts/Footer"
 function EmptyCart() {
     return (
         <>
-            <Header />
             <main className="bg-neutral-300">
                 <div className="empty-cart-main bg-empty-cart">
                     <div className="container px-0">
@@ -25,7 +24,6 @@ function EmptyCart() {
                     </div>
                 </div>
             </main>
-            <Footer />
         </>
     )
 }

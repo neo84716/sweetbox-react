@@ -13,7 +13,6 @@ import Header from "../layouts/Header";
 function Home() {
   return (
     <>
-      <Header />
       {/* 隱藏超出的背景圖 */}
       <main className="main overflow-hidden">
         <section className="hero-banner bg-neutral-200">
@@ -2135,7 +2134,6 @@ function Home() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

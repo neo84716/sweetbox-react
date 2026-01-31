@@ -10,7 +10,6 @@ import 'swiper/css/pagination'
 function ThemeDetail() {
   return (
     <>
-      <Header />
       <main className="main overflow-hidden">
       {/* section1 主題menu + 訂閱方案 */} 
       <section className="position-relative">
@@ -1280,7 +1279,6 @@ function ThemeDetail() {
       </section>
 
       </main>
-      <Footer />
     </>
   )
 }

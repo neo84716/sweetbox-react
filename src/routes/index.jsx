@@ -31,8 +31,8 @@ const routes = [
                 element: <EmptyCart />
             },
             // {
-            //     path: "admin/products",
-            //     element: <AdminProducts />
+            //     path: "admin/subscribe",
+            //     element: <AdminSubscribe />
             // }
         ]
     }
