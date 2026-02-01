@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import Header from "../layouts/Header";
-import Footer from "../layouts/Footer";
 import api from "../api";
 
 

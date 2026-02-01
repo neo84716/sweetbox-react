@@ -1,5 +1,3 @@
-import Header from "../layouts/Header"
-import Footer from "../layouts/Footer"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination } from 'swiper/modules'
 import { Autoplay } from 'swiper/modules'
