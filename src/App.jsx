@@ -1,4 +1,4 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Footer from "./layouts/Footer";
 import Header from "./layouts/Header";
 function App() {

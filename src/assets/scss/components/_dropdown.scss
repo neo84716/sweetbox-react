@@ -1,5 +1,22 @@
+.dropdown .btn {
+  color: $neutral-600;
+
+  &.show {
+    color: $neutral-800;
+  }
+}
+
+.sub-dropdown {
+  color: $neutral-600;
+  position: relative; // 讓子元素定位基準在這裡
+  & .btn {
+    color: $neutral-600;
+  }
+}
+
 .dropdown-toggle {
   position: relative;
+
   &:hover {
     color: $primary-600;
   }
@@ -7,13 +24,17 @@
   &::after {
     display: none;
   }
+
   &-burger {
+
     &:active,
     &.selected {
       color: $primary-600;
     }
   }
+
   &-login {
+
     &:active,
     &.selected {
       &::before {
@@ -42,7 +63,7 @@
   &-avatar {
     width: 192px;
     background-color: rgba($neutral-100, 0.4);
-    
+
     &[data-bs-popper] {
       top: 72px;
       left: -40px;
@@ -53,22 +74,25 @@
     }
   }
 
-  &-burger {    
+  &-burger {
     &[data-bs-popper] {
       top: 72px;
       left: 0;
       right: 0;
     }
+
     &.show {
       display: flex;
       flex-direction: column;
       height: 85vh;
     }
+
     .dropdown-item {
       flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
+
       &-wrapper {
         flex: 1;
         display: flex;
@@ -102,6 +126,50 @@
     border-bottom: 1px solid $neutral-100;
   }
 }
+
+.dropdown-menu.sub-dropdown-menu {
+  background-color: $neutral-100;
+  padding: 0;
+  border: 0;
+  width: 100%;
+  min-width: unset;
+  margin-top: 8px !important;
+
+  .dropdown-btn {
+    color: $neutral-800;
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+    background: transparent;
+    border: none;
+    text-align: center;
+    cursor: pointer;
+
+    // 預設 hover/active → 直角
+    &:hover,
+    &.active {
+      background-color: $primary-100;
+      border-radius: 0;
+    }
+
+    // 第一個 → hover/active 保留上圓角
+    &:first-child,
+    &:first-child:hover,
+    &:first-child.active {
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+
+    // 最後一個 → hover/active 保留下圓角
+    &:last-child,
+    &:last-child:hover,
+    &:last-child.active {
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+  }
+}
+
 
 // Avatar 下拉選單
 .avatar-dropdown {
@@ -139,19 +207,20 @@
   border-radius: 8px;
   min-width: 104px;
   border: 0;
+
+  .dropdown-item {
+    padding: 12px 24px;
+    background-color: transparent;
+    margin: 0;
+
+    &.active {
+      background-color: $primary-200;
+      color: $neutral-800;
+      border-radius: 8px;
+    }
+  }
 }
 
-.custom-dropdown .dropdown-item {
-  padding: 12px 24px;
-  background-color: transparent;
-  margin: 0;
-}
-
-.custom-dropdown .dropdown-item.active {
-  background-color: $primary-200;
-  color: $neutral-800;
-  border-radius: 8px;
-}
 
 // 方案下拉選單
 .plan-dropdown {
@@ -162,10 +231,12 @@
     color: $neutral-700;
     font-size: 14px;
     line-height: 21px;
+
     &:active {
       background-color: $neutral-300;
     }
   }
+
   .dropdown-menu {
     width: 137px;
     min-width: 0;
@@ -177,6 +248,7 @@
     line-height: 21px;
     border-radius: 12px;
     text-align: left;
+
     .dropdown-item {
       padding: 4px 8px;
     }

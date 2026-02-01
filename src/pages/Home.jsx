@@ -6,10 +6,6 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-import Footer from "../layouts/Footer";
-import Header from "../layouts/Header";
-
-
 function Home() {
   return (
     <>
