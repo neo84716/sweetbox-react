@@ -1,7 +1,8 @@
 .custom-table {
   // 移除 Bootstrap 預設背景，避免 hover 被覆蓋
   --bs-table-bg: transparent;
-
+  border-collapse: separate; // 讓間距生效
+  border-spacing: 0 8px; // 水平 0px，垂直 8px
   // 表頭 th 樣式
   thead th {
     color: $neutral-600; // text-neutral-600
@@ -20,8 +21,9 @@
   }
 
   // hover 整列效果
-  tbody tr {
+  tbody tr:not(.divider-row) {
     transition: background-color 0.3s ease; // 背景漸變動畫
+    height: 68px;
   }
 
   tbody tr:hover {

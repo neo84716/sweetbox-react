@@ -113,7 +113,7 @@ function Subscribe() {
                 </div>
 
                 {/* 表格 */}
-                <div className="p-6 bg-neutral-200 rounded-6">
+                <div className="p-6 bg-neutral-200 rounded-6 mb-8">
                     <table className="table table-borderless custom-table">
                         <thead>
                             <tr>
@@ -129,6 +129,48 @@ function Subscribe() {
                         <tbody>
                             <tr className="divider-row">
                                 <td colSpan="7"></td>
+                            </tr>
+                            <tr>
+                                <td className="text-center text-semantic-link">
+                                    <span className="order-id">SS03BA4756</span>
+                                </td>
+                                <td>manhhac8@gmail.com</td>
+                                <td className="text-center">3個月</td>
+                                <td className="text-center">季節限定甜點盒</td>
+                                <td className="text-center">
+                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                        <div className="progress sub-progress bg-neutral-400 mb-1" style={{ width: "120px" }} role="progressbar"
+                                            aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                            <div className="progress-bar" style={{ width: "75%" }}></div>
+                                        </div>
+                                        <span className="fs-8 fw-medium">2/3</span>
+                                    </div>
+                                </td>
+                                <td className="text-center">
+                                    <StatusButton status={status} onClick={toggleStatus} />
+                                </td>
+                                <td className="text-center">2025-12-01</td>
+                            </tr>
+                            <tr>
+                                <td className="text-center text-semantic-link">
+                                    <span className="order-id">SS03BA4756</span>
+                                </td>
+                                <td>manhhac8@gmail.com</td>
+                                <td className="text-center">3個月</td>
+                                <td className="text-center">季節限定甜點盒</td>
+                                <td className="text-center">
+                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                        <div className="progress sub-progress bg-neutral-400 mb-1" style={{ width: "120px" }} role="progressbar"
+                                            aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                            <div className="progress-bar" style={{ width: "75%" }}></div>
+                                        </div>
+                                        <span className="fs-8 fw-medium">2/3</span>
+                                    </div>
+                                </td>
+                                <td className="text-center">
+                                    <StatusButton status={status} onClick={toggleStatus} />
+                                </td>
+                                <td className="text-center">2025-12-01</td>
                             </tr>
                             <tr>
                                 <td className="text-center text-semantic-link">
