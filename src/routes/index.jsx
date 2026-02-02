@@ -5,6 +5,7 @@ import Home from "../pages/Home";
 import Theme from "../pages/Theme";
 import ThemeDetail from "../pages/ThemeDetail";
 import Subscribe from "../pages/admin/Subscribe";
+import SubscribeDetail from "../pages/admin/SubscribeDetail";
 
 const routes = [
     {
@@ -34,6 +35,10 @@ const routes = [
           {
             path: "admin/subscribe",
             element: <Subscribe />
+          },
+          {
+            path: "admin/subscribeDetail",
+            element: <SubscribeDetail />
           }
         ]
       }

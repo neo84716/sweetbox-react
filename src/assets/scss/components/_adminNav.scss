@@ -1,0 +1,12 @@
+.adminNav {
+  padding-top: 140px;
+  .adminNav-item {
+    padding: 20px 16px;
+    color: $neutral-700;
+    &:hover, &:active {
+      padding: 20px 16px 8px 16px;
+      color: $primary-600;
+      border-bottom: 2px solid $primary-600 ;
+    }
+  }
+}

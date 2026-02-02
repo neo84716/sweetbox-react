@@ -1,0 +1,100 @@
+:root {
+  --neutral-200 : #{$neutral-200};
+  --neutral-300 : #{$neutral-300};
+  --neutral-600 : #{$neutral-600};
+  --neutral-800 : #{$neutral-800};
+  --semantic-error : #{$semantic-error};
+}
+
+.backList {
+  &::before {
+    content: "";
+    background-image: url("/images/icon/chevron-left-svgrepo-com.svg");background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+}
+
+.orderID {
+  margin-top: 4.8px;
+  margin-bottom: 4.8px;
+}
+.orderStatusBtn {
+  padding: 3px 16px;
+  font-size: 12px;
+  border-radius: 100px;
+  line-height: 18px;
+}
+
+.orderCard {
+  background-color: $neutral-200;
+  border-radius: 24px;
+  &.orderCase, &.orderSchedule {
+    padding: 24px;
+  }
+  &.memberInfo {
+    padding: 24px 32px;
+  }
+  .caseTitle {
+    padding-bottom: 16px;
+    border-bottom: 1px solid $neutral-400;
+    margin-bottom: 14px;
+  }
+}
+
+
+.unprocessed table, .archived table{
+  --bs-table-bg: var(--neutral-200);
+  tbody tr:hover > * {
+    background-color: $neutral-300;
+  }
+  .orderID {
+    color: $semantic-link;
+  }
+  .payBadge {
+    width: 68px;
+    background-color: var(--neutral-300);
+    color: var(--neutral-800);
+
+    &.failed {
+      color: var(--semantic-error);
+      background-color: #F4E6E2;
+    }
+  }
+  .shipBadge {
+    display: inline-flex;
+    // align-items: center;
+    color: $neutral-800;
+    gap: 2.5px;
+
+    .shipText {
+      border-bottom: 1px dashed currentColor;
+      padding-bottom: 4px;
+    }
+
+    &.expanded .shipText {
+      border-bottom: none;
+    }
+
+    .chevron {
+      opacity: 0; //default狀態不會顯示，但是排版還是有站位
+
+      &.show {
+        opacity: 1; //用資料控制className要不要加上show來顯示chevron
+      }
+    }
+
+    &.expanded .chevron {
+      transform: rotate(180deg);
+    }
+
+    &.error {
+      color: var(--semantic-error);
+    }
+  }
+  .fileBadge {
+    padding: 9.5px 16px;
+    background-color: $neutral-800;
+    color: $neutral-100;
+  }
+}
