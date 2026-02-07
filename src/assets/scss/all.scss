@@ -16,6 +16,8 @@
 @import "./components/table";
 @import "./components/progress";
 @import "./components/adminNav";
+@import "./components/rangePicker";
+@import "./components/pagination";
 
 // Layout
 @import "./layout/header";
@@ -26,3 +28,4 @@
 @import "./pages/theme";
 @import "./pages/theme_detail";
 @import "./pages/admin/subscribeDetail";
+@import "./pages/admin/subscribe";
