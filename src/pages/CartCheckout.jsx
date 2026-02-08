@@ -1,7 +1,8 @@
+import { useState } from "react";
+import {Link} from "react-router-dom";
+import 'iconify-icon';
 import Header from "../layouts/Header";
 import Footer from "../layouts/Footer";
-import 'iconify-icon';
-import { useState } from "react";
 import taiwanData from "../assets/utils/taiwanDistricts.json";
 
 // 信用卡效期
@@ -103,7 +104,7 @@ function CartCheckout() {
                     <div
                         className="d-flex justify-content-between align-items-center mb-2 mb-lg-6">
                         <h1 className="cart-title p-3 py-lg-2 px-lg-4">填寫資料</h1>
-                        <a href="/Cart" className="btn py-3 px-4 px-lg-8 border-0 btn-shopping">返回購物車</a>
+                        <Link to="/cart" className="btn py-3 px-4 px-lg-8 border-0 btn-shopping">返回購物車</Link>
                     </div>
                     <div className="row mx-0 mx-sm-n3">
                         <div className="col-lg-8 px-0 px-lg-4 mb-2 mb-lg-0">
@@ -157,7 +158,7 @@ function CartCheckout() {
                                             id="shipping_phone"
                                             aria-label="收件者電話號碼"
                                             name="shipping_phone"
-                                            maxlength={10}
+                                            maxLength={10}
                                             onInput={(e) => {
                                                 e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
                                             }}
@@ -456,7 +457,7 @@ function CartCheckout() {
                                                 type="text"
                                                 className="form-control ps-1"
                                                 placeholder="例：/ABC1234"
-                                                maxlength={8}
+                                                maxLength={8}
                                                 id="invoice_carrier"
                                                 name="invoice_carrier"
                                             />

@@ -324,3 +324,25 @@
     background-color: $neutral-800;
   }
 }
+
+.status-btn {
+  padding: 3px 16px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &.unprocessed {
+    background-color: $primary-200;
+    color: $primary-600;
+    border: none;
+  }
+
+  &.processed {
+    background-color: $neutral-300;
+    color: $neutral-800;
+    border: none;
+
+  }
+}

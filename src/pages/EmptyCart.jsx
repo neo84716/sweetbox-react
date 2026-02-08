@@ -1,11 +1,7 @@
-import Header from "../layouts/Header"
-import Footer from "../layouts/Footer"
-
 function EmptyCart() {
     return (
         <>
-            <Header />
-            <div className="bg-neutral-300">
+            <main className="bg-neutral-300">
                 <div className="empty-cart-main bg-empty-cart">
                     <div className="container px-0">
                         <h1 className="cart-title p-3 py-lg-2 px-lg-4 cart-empty">購物車</h1>
@@ -24,8 +20,7 @@ function EmptyCart() {
                         </div>
                     </div>
                 </div>
-            </div>
-            <Footer />
+            </main>
         </>
     )
 }

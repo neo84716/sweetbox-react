@@ -3,6 +3,7 @@
 body {
   background-color: $neutral-200;
 }
+
 a {
   display: inline-block;
   color: inherit;
@@ -34,4 +35,9 @@ h4,
 h5,
 h6 {
   margin: 0;
+}
+
+input,
+input:focus {
+  outline: none;
 }

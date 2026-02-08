@@ -13,6 +13,11 @@
 @import "./components/font";
 @import "./components/nav-tab";
 @import "./components/card";
+@import "./components/table";
+@import "./components/progress";
+@import "./components/adminNav";
+@import "./components/rangePicker";
+@import "./components/pagination";
 
 // Layout
 @import "./layout/header";
@@ -22,4 +27,6 @@
 @import "./pages/index";
 @import "./pages/theme";
 @import "./pages/theme_detail";
-@import "./pages/cart"
+@import "./pages/cart";
+@import "./pages/admin/subscribeDetail";
+@import "./pages/admin/subscribe";

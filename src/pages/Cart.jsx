@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import Header from "../layouts/Header";
-import Footer from "../layouts/Footer";
 import api from "../api";
 
 
@@ -16,8 +14,7 @@ function Cart() {
     console.log(data);
     return (
         <>
-            <Header />
-            <div className="bg-neutral-300 cart-body">
+            <main className="bg-neutral-300 cart-body">
                 <div className="cart-main">
                     <ol
                         className="stepper mx-auto d-flex justify-content-center align-items-center"
@@ -714,8 +711,7 @@ function Cart() {
                         <button type="button" className="btn-primary-text w-100">前往結帳</button>
                     </div>
                 </div>
-            </div>
-            <Footer />
+            </main>
         </>
     )
 }

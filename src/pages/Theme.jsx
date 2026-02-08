@@ -1,10 +1,6 @@
-import Header from "../layouts/Header"
-import Footer from "../layouts/Footer"
-
 function Theme() {
     return (
         <>
-            <Header />
             <main className="main overflow-hidden">
                 <section className="theme-banner bg-neutral-200">
                     <picture>
@@ -152,7 +148,6 @@ function Theme() {
 
                 </section>
             </main>
-            <Footer />
             {/* <script type="module" src="../main.js"></script> */}
         </>
     )

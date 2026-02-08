@@ -1,5 +1,3 @@
-import Header from "../layouts/Header"
-import Footer from "../layouts/Footer"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination } from 'swiper/modules'
 import { Autoplay } from 'swiper/modules'
@@ -10,7 +8,6 @@ import 'swiper/css/pagination'
 function ThemeDetail() {
   return (
     <>
-      <Header />
       <main className="main overflow-hidden">
       {/* section1 主題menu + 訂閱方案 */} 
       <section className="position-relative">
@@ -1280,7 +1277,6 @@ function ThemeDetail() {
       </section>
 
       </main>
-      <Footer />
     </>
   )
 }

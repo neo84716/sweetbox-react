@@ -1,0 +1,62 @@
+.custom-table {
+  // 移除 Bootstrap 預設背景，避免 hover 被覆蓋
+  --bs-table-bg: transparent;
+  border-collapse: separate; // 讓間距生效
+  border-spacing: 0 8px; // 水平 0px，垂直 8px
+  // 表頭 th 樣式
+  thead th {
+    color: $neutral-600; // text-neutral-600
+    font-weight: 700; // fw-700
+    font-size: 14px; // fs-8 (假設 fs-8 = 14px)
+    padding: 4px 16px; // py-1 px-4
+  }
+
+  // 表身 td 樣式
+  tbody td {
+    color: $neutral-800;
+    font-size: 14px;
+    padding-left: 16px;
+    padding-right: 16px;
+    vertical-align: middle;
+  }
+
+  // hover 整列效果
+  tbody tr:not(.divider-row) {
+    transition: background-color 0.3s ease; // 背景漸變動畫
+    height: 68px;
+  }
+
+  tbody tr:hover {
+    background-color: $neutral-300; // hover 背景色
+    cursor: pointer;
+  }
+
+  // 訂單編號欄位動畫：置中 → 靠左
+  tbody td.text-semantic-link .order-id {
+    display: inline-block; // 讓 transform 生效
+    text-align: center; // 初始置中
+    transition: all 0.3s ease; // 平滑過渡
+  }
+
+  tbody tr:hover td.text-semantic-link .order-id {
+    transform: translateX(-28px); // 往左移 40px，留一點空間
+    }
+
+  // 分隔線 row
+  .divider-row td {
+    height: 12px;
+    padding: 0;
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: $neutral-400;
+      transform: translateY(-50%);
+    }
+  }
+}

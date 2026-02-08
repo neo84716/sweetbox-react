@@ -6,14 +6,9 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-import Footer from "../layouts/Footer";
-import Header from "../layouts/Header";
-
-
 function Home() {
   return (
     <>
-      <Header />
       {/* 隱藏超出的背景圖 */}
       <main className="main overflow-hidden">
         <section className="hero-banner bg-neutral-200">
@@ -31,8 +26,7 @@ function Home() {
                 告別選擇困難，甜點人生更輕鬆
               </h2>
               <p className="slogan-subtitle">
-                <span className="text-primary-600">一盒甜</span>
-                幫你安排一場好吃又不膩的甜點旅程
+                <span className="text-primary-600">一盒甜</span> 幫你安排一場好吃又不膩的甜點旅程
               </p>
             </div>
             <a href="theme.html" className="btn-primary-icon">
@@ -2136,7 +2130,6 @@ function Home() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

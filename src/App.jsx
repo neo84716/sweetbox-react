@@ -1,23 +1,14 @@
-import { Routes, Route } from "react-router-dom";
-import Cart from "./pages/Cart"
-import Theme  from "./pages/Theme"
-import EmptyCart from "./pages/EmptyCart";
-import ThemeDetail from "./pages/ThemeDetail";
-import Home from "./pages/Home";
-import CartCheckout from "./pages/CartCheckout";
-
-
+import { Outlet } from "react-router-dom";
+import Footer from "./layouts/Footer";
+import Header from "./layouts/Header";
 function App() {
 
   return (
-      <Routes>
-        <Route path="/" element={<Home />}></Route>
-        <Route path="/Cart" element={<Cart />} />
-        <Route path="/Theme" element={<Theme />}/>
-        <Route path="/EmptyCart" element={<EmptyCart />}/>
-        <Route path="/CartCheckout" element={<CartCheckout/>}/>
-        <Route path="/ThemeDetail" element={<ThemeDetail />}/>
-      </Routes>
+    <div>
+      <Header />
+      <Outlet />
+      <Footer />
+    </div>
   )
 }
 
