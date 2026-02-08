@@ -4,6 +4,8 @@ import Theme  from "./pages/Theme"
 import EmptyCart from "./pages/EmptyCart";
 import ThemeDetail from "./pages/ThemeDetail";
 import Home from "./pages/Home";
+import CartCheckout from "./pages/CartCheckout";
+
 
 function App() {
 
@@ -13,6 +15,7 @@ function App() {
         <Route path="/Cart" element={<Cart />} />
         <Route path="/Theme" element={<Theme />}/>
         <Route path="/EmptyCart" element={<EmptyCart />}/>
+        <Route path="/CartCheckout" element={<CartCheckout/>}/>
         <Route path="/ThemeDetail" element={<ThemeDetail />}/>
       </Routes>
   )

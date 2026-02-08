@@ -198,7 +198,7 @@
   color: $neutral-800;
 
   &:hover {
-    color: $primary-600;
+    color: $primary-600; 
   }
 
   &:active {
@@ -302,5 +302,25 @@
 .btn-shopping {
   &:hover {
     color: $primary-600;
+  }
+}
+
+// 購物車>訂單備註
+.btn-chip {
+  font-size: 14px;
+  padding: 8px 12px 8px 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  border-radius: 100px;
+  background-color: $neutral-300;
+
+  &:hover {
+    background-color: $neutral-400;
+  }
+
+  &:active, &.active {
+    color: $neutral-100;
+    background-color: $neutral-800;
   }
 }

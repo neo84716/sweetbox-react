@@ -588,8 +588,8 @@ function Cart() {
                             </div>
                             <div className="col-lg-4 px-0 px-lg-3">
                                 <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
-                                    <h2 className="cart-right-title mb-3 mb-lg-6">優惠代碼</h2>
-                                    <div className="input-group input-discount">
+                                    <h2 className="cart-section-title mb-3 mb-lg-6">優惠代碼</h2>
+                                    <div className="input-group form-group-outline">
                                         <span className="input-group-text ps-2 my-2 ms-2">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -623,8 +623,8 @@ function Cart() {
                                         <svg
                                             className="me-2"
                                             xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
+                                            width="16"
+                                            height="16"
                                             viewBox="0 0 24 24"
                                         >
                                             <path
@@ -638,7 +638,7 @@ function Cart() {
                                     </div>
                                 </section>
                                 <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
-                                    <h2 className="cart-right-title mb-3 mb-lg-6">訂單資料</h2>
+                                    <h2 className="cart-section-title mb-3 mb-lg-6">訂單資料</h2>
                                     <div className="px-2 px-lg-0 mb-0 mb-sm-6">
                                         <p className="lh-base mb-2">共 9 件商品</p>
                                         <ul className="ps-4 subscription-list mb-6">
