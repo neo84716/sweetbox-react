@@ -39,7 +39,7 @@
     &:active,
     &.selected {
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         bottom: 4px;
         width: 64px;
@@ -266,6 +266,56 @@
 
     .dropdown-item {
       padding: 4px 8px;
+    }
+  }
+}
+
+//購物車資料 dropdown
+.cart-dropdown {
+  .btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 16px !important;
+  }
+  .custom-dropdown {
+    padding: 4px;
+    background-color: $neutral-100;
+    backdrop-filter: none;
+    border-radius: 16px;
+    width: 100%;
+    border: 1px solid $neutral-100;
+    overflow: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-shadow:
+      0 4px 6px -4px rgb(0 0 0 / 0.1),
+      0 10px 15px -3px rgb(0 0 0 / 0.1);
+      
+    li{
+      &:first-child .dropdown-item{
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+      }
+
+      &:last-child .dropdown-item{
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+      }
+    }
+
+    .dropdown-item {
+      padding: 16px;
+      background-color: transparent;
+      margin: 0;
+      font-size: 14px;
+      border-radius: unset;
+      text-align:left;
+      
+      &.active,
+      &:active {
+        background-color: $neutral-300;
+        color: $neutral-800;
+      }
     }
   }
 }
