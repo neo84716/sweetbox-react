@@ -1,6 +1,10 @@
 import React from "react"
-import AdminNav from "../../layouts/AdminNav"
-import CircleProgress from "../../layouts/CircleProgress"
+import AdminNav from "../../components/AdminNav"
+import CircleProgress from "../../components/CircleProgress"
+import { Icon } from "@iconify/react";
+import PayStatusBadge, {PAYSTATUS} from "../../components/PayStatusBadge";
+import ShipDate from "../../components/ShipDate";
+import ShipStatus from "../../components/ShipStatus";
 const { useState } = React
 
 function SubscribeDetail() {
@@ -11,7 +15,7 @@ function SubscribeDetail() {
       price: '$675',
       payDate: '2026-04-05',
       payStatus: 'failed',
-      shipStatus: 'error',
+      shipStatus: 'failed',
       shipDate: '-',
       operate: '歸檔',
       isEditable: false,
@@ -28,11 +32,50 @@ function SubscribeDetail() {
       operate: '歸檔',
       isEditable: true,
       isArchieved: false
+    },
+    {
+      orderID: 'SS12G2H23603',
+      period: 3,
+      price: '$675',
+      payDate: '2026-03-05',
+      payStatus: 'paid',
+      shipStatus: '-',
+      shipDate: '-',
+      operate: '歸檔',
+      isEditable: true,
+      isArchieved: false
+    }
+  ]
+  const archievedData = [
+    {
+      orderID: 'SS12G2H23604',
+      period: 4,
+      price: '$675',
+      payDate: '2026-04-05',
+      payStatus: 'paid',
+      shipStatus: 'shipped',
+      shipDate: '2026-04-05',
+      operate: '歸檔',
+      isEditable: false,
+      isArchieved: true
+    },
+    {
+      orderID: 'SS12G2H23603',
+      period: 3,
+      price: '$675',
+      payDate: '2026-03-05',
+      payStatus: 'paid',
+      shipStatus: 'shipped',
+      shipDate: '2026-03-05',
+      operate: '歸檔',
+      isEditable: false,
+      isArchieved: true
     }
   ]
   const [hoverId, setHoverId] = useState(null)
   const [openOrderId, setOpenOrderId] = useState(null)
   const [openDateOrderId, setOpenDateOrderId] = useState(null)
+  // const [payStatus, setPayStatus] = useState(PayStatusOptions.DEFAULT)
   const ChevronDownIcon = () => (
     <svg
       width="16"
@@ -54,37 +97,38 @@ function SubscribeDetail() {
     <>
       
       <main className="main overflow-hidden bg-neutral-300">
-        <div className="container mb-11">
+        <div className="container mt-11">
           <AdminNav />
-          <section className="mb-8">
-          <div className="d-flex align-items-center p-3">
-            <div className="d-flex justify-content-center align-items-center">
-              {/* <svg 
-                width="16" 
-                height="16" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-                className="me-1"
-              >
-                <path 
-                  d="M15 18L9 12L15 6" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                />
-              </svg> */}
+          {/* 訂單編號 */}
+          <section className="mb-8 d-none d-lg-block">
+            <div className="d-flex align-items-center p-3">
+              <Icon icon={"material-symbols:chevron-left"} className="me-1"/>
               <p className="backList neutral-800 fs-8">返回列表</p>
             </div>
-          </div>
-          <div className="d-flex">
-            <p className="orderID fs-2 me-3">SS12G2H236</p>
-            <button type="button" className="orderStatusBtn btn  bg-primary-200 text-primary-600">
-              未處理
-            </button>
-          </div>
+            <div className="d-flex align-items-center">
+              <p className="fs-2 fw-bold me-3 orderID">SS12G2H236</p>
+              <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
+                未處理
+              </button>
+            </div>
           </section>
+          {/* 訂單編號 - mobile */}
+          <div className="order-mobile d-block d-lg-none d-flex align-items-center">
+            <div className="icon me-2">
+              <Icon icon={"material-symbols:chevron-left"} width={"22px"}/>
+            </div>
+            <div className="order-info d-flex justify-content-between align-items-center">
+              <div className="orderID">
+                <p className="fs-9 fw-bold mb-1 text-neutral-600 orderID">訂單編號</p>
+                <p className="fs-2 fw-bold me-3 orderID">SS12G2H236</p>
+              </div>
+              <div className="order-status">
+                <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
+                未處理
+              </button>
+              </div>
+            </div>
+          </div>
           <section className="">
             <div className="d-flex align-items-stretch gap-2 mb-6">
               {/* 訂閱方案 */}
@@ -155,6 +199,7 @@ function SubscribeDetail() {
             </div>
 
           </section>
+          {/* 未處理訂單 */}
           <section className="unprocessed bg-neutral-200 rounded-6 mb-6">
             <div className="p-6">
               <p className="mb-2 fw-bold text-neutral-800">
@@ -179,56 +224,21 @@ function SubscribeDetail() {
                     orderData.map((item) => {
                       return (
                         <tr key={item.orderID}>
-                          <th scope="row" className="ps-4 fw-normal orderID">{item.orderID}</th>
+                          <th scope="row" className="ps-4 fw-normal text-semantic-link">{item.orderID}</th>
                           <td className="text-center fw-normal">{item.period}</td>
-                          <td className="text-center fw-normal">$675</td>
-                          <td className="text-center fw-normal">2026-04-05</td>
+                          <td className="text-center fw-normal">{item.price}</td>
+                          <td className="text-center fw-normal">{item.payDate}</td>
                           <td className="text-center fw-normal">
-                            <span className={`badge rounded-pill payBadge ${item.payStatus} fs-9`}>
-                              { item.payStatus === 'paid' ? '已付款' : '付款失敗'}
-                            </span>
+                            <PayStatusBadge currentStatus={item.payStatus}/>
                           </td>
                           <td className="text-center fw-normal">
-                            <div className={`shipBadge ${item.shipStatus} 
-                              ${openOrderId === item.orderID ? 'expanded' : ''}`}
-                              onMouseEnter={()=>setHoverId(item.orderID)}
-                              onMouseLeave={()=>setHoverId(null)}
-                              onClick={()=>setOpenOrderId(openOrderId === item.orderID ? null : item.orderID)}>
-                              <span className={`shipText ${item.shipStatus}`}>
-                                { item.shipStatus === 'error' ? '異常保留' : (item.shipStatus === 'shipped' ? '已出貨' : '未出貨')}
-                              </span>
-                              <span className={`chevron ${hoverId === item.orderID || openOrderId === item.orderID ? 'show' : ''}`}>
-                                <ChevronDownIcon />
-                              </span>
-                            </div>
-                            {openOrderId === item.orderID && (
-                              <ul className="shipDropdown">
-                                <li>未出貨</li>
-                                <li>已出貨</li>
-                              </ul>
-                            )}  
+                            <ShipStatus record={item} />  
                           </td>
                           <td className="text-center fw-normal">
-                            {/* disable 跟 archived 沒互動效果 */}
-                            {
-                              (!item.isEditable || item.isArchieved) && (
-                                <span className={`shipText ${!item.isArchieved ? 'archieved' : 'disable'}`}>{item.isArchieved ? item.shipDate : '-'}</span>
-                              )
-                            }
-                            {/* UI介面操作產生的狀態 default/expanded/selected */}
-                            {
-                              (item.isEditable && !item.isArchieved) && (
-                                <div className={`shipDateInput ${openDateOrderId === item.orderID ? 'expanded' : ''}`}
-                                  onClick={()=>{setOpenOrderId(openDateOrderId === item.orderID ? null : item.orderID)}}
-                                >
-                                  <span className={`${item.shipDate} === null ? 'noValue' : 'value'`}>{item.shipDate || '選擇日期'}</span>
-                                  <span className="calendarIcon"></span>
-                                </div>
-                              )
-                            }
+                            <ShipDate record={item}/>
                           </td>
                           <td className="text-center fw-normal">
-                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9`}>
+                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shipStatus === 'failed' ? "shipped-failed" : ""}`}>
                               {item.operate}
                             </span>
                           </td>
@@ -261,31 +271,20 @@ function SubscribeDetail() {
                 </thead>
                 <tbody>
                   {
-                    orderData.map((item) => {
+                    archievedData.map((item) => {
                       return (
                         <tr key={item.orderID}>
                           <th scope="row" className="ps-4 fw-normal orderID">{item.orderID}</th>
                           <td className="text-center fw-normal">{item.period}</td>
-                          <td className="text-center fw-normal">$675</td>
-                          <td className="text-center fw-normal">2026-04-05</td>
+                          <td className="text-center fw-normal">{item.price}</td>
+                          <td className="text-center fw-normal">{item.payDate}</td>
                           <td className="text-center fw-normal">
                             <span className={`badge rounded-pill payBadge ${item.payStatus} fs-9`}>
-                              '已付款'
+                              已付款
                             </span>
                           </td>
                           <td className="text-center fw-normal">
-                            <div className={`shipBadge ${item.shipStatus} 
-                              ${openOrderId === item.orderID ? 'expanded' : ''}`}
-                              onMouseEnter={()=>setHoverId(item.orderID)}
-                              onMouseLeave={()=>setHoverId(null)}
-                              onClick={()=>setOpenOrderId(openOrderId === item.orderID ? null : item.orderID)}>
-                              <span className={`shipText ${item.shipStatus}`}>
-                                '已出貨'
-                              </span>
-                              <span className={`chevron ${hoverId === item.orderID || openOrderId === item.orderID ? 'show' : ''}`}>
-                                <ChevronDownIcon />
-                              </span>
-                            </div>
+                            <ShipStatus record={item} />  
                           </td>
                           <td className="text-center fw-normal">
                             {/* disable 跟 archived 沒互動效果 */}

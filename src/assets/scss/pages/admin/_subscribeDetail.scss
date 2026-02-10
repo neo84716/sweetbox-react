@@ -16,14 +16,15 @@
 }
 
 .orderID {
-  margin-top: 4.8px;
-  margin-bottom: 4.8px;
+  line-height: 38.4px;
+  margin: 4.8px 12px 4.8px 8px;
+  letter-spacing: 0.1em;
 }
 .orderStatusBtn {
   padding: 3px 16px;
   font-size: 12px;
+  border: none;
   border-radius: 100px;
-  line-height: 18px;
 }
 
 .orderCard {
@@ -45,17 +46,23 @@
 
 .unprocessed table, .archived table{
   --bs-table-bg: var(--neutral-200);
-  tbody tr:hover > * {
-    background-color: $neutral-300;
+  tbody {
+    tr:hover > * {
+      background-color: $neutral-300;
+    }
+    th, td {
+      vertical-align: middle;
+    }
   }
   .orderID {
     color: $semantic-link;
   }
-  .payBadge {
+  .payStatusBadge {
     width: 68px;
     background-color: var(--neutral-300);
     color: var(--neutral-800);
-
+    border-radius: 100px;
+    border: none;
     &.failed {
       color: var(--semantic-error);
       background-color: #F4E6E2;
@@ -96,5 +103,216 @@
     padding: 9.5px 16px;
     background-color: $neutral-800;
     color: $neutral-100;
+    &.shipped-failed {
+      background-color: $neutral-300;
+      color: $neutral-500;
+    }
+  }
+}
+
+.sub-dropdown {
+  position: relative;
+  display: inline-block;
+  .ship-dropdown-menu {
+    min-width: unset;
+    width: 100%;
+    .dropdown-btn {
+      border: none;
+    }
+  }
+}
+
+// 出貨狀態
+// .shipStatusBtn {
+//   color: $neutral-800;
+//   padding: 4px 5.5px 4px 9.5px;
+//   .shipText, &.shipText {
+//     width: 65px;
+//     border-bottom: 2px dashed currentColor;
+//   }
+//   .shipStatusIcon {
+//     opacity: 0;
+//     &.show {
+//       opacity: 1;
+//       transition: 'opacity 0.2s'
+//     }
+//   }
+//   &.failed {
+//     color: $semantic-error;
+//   }
+// }
+.sub-dropdown {
+  position: relative;
+  .shipStatus-btn {
+    display: flex;
+    align-items: center;
+    gap: 2.5px;
+    color: $semantic-link;
+    .shipStatus-text {
+      width: 65px;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed currentColor;
+    }
+    .shipStatus-icon {
+      opacity: 0;
+      color: $neutral-800;
+    }
+    // 還沒被選過
+    &.is-empty:hover {
+      color: $neutral-800;
+      .shipStatus-text {
+        border-bottom: 1px solid currentColor;
+      }
+      .shipStatus-icon {
+        opacity: 1;
+        transition: opacity 0.2s ease;
+      }  
+    } 
+    &.is-selected {
+      .shipStatus-text {
+        color: $neutral-800;
+      }
+      &:hover {
+        .shipStatus-text {
+          border-bottom: 1px solid currentColor;
+        }
+      
+        .shipStatus-icon {
+          opacity: 1;
+          transition: opacity 0.2s ease;
+        }
+      }
+      &.show {
+        .shipStatus-text {
+          border: none;
+        }
+        .shipStatus-icon {
+          opacity: 1;
+          transition: opacity 0.2s ease;
+        }
+      }
+    }
+    
+    // 展開時 虛線不顯示
+    .is-open {
+      border: none !important;
+    }
+    // 異常保留
+    &.is-error {
+      color: $semantic-error;
+      .shipStatus-icon {
+        opacity: 0;
+      }
+    }
+    &.is-archieved {
+      .shipStatus-text {
+        border: none;
+      }
+    
+      .shipStatus-icon {
+        opacity: 0;
+      }
+    }
+    // 
+    // &:not(.is-archived):not(.is-open) {
+    //   .shipStatus-text {
+    //     width: 65px;
+    //     border-bottom: 1px dashed currentColor;
+    //   }
+
+    //   .shipStatus-icon {
+    //     opacity: 1;
+    //   }
+    // }
+    
+  }
+  .shipStatus-dropdown-menu {
+    min-width: unset;
+    width: 100%;
+    margin-top: 4px;
+    background-color: $neutral-100;
+    border-radius: 4px;
+    border: 2px solid $neutral-100;
+    .dropdown-btn {
+      width: 100%;
+      color: $neutral-800;
+      border: none;
+      background-color: transparent;
+      &:hover {
+        background-color: $primary-200;
+      }
+    }
+  }
+}
+
+// 出貨日期
+.shipDate-btn.btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+    background-color: $neutral-300;
+    border-radius: 100px;
+    padding: 8px 6px 8px 16px;
+  &:hover {
+    background-color: $neutral-400;
+  }
+  // &.is-error {
+  //   .shipDate-icon {
+  //     display: none;
+  //   }
+  // }
+}
+.shipDate-wrapper {
+  position: relative;
+  .datePicker{
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+.shipDate-picker-popup.ant-picker-dropdown {
+  .ant-picker-cell-selected .ant-picker-cell-inner,
+  .ant-picker-cell-range-start .ant-picker-cell-inner,
+  .ant-picker-cell-range-end .ant-picker-cell-inner {
+    background-color: $primary-600;
+    color: #fff;
+  }
+
+  .ant-picker-cell-inner:hover {
+    border: 1px solid $primary-600;
+  }
+
+  .ant-picker-cell-today .ant-picker-cell-inner::before {
+    border-color: $primary-600;
+  }
+
+  .ant-picker-today-btn {
+    color: $primary-600;
+  }
+}
+
+
+
+.archived {
+  .badge {
+    width: 68px;
+    color: $neutral-800;
+    background-color: $neutral-300;
+    border-radius: 100px;
+    font-weight: 400;
+    font-size: 12px;
+  }
+}
+
+
+// 手機板訂單編號
+.order-mobile {
+  margin: 0 auto;
+  .icon {
+    width: 44px;
+    height: 44px;
+    padding: 11px;
   }
 }
