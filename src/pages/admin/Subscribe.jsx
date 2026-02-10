@@ -6,7 +6,7 @@ import StatusButton, { STATUS } from "../../components/StatusButton";
 import React from 'react';
 import { DatePicker, Button } from 'antd';
 import Pagination from "../../components/Pagination";
-import AdminNav from "../../layouts/AdminNav"
+import AdminNav from "../../components/AdminNav"
 const { RangePicker } = DatePicker;
 
 function Subscribe() {
@@ -46,43 +46,7 @@ function Subscribe() {
             {/* 桌面板 */}
             <main className="bg-neutral-300 overflow-hidden d-lg-block d-none">
                 <div className="container mt-11">
-                    <ul className="nav d-flex side-menu mb-6">
-                        <li className="nav-item">
-                            <Link className="nav-link d-flex align-items-center" to="/admin/order">
-                                <span className="underline">訂單管理</span>
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link d-flex align-items-center" to="/admin/theme">
-                                <span className="underline">主題管理</span>
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link
-                                className="nav-link d-flex align-items-center active"
-                                aria-current="page"
-                                to="/admin/subscribe"
-                            >
-                                <span className="underline">訂閱管理</span>
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link d-flex align-items-center" to="/admin/comment">
-                                <span className="underline">評論管理</span>
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link d-flex align-items-center" to="/admin/service">
-                                <span className="underline">客服管理</span>
-                            </Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link d-flex align-items-center" to="/admin/coupon">
-                                <span className="underline">優惠管理</span>
-                            </Link>
-                        </li>
-                    </ul>
-
+                    <AdminNav />
                     <h1 className="fs-2 fw-bold ls-1 lh-sm mb-6">訂閱管理</h1>
                     {/* 搜尋 + 篩選 */}
                     <div className="d-flex align-items-center column-gap-3 mb-4">
@@ -234,7 +198,10 @@ function Subscribe() {
 
             {/* 手機板 */}
             <main className="bg-neutral-300 overflow-hidden d-block d-lg-none">
+                <div className="mt-11">
                 <AdminNav />
+                </div>
+                
                 <div className="container px-3 py-4 mb-17">
                     <div className="d-flex gap-2 mb-4">
                         <div className="d-flex align-items-center position-relative w-100">
