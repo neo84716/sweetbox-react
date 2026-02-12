@@ -6,6 +6,9 @@
 // Color system
 $neutral-100: #fdfcf9; //custom
 $neutral-200: #faf6f0; //custom
+$neutral-225: #E8E6E4; //custom
+$neutral-230: #E6EAE3; //custom
+$neutral-240: #F4E6E2; //custom
 $neutral-250: #f5f1eb; //custom
 $neutral-300: #f0ebe4; //custom
 $neutral-400: #e3ddd7; //custom
@@ -345,6 +348,12 @@ $theme-colors: (
   //custom
   "neutral-200": $neutral-200,
   //custom
+  "neutral-225": $neutral-225,
+  //custom
+  "neutral-230": $neutral-230,
+  //custom
+  "neutral-240": $neutral-240,
+  //custom
   "neutral-250": $neutral-250,
   //custom
   "neutral-300": $neutral-300,
@@ -524,6 +533,7 @@ $spacers: (
   17: $spacer * 3,   // 48px
   18: $spacer * 5,   // 80px
   19: $spacer * 8.125,// 130px
+  20: $spacer * 4.25,// 68px
 ) !default;
 
 // scss-docs-end spacer-variables-maps
@@ -779,7 +789,8 @@ $font-sizes: (
 $headings-margin-bottom: $spacer * 0.5 !default;
 $headings-font-family: null !default;
 $headings-font-style: null !default;
-$headings-font-weight: 500 !default;
+$headings-font-weight: 700 !default;
+// $headings-font-weight: 500 !default;
 $headings-line-height: 1.2 !default;
 $headings-color: inherit !default;
 // scss-docs-end headings-variables
@@ -912,6 +923,7 @@ $table-variants: (
   "danger": shift-color($danger, $table-bg-scale),
   "light": $light,
   "dark": $dark,
+  "neutral-200": $neutral-200 // custom
 ) !default;
 // scss-docs-end table-loop
 
@@ -1418,7 +1430,8 @@ $navbar-dark-brand-hover-color: $navbar-dark-active-color !default;
 // Dropdown menu container and contents.
 
 // scss-docs-start dropdown-variables
-$dropdown-min-width: 10rem !default;
+$dropdown-min-width: 100% !default;
+// $dropdown-min-width: 10rem !default;
 $dropdown-padding-x: 0 !default;
 $dropdown-padding-y: 0.5rem !default;
 $dropdown-spacer: 0.125rem !default;

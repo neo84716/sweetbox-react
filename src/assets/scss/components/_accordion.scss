@@ -1,0 +1,13 @@
+.accordion.card-accordion {
+  .accordion-button {
+    padding: 0;
+    border-bottom: 0;
+    
+    &.collapsed,
+    &:not(.collapsed) {
+      background: transparent;
+      box-shadow: none;
+      border-bottom: none;
+    }
+  }
+}
