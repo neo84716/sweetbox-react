@@ -1,3 +1,25 @@
+.nav-subscription {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+
+  @media (min-width: 768px) {
+    flex-wrap: wrap;
+    overflow-x: unset;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    flex: 0 0 auto;
+    font-size: 14px;
+    @media (min-width: 576px) {
+      font-size: 16px;
+    }
+  }
+}
+
 .nav-link {
   padding: 16px 20px;
   &:hover {

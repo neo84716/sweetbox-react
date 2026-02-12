@@ -3,6 +3,7 @@ import Cart from "../pages/Cart";
 import CartCheckout from "../pages/CartCheckout";
 import EmptyCart from "../pages/EmptyCart";
 import Home from "../pages/Home";
+import Subscription from "../pages/Subscription";
 import Theme from "../pages/Theme";
 import ThemeDetail from "../pages/ThemeDetail";
 import Subscribe from "../pages/admin/Subscribe";
@@ -34,6 +35,10 @@ const routes = [
         element: <EmptyCart />
       },
       {
+        path: "subscription",
+        element: <Subscription />
+      },
+      {
         path: "admin/subscribe",
         element: <Subscribe />
       },
@@ -47,7 +52,6 @@ const routes = [
       }
     ]
   }
-
 ];
 
 export default routes;

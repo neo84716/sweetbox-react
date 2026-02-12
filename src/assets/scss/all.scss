@@ -18,6 +18,8 @@
 @import "./components/adminNav";
 @import "./components/rangePicker";
 @import "./components/pagination";
+@import "./components/accordion";
+@import "./components/badge";
 
 // Layout
 @import "./layout/header";
@@ -28,5 +30,6 @@
 @import "./pages/theme";
 @import "./pages/theme_detail";
 @import "./pages/cart";
+@import "./pages/subscription";
 @import "./pages/admin/subscribeDetail";
 @import "./pages/admin/subscribe";
