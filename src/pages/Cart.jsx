@@ -6,7 +6,7 @@ function Cart() {
     const [data,setData] = useState([]);
 
     useEffect(()=>{
-        api.get("/posts")
+        api.get("/project")
         .then(res => setData(res.data))
         .catch(err => console.log(err))
     },[]);

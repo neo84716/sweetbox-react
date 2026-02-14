@@ -1,16 +1,16 @@
-import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import DropdownComponent from "../../components/DropdownComponent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StatusButton, { STATUS } from "../../components/StatusButton";
 import React from 'react';
 import { DatePicker, Button } from 'antd';
 import Pagination from "../../components/Pagination";
 import AdminNav from "../../components/AdminNav"
+import api from "../../api";
+
 const { RangePicker } = DatePicker;
 
 function Subscribe() {
-    const [status, setStatus] = useState(STATUS.UNPROCESSED); const toggleStatus = () => { setStatus(status === STATUS.UNPROCESSED ? STATUS.PROCESSED : STATUS.UNPROCESSED); };
     const [planFilter, setPlanFilter] = useState("plan_all");
     const [themeFilter, setThemeFilter] = useState("theme_all");
     const [statusFilter, setStatusFilter] = useState("status_all");
@@ -40,7 +40,33 @@ function Subscribe() {
         { label: "篩選條件", value: "filter_mode" },
         { label: "匯出資料", value: "export_mode" },
     ]
+    const [subData, setSubData] = useState([]);
+    const [subscriptionOrders, setSubscriptionOrders] = useState([]);
 
+
+    useEffect(() => {
+        api.get("/subscriptions")
+            .then(res => {
+                console.log("subscriptions:", res.data); // 加 log
+                setSubData(res.data);
+            })
+            .catch(err => console.log("subscriptions error:", err));
+
+        api.get("/subscription_orders")
+            .then(res => {
+                console.log("subscription_orders:", res.data); // 加 log
+                setSubscriptionOrders(res.data);
+            })
+            .catch(err => console.log("subscription_orders error:", err));
+    }, []);
+
+
+    const toggleStatus = (id) => {
+        setSubData(prev => prev.map(item => item.id === id ? {
+            ...item, is_processed: !item.is_processed
+        } : item
+        ));
+    }
     return (
         <>
             {/* 桌面板 */}
@@ -111,7 +137,7 @@ function Subscribe() {
                         <table className="table table-borderless custom-table">
                             <thead>
                                 <tr>
-                                    <th scope="col">訂單編號</th>
+                                    <th scope="col" >訂單編號</th>
                                     <th scope="col" className="text-center">Email</th>
                                     <th scope="col" className="text-center">訂閱方案</th>
                                     <th scope="col" className="text-center">訂閱主題</th>
@@ -124,69 +150,57 @@ function Subscribe() {
                                 <tr className="divider-row">
                                     <td colSpan="7"></td>
                                 </tr>
-                                <tr>
-                                    <td className="text-center text-semantic-link">
-                                        <span className="order-id">SS03BA4756</span>
-                                    </td>
-                                    <td>manhhac8@gmail.com</td>
-                                    <td className="text-center">3個月</td>
-                                    <td className="text-center">季節限定甜點盒</td>
-                                    <td className="text-center">
-                                        <div className="d-flex flex-column justify-content-center align-items-center">
-                                            <div className="progress sub-progress bg-neutral-400 mb-1" style={{ width: "120px" }} role="progressbar"
-                                                aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                                <div className="progress-bar" style={{ width: "75%" }}></div>
-                                            </div>
-                                            <span className="fs-8 fw-medium">2/3</span>
-                                        </div>
-                                    </td>
-                                    <td className="text-center">
-                                        <StatusButton status={status} onClick={toggleStatus} />
-                                    </td>
-                                    <td className="text-center">2025-12-01</td>
-                                </tr>
-                                <tr>
-                                    <td className="text-center text-semantic-link">
-                                        <span className="order-id">SS03BA4756</span>
-                                    </td>
-                                    <td>manhhac8@gmail.com</td>
-                                    <td className="text-center">3個月</td>
-                                    <td className="text-center">季節限定甜點盒</td>
-                                    <td className="text-center">
-                                        <div className="d-flex flex-column justify-content-center align-items-center">
-                                            <div className="progress sub-progress bg-neutral-400 mb-1" style={{ width: "120px" }} role="progressbar"
-                                                aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                                <div className="progress-bar" style={{ width: "75%" }}></div>
-                                            </div>
-                                            <span className="fs-8 fw-medium">2/3</span>
-                                        </div>
-                                    </td>
-                                    <td className="text-center">
-                                        <StatusButton status={status} onClick={toggleStatus} />
-                                    </td>
-                                    <td className="text-center">2025-12-01</td>
-                                </tr>
-                                <tr>
-                                    <td className="text-center text-semantic-link">
-                                        <span className="order-id">SS03BA4756</span>
-                                    </td>
-                                    <td>manhhac8@gmail.com</td>
-                                    <td className="text-center">3個月</td>
-                                    <td className="text-center">季節限定甜點盒</td>
-                                    <td className="text-center">
-                                        <div className="d-flex flex-column justify-content-center align-items-center">
-                                            <div className="progress sub-progress bg-neutral-400 mb-1" style={{ width: "120px" }} role="progressbar"
-                                                aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                                <div className="progress-bar" style={{ width: "75%" }}></div>
-                                            </div>
-                                            <span className="fs-8 fw-medium">2/3</span>
-                                        </div>
-                                    </td>
-                                    <td className="text-center">
-                                        <StatusButton status={status} onClick={toggleStatus} />
-                                    </td>
-                                    <td className="text-center">2025-12-01</td>
-                                </tr>
+                                {subData.map((item) => {
+                                    // 計算 subscription_orders 裡相同 subscription_no 的數量
+                                    const orderCount = subscriptionOrders.filter(
+                                        order => order.subscription_no === item.subscription_no
+                                    ).length;
+
+                                    // 計算進度百分比
+                                    const progressPercent = Math.round((orderCount / item.duration_months) * 100);
+
+                                    return (
+                                        <tr key={item.id}>
+                                            <td className="text-start text-semantic-link">
+                                                <span className="order-id">{item.subscription_no}</span>
+                                            </td>
+                                            <td>{item.shipping.email}</td>
+                                            <td className="text-center">{item.duration_months}個月</td>
+                                            <td className="text-center">{item.theme_name}</td>
+                                            <td className="text-center">
+                                                <div className="d-flex flex-column justify-content-center align-items-center">
+                                                    <div
+                                                        className="progress sub-progress bg-neutral-400 mb-1"
+                                                        style={{ width: "120px" }}
+                                                        role="progressbar"
+                                                        aria-label="Basic example"
+                                                        aria-valuenow={progressPercent}
+                                                        aria-valuemin="0"
+                                                        aria-valuemax="100"
+                                                    >
+                                                        <div
+                                                            className="progress-bar"
+                                                            style={{ width: `${progressPercent}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="fs-8 fw-medium">
+                                                        {orderCount}/{item.duration_months}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="text-center">
+                                                <StatusButton
+                                                    status={item.is_processed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
+                                                    onClick={() => toggleStatus(item.id)}
+                                                    variant="desktop"
+                                                />
+
+                                            </td>
+                                            <td className="text-center">{item.start_date}</td>
+                                        </tr>
+                                    );
+                                })}
+
                             </tbody>
                         </table>
                     </div>
@@ -199,9 +213,9 @@ function Subscribe() {
             {/* 手機板 */}
             <main className="bg-neutral-300 overflow-hidden d-block d-lg-none">
                 <div className="mt-11">
-                <AdminNav />
+                    <AdminNav />
                 </div>
-                
+
                 <div className="container px-3 py-4 mb-17">
                     <div className="d-flex gap-2 mb-4">
                         <div className="d-flex align-items-center position-relative w-100">
@@ -225,56 +239,73 @@ function Subscribe() {
                             menuWidth={84}
                         />
                     </div>
-                    <div className="p-6 bg-neutral-200 rounded-5">
-                        <div className="d-flex mb-6">
-                            <div className="flex-fill">
-                                <h3 className="text-neutral-600 fw-bold fs-9 mb-1">訂單編號</h3>
-                                <p className="text-neutral-800 fw-bold fs-5 ls-1">SS066T7W9</p>
-                            </div>
-                            <div className="flex-fill d-flex justify-content-end align-items-end">
-                                <div className="rounded-pill bg-primary-200 px-4 py-1">
-                                    <p className="text-primary-600 fs-9">未處裡</p>
-                                </div>
-                            </div>
-                        </div>
-                        {/* 線條 */}
-                        <div className="divider mb-3"></div>
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <p class="fs-8 text-neutral-600 mb-1">訂閱主題</p>
-                                <p class="fs-8 text-neutral-800">無負擔甜點盒</p>
-                            </div>
-                            <div class="col-6">
-                                <p class="fs-8 text-neutral-600 mb-1">期數</p>
-                                <p class="fs-8 text-neutral-800">6個月</p>
-                            </div>
-                        </div>
-                        <div class="row mb-6">
-                            <div class="col-6">
-                                <p class="fs-8 text-neutral-600 mb-1">開始日期</p>
-                                <p class="fs-8 text-neutral-800">2025-12-01</p>
-                            </div>
-                            <div class="col-6">
-                                <p class="fs-8 text-neutral-600 mb-1">Email</p>
-                                <p class="fs-8 text-neutral-800 text-truncate">nvt.isst.nute@gmail.com</p>
-                            </div>
-                        </div>
-                        <div className="px-6 py-4 bg-neutral-300 rounded-5">
-                            <div className="d-flex flex-column">
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <p className="text-neutral-600 fs-9 fw-medium">服務進度</p>
-                                    <p className="text-neutral-800 fs-9 fw-medium">2/3</p>
-                                </div>
-                                <div>
-                                    <div className="progress sub-progress bg-neutral-400 mb-1 w-100" role="progressbar"
-                                        aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                        <div className="progress-bar" style={{ width: "75%" }}></div>
+                    <div className="d-flex flex-column gap-4">
+                        {subData.map((item) => {
+                            // 計算 subscription_orders 裡相同 subscription_no 的數量
+                            const orderCount = subscriptionOrders.filter(
+                                order => order.subscription_no === item.subscription_no
+                            ).length;
+
+                            // 計算進度百分比
+                            const progressPercent = Math.round((orderCount / item.duration_months) * 100);
+
+                            return (
+                                <div className="p-6 bg-neutral-200 rounded-5" key={item.id}>
+                                    <div className="d-flex mb-6">
+                                        <div className="flex-fill">
+                                            <h3 className="text-neutral-600 fw-bold fs-9 mb-1">訂單編號</h3>
+                                            <p className="text-neutral-800 fw-bold fs-5 ls-1">{item.subscription_no}</p>
+                                        </div>
+                                        <StatusButton
+                                            status={item.is_processed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
+                                            onClick={() => toggleStatus(item.id)}
+                                            variant="mobile"
+                                        />
+
+                                    </div>
+                                    {/* 線條 */}
+                                    <div className="divider mb-3"></div>
+                                    <div className="row mb-3">
+                                        <div className="col-6">
+                                            <p className="fs-8 text-neutral-600 mb-1">訂閱主題</p>
+                                            <p className="fs-8 text-neutral-800">{item.theme_name}</p>
+                                        </div>
+                                        <div className="col-6">
+                                            <p className="fs-8 text-neutral-600 mb-1">期數</p>
+                                            <p className="fs-8 text-neutral-800">{item.duration_months}個月</p>
+                                        </div>
+                                    </div>
+                                    <div className="row mb-6">
+                                        <div className="col-6">
+                                            <p className="fs-8 text-neutral-600 mb-1">開始日期</p>
+                                            <p className="fs-8 text-neutral-800">{item.start_date}</p>
+                                        </div>
+                                        <div className="col-6">
+                                            <p className="fs-8 text-neutral-600 mb-1">Email</p>
+                                            <p className="fs-8 text-neutral-800 text-truncate">{item.shipping.email}</p>
+                                        </div>
+                                    </div>
+                                    <div className="px-6 py-4 bg-neutral-300 rounded-5">
+                                        <div className="d-flex flex-column">
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <p className="text-neutral-600 fs-9 fw-medium">服務進度</p>
+                                                <p className="text-neutral-800 fs-9 fw-medium">{orderCount}/{item.duration_months}</p>
+                                            </div>
+                                            <div>
+                                                <div className="progress sub-progress bg-neutral-400 mb-1 w-100" role="progressbar"
+                                                    aria-label="Basic example" aria-valuenow={progressPercent} aria-valuemin="0" aria-valuemax="100">
+                                                    <div className="progress-bar" style={{ width: `${progressPercent}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            );
+                        })}
 
                     </div>
+
+
                 </div>
                 <div className="d-flex justify-content-center">
                     <Pagination />

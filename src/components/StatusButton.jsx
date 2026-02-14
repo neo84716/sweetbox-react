@@ -2,12 +2,25 @@
 import React from "react";
 
 export const STATUS = {
-  UNPROCESSED: "unprocessed",
-  PROCESSED: "processed",
+  UNPROCESSED: false,
+  PROCESSED: true,
 };
 
-const StatusButton = ({ status, onClick }) => {
+const StatusButton = ({ status, onClick, variant = "desktop" }) => {
   const isProcessed = status === STATUS.PROCESSED;
+
+  if (variant === "mobile") {
+    return (
+      <div className="flex-fill d-flex justify-content-end align-items-end">
+        <button
+          className={`status-btn ${isProcessed ? "processed" : "unprocessed"}`}
+          onClick={onClick}
+          style={{ cursor: "pointer" }}
+        >{isProcessed ? "已處理" : "未處理"}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <button
