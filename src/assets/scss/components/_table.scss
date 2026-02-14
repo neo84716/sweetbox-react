@@ -31,17 +31,6 @@
     cursor: pointer;
   }
 
-  // 訂單編號欄位動畫：置中 → 靠左
-  tbody td.text-semantic-link .order-id {
-    display: inline-block; // 讓 transform 生效
-    text-align: center; // 初始置中
-    transition: all 0.3s ease; // 平滑過渡
-  }
-
-  tbody tr:hover td.text-semantic-link .order-id {
-    transform: translateX(-28px); // 往左移 40px，留一點空間
-    }
-
   // 分隔線 row
   .divider-row td {
     height: 12px;
