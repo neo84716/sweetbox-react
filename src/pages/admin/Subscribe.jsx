@@ -164,7 +164,7 @@ function Subscribe() {
                                             <td className="text-start text-semantic-link">
                                                 <span className="order-id">{item.subscription_no}</span>
                                             </td>
-                                            <td>{item.shipping.email}</td>
+                                            <td>{item.shipping_info.email}</td>
                                             <td className="text-center">{item.duration_months}個月</td>
                                             <td className="text-center">{item.theme_name}</td>
                                             <td className="text-center">
@@ -282,7 +282,7 @@ function Subscribe() {
                                         </div>
                                         <div className="col-6">
                                             <p className="fs-8 text-neutral-600 mb-1">Email</p>
-                                            <p className="fs-8 text-neutral-800 text-truncate">{item.shipping.email}</p>
+                                            <p className="fs-8 text-neutral-800 text-truncate">{item.shipping_info.email}</p>
                                         </div>
                                     </div>
                                     <div className="px-6 py-4 bg-neutral-300 rounded-5">

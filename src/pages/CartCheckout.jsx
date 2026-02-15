@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { Icon } from "@iconify/react";
 import {Link} from "react-router-dom";
-import 'iconify-icon';
 import Header from "../layouts/Header";
 import Footer from "../layouts/Footer";
 import taiwanData from "../assets/utils/taiwanDistricts.json";
@@ -128,7 +128,7 @@ function CartCheckout() {
                                     </div>
                                     <div className="input-group form-group-filled">
                                         <span className="input-group-text text-neutral-600">
-                                            <iconify-icon icon="material-symbols:person-outline-rounded" width="20" height="20"></iconify-icon>
+                                            <Icon icon="material-symbols:person-outline-rounded" width="20" height="20"></Icon>
                                         </span>
                                         <input
                                             type="text"
@@ -141,14 +141,14 @@ function CartCheckout() {
                                     </div>
                                     {/*錯誤訊息 */}
                                     <div className="px-2 error-message text-semantic-error">
-                                        <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon> 請輸入收件人姓名。
+                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon> 請輸入收件人姓名。
                                     </div>
                                 </div>
                                 <div className="mb-4 mb-lg-6">
                                     <label htmlFor="shipping_phone" className="form-label px-2">電話</label>
                                     <div className="input-group form-group-filled">
                                         <span className="input-group-text text-neutral-600">
-                                            <iconify-icon icon="bx:phone" width="20" height="20"></iconify-icon>
+                                            <Icon icon="bx:phone" width="20" height="20"></Icon>
                                         </span>
                                         <input
                                             type="tel"
@@ -166,7 +166,7 @@ function CartCheckout() {
                                     </div>
                                     {/*錯誤訊息 */}
                                     <div className="px-2 error-message text-semantic-error">
-                                        <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                         電話格式不正確。
                                     </div>
                                 </div>
@@ -178,7 +178,7 @@ function CartCheckout() {
                                                 <button className="btn  d-flex align-items-center p-3" type="button" id="shipping_city"
                                                     data-bs-toggle="dropdown" aria-expanded="false">
                                                     <span>{selectedCity}</span>
-                                                    <iconify-icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></iconify-icon>
+                                                    <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
                                                 </button>
                                                 <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '256px' }}>
                                                     {cities.map((city) => (
@@ -196,7 +196,7 @@ function CartCheckout() {
                                             </div>
                                             {/*錯誤訊息 */}
                                             <div className="px-2 error-message text-semantic-error">
-                                                <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                                 請選擇城市。
                                             </div>
                                         </div>
@@ -205,7 +205,7 @@ function CartCheckout() {
                                                 <button className="btn  d-flex align-items-center p-3 "  type="button" id="shipping_district"
                                                     data-bs-toggle="dropdown" aria-expanded="false" disabled={selectedCity === "城市"}>
                                                     <span>{selectedDistrict}</span>
-                                                    <iconify-icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></iconify-icon>
+                                                    <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
                                                 </button>
                                                 <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{maxHeight:'253px'}}>
                                                     {districts.map((dist) => (
@@ -223,14 +223,14 @@ function CartCheckout() {
                                             </div>
                                             {/*錯誤訊息 */}
                                             <div className="px-2 error-message text-semantic-error">
-                                                <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                                 請選擇鄉鎮市區。
                                             </div>
                                         </div>
                                     </div>
                                     <div className="input-group form-group-filled">
                                         <span className="input-group-text text-neutral-600">
-                                            <iconify-icon icon="mi:location" width="20" height="20"></iconify-icon>
+                                            <Icon icon="mi:location" width="20" height="20"></Icon>
                                         </span>
                                         <input
                                             type="text"
@@ -243,7 +243,7 @@ function CartCheckout() {
                                     </div>
                                     {/*錯誤訊息 */}
                                     <div className="px-2 error-message text-semantic-error">
-                                        <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon> 請輸入地址。
+                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon> 請輸入地址。
                                     </div>
                                 </div>
                             </section>
@@ -255,15 +255,15 @@ function CartCheckout() {
                                     <div className="d-flex justify-content-between align-items-center px-2">
                                         <label htmlFor="shipping_name" className="form-label">信用卡卡號</label>
                                         <div className="d-flex">
-                                            <iconify-icon className="me-3" icon="logos:visaelectron" width="35.93" height="16"></iconify-icon>
-                                            <iconify-icon className="me-3" icon="logos:mastercard" width="20.59" height="16"></iconify-icon>
-                                            <iconify-icon icon="logos:jcb" width="20.69" height="16"></iconify-icon>
+                                            <Icon className="me-3" icon="logos:visaelectron" width="35.93" height="16"></Icon>
+                                            <Icon className="me-3" icon="logos:mastercard" width="20.59" height="16"></Icon>
+                                            <Icon icon="logos:jcb" width="20.69" height="16"></Icon>
                                         </div>
                                     </div>
                                     <div className="">
                                         <div className="input-group form-group-filled">
                                             <span className="input-group-text text-neutral-600">
-                                                <iconify-icon icon="tabler:credit-card" width="20" height="20"></iconify-icon>
+                                                <Icon icon="tabler:credit-card" width="20" height="20"></Icon>
                                             </span>
                                             <input
                                                 type="text"
@@ -282,7 +282,7 @@ function CartCheckout() {
                                         </div>
                                         {/*錯誤訊息 */}
                                         <div className="px-2 error-message text-semantic-error">
-                                            <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                            <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                             請輸入完整信用卡卡號。
                                         </div>
                                     </div>
@@ -291,7 +291,7 @@ function CartCheckout() {
                                     <label htmlFor="credit-card-owner" className="form-label px-2">持卡人姓名</label>
                                     <div className="input-group form-group-filled">
                                         <span className="input-group-text text-neutral-600">
-                                            <iconify-icon icon="material-symbols:person-outline-rounded" width="20" height="20"></iconify-icon>                                           </span>
+                                            <Icon icon="material-symbols:person-outline-rounded" width="20" height="20"></Icon>                                           </span>
                                         <input
                                             type="text"
                                             className="form-control"
@@ -303,7 +303,7 @@ function CartCheckout() {
                                     </div>
                                     {/*錯誤訊息 */}
                                     <div className="px-2 error-message text-semantic-error">
-                                        <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                         請輸入持卡人英文姓名。
                                     </div>
                                 </div>
@@ -318,7 +318,7 @@ function CartCheckout() {
                                                         <button className="btn  d-flex align-items-center p-3" type="button" id="expired-month"
                                                             data-bs-toggle="dropdown" aria-expanded="false">
                                                             <span>{selectedExpMonth === "月份" ? "月份" : `${selectedExpMonth}月`}</span>
-                                                            <iconify-icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></iconify-icon>
+                                                            <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
                                                         </button>
                                                         <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '253px' }}>
                                                             {creditCardMonths.map(month => (
@@ -333,7 +333,7 @@ function CartCheckout() {
                                                     </div>
                                                     {/*錯誤訊息 */}
                                                     <div className="px-2 error-message text-semantic-error">
-                                                        <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                                         請選擇月份。
                                                     </div>
                                                 </div>
@@ -342,7 +342,7 @@ function CartCheckout() {
                                                         <button className="btn  d-flex align-items-center p-3" type="button" id="expired-year"
                                                             data-bs-toggle="dropdown" aria-expanded="false">
                                                             <span>{selectedExpYear === "年份" ? "年份" : `${selectedExpYear}年`}</span>
-                                                            <iconify-icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></iconify-icon>
+                                                            <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
                                                         </button>
                                                         <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '253px' }}>
                                                             {creditCardYears.map(year => (
@@ -357,7 +357,7 @@ function CartCheckout() {
                                                     </div>
                                                     {/*錯誤訊息 */}
                                                     <div className="px-2 error-message text-semantic-error">
-                                                        <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                                         請選擇年份。
                                                     </div>
                                                 </div>
@@ -369,7 +369,7 @@ function CartCheckout() {
                                             <label htmlFor="card-cvv" className="form-label px-2">安全碼</label>
                                             <div className=" input-group form-group-filled">
                                                 <span className="input-group-text text-neutral-600">
-                                                    <iconify-icon icon="lets-icons:lock" width="20" height="20"></iconify-icon>
+                                                    <Icon icon="lets-icons:lock" width="20" height="20"></Icon>
                                                 </span>
                                                 <input
                                                     type="text"
@@ -388,7 +388,7 @@ function CartCheckout() {
                                             </div>
                                             {/*錯誤訊息 */}
                                             <div className="px-2 error-message text-semantic-error">
-                                                <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                                 請輸入正確的安全碼。
                                             </div>
                                         </div>
@@ -417,7 +417,7 @@ function CartCheckout() {
                                     // aria-expanded="false" id="shipping_city"
                                     >
                                         <span>{currentInvoiceLabel}</span>
-                                        <iconify-icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></iconify-icon>
+                                        <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
                                     </button>
                                     <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '256px' }}>
                                         {invoiceOpts.map((opt) => (
@@ -435,7 +435,7 @@ function CartCheckout() {
                                 </div>
                                 {/*錯誤訊息 */}
                                 <div className="px-2 error-message text-semantic-error">
-                                    <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                    <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                     請選擇發票類型
                                 </div>
 
@@ -451,7 +451,7 @@ function CartCheckout() {
                                         <label htmlFor="invoice_carrier" className="form-label px-2">手機條碼</label>
                                         <div className="input-group form-group-filled">
                                             <span className="input-group-text text-neutral-600">
-                                                <iconify-icon icon="mdi:cellphone" width="20" height="20"></iconify-icon>
+                                                <Icon icon="mdi:cellphone" width="20" height="20"></Icon>
                                             </span>
                                             <input
                                                 type="text"
@@ -464,7 +464,7 @@ function CartCheckout() {
                                         </div>
                                         {/*錯誤訊息 */}
                                         <div className="px-2 error-message text-semantic-error">
-                                            <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                            <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                             條碼格式不正確（例：/ABC1234）
                                         </div>
                                     </div>
@@ -476,7 +476,7 @@ function CartCheckout() {
                                         <label htmlFor="donate_code" className="form-label px-2">捐贈碼</label>
                                         <div className="input-group form-group-filled">
                                             <span className="input-group-text text-neutral-600">
-                                                <iconify-icon icon="humbleicons:heart" width="20" height="20"></iconify-icon>
+                                                <Icon icon="humbleicons:heart" width="20" height="20"></Icon>
                                             </span>
                                             <input
                                                 type="text"
@@ -494,7 +494,7 @@ function CartCheckout() {
                                         </div>
                                         {/*錯誤訊息 */}
                                         <div className="px-2 error-message text-semantic-error">
-                                            <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                            <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                             請輸入慈善機構愛心碼
                                         </div>
                                     </div>
@@ -512,7 +512,7 @@ function CartCheckout() {
                                             <label htmlFor="invoice_company_name" className="form-label px-2">公司名稱(發票抬頭)</label>
                                             <div className="input-group form-group-filled">
                                                 <span className="input-group-text text-neutral-600">
-                                                    <iconify-icon icon="fluent:building-multiple-16-regular" width="20" height="20"></iconify-icon>
+                                                    <Icon icon="fluent:building-multiple-16-regular" width="20" height="20"></Icon>
                                                 </span>
                                                 <input
                                                     type="text"
@@ -524,7 +524,7 @@ function CartCheckout() {
                                             </div>
                                             {/*錯誤訊息 */}
                                             <div className="px-2 error-message text-semantic-error">
-                                                <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                                 請輸入公司名稱
                                             </div>
                                         </div>
@@ -532,7 +532,7 @@ function CartCheckout() {
                                             <label htmlFor="invoice_tax_id" className="form-label px-2">統一編號</label>
                                             <div className="input-group form-group-filled">
                                                 <span className="input-group-text text-neutral-600">
-                                                    <iconify-icon icon="jam:hashtag" width="20" height="20"></iconify-icon>
+                                                    <Icon icon="jam:hashtag" width="20" height="20"></Icon>
                                                 </span>
                                                 <input
                                                     type="text"
@@ -550,7 +550,7 @@ function CartCheckout() {
                                             </div>
                                             {/*錯誤訊息 */}
                                             <div className="px-2 error-message text-semantic-error">
-                                                <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                                 請輸入統一編號
                                             </div>
                                         </div>
@@ -558,7 +558,7 @@ function CartCheckout() {
                                             <label htmlFor="invoice_company_email" className="form-label px-2">收件信箱</label>
                                             <div className="input-group form-group-filled">
                                                 <span className="input-group-text text-neutral-600">
-                                                    <iconify-icon icon="eva:email-outline" width="20" height="20"></iconify-icon>
+                                                    <Icon icon="eva:email-outline" width="20" height="20"></Icon>
                                                 </span>
                                                 <input
                                                     type="email"
@@ -570,7 +570,7 @@ function CartCheckout() {
                                             </div>
                                             {/*錯誤訊息 */}
                                             <div className="px-2 error-message text-semantic-error">
-                                                <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                                 信箱格式不正確
                                             </div>
                                         </div>
@@ -599,7 +599,7 @@ function CartCheckout() {
                                     </div>
                                     {/*錯誤訊息 */}
                                     <div className="px-2 error-message text-semantic-error">
-                                        <iconify-icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></iconify-icon>
+                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
                                         備註內容過長，請精簡至200字以內。
                                     </div>
                                 </div>
@@ -608,7 +608,7 @@ function CartCheckout() {
                                     {quickNoteChips.map((chip, index) => (
                                         <button className={`btn btn-chip lh-sm ${selectedChips.includes(chip) ? 'active' : ''}`}
                                             type="button" key={index} onClick={() => toggleChip(chip)}>
-                                            <iconify-icon className="me-1" icon="ic:round-plus" width="16" height="16"></iconify-icon>
+                                            <Icon className="me-1" icon="ic:round-plus" width="16" height="16"></Icon>
                                             {chip}
                                         </button>
                                     ))}

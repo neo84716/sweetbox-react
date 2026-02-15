@@ -2,18 +2,14 @@
   "themes": [
     {
       "id": 1,
-      "theme_title": "精選甜點",
-      "theme_title_en": "Select",
-      "theme_title_abbr": "SL",
-      "theme_subtitle": "我們幫你挑最值得期待的那一盒",
-      "theme_description": "不論是人氣爆款還是話題聯名，通通不錯過。喜歡嚐鮮的你一定會愛上。",
-      "price": 720,
-<<<<<<< Updated upstream
-      "cover_image_url": "./images/Home_Page/pic_feature.png",
-=======
+      "title": "精選甜點",
+      "title_en": "Select",
+      "title_abbr": "SL",
+      "subtitle": "我們幫你挑最值得期待的那一盒",
+      "description": "不論是人氣爆款還是話題聯名，通通不錯過。喜歡嚐鮮的你一定會愛上。",
+      "base_price": 720,
       "cover_image_url": "./images/Theme_Page/pic_theme_feature.png",
->>>>>>> Stashed changes
-      "theme_plans": [
+      "plans": [
         {
           "id": 101,
           "duration_months": 3,
@@ -30,307 +26,36 @@
           "price": 685
         }
       ],
-      "theme_images": [
+      "images": [
         {
           "id": 201,
-          "image_url": "./images/Theme_Detail/Feature/pic_card_large(1).jpg",
+          "url": "./images/Theme_Detail/Feature/pic_card_large(1).jpg",
           "sort_order": 1
         },
         {
           "id": 202,
-          "image_url": "./images/Theme_Detail/Feature/pic_card_large(2).jpg",
+          "url": "./images/Theme_Detail/Feature/pic_card_large(2).jpg",
           "sort_order": 2
-        },
-        {
-          "id": 203,
-          "image_url": "./images/Theme_Detail/Feature/pic_card_large(3).jpg",
-          "sort_order": 3
-        },
-        {
-          "id": 204,
-          "image_url": "./images/Theme_Detail/Feature/pic_card_large(4).jpg",
-          "sort_order": 4
         }
       ],
       "created_at": "2026-02-13T10:00:00Z",
       "updated_at": "2026-02-13T10:00:00Z"
-<<<<<<< Updated upstream
-=======
-    },
-    {
-      "id": 2,
-      "theme_title": "季節限定",
-      "theme_title_en": "Seasonal",
-      "theme_title_abbr": "SS",
-      "theme_subtitle": "春夏秋冬, 不同的甜點最值得期待",
-      "theme_description": "當月份限定的口味與質地, 只在這時登場。錯過了, 就要再等一年。",
-      "price": 750,
-      "cover_image_url": "./images/Theme_Page/pic_theme_season.png",
-      "theme_plans": [
-        {
-          "id": 101,
-          "duration_months": 3,
-          "price": 740
-        },
-        {
-          "id": 102,
-          "duration_months": 6,
-          "price": 720
-        },
-        {
-          "id": 103,
-          "duration_months": 12,
-          "price": 700
-        }
-      ],
-      "theme_images": [
-        {
-          "id": 201,
-          "image_url": "",
-          "sort_order": 1
-        },
-        {
-          "id": 202,
-          "image_url": "",
-          "sort_order": 2
-        },
-        {
-          "id": 203,
-          "image_url": "",
-          "sort_order": 3
-        },
-        {
-          "id": 204,
-          "image_url": "",
-          "sort_order": 4
-        }
-      ],
-      "created_at": "2026-02-13T10:00:00Z",
-      "updated_at": "2026-02-13T10:00:00Z"
-    },
-    {
-      "id": 3,
-      "theme_title": "在地甜點",
-      "theme_title_en": "Local",
-      "theme_title_abbr": "LC",
-      "theme_subtitle": "重新品味土地的美味，熟悉中遇見驚喜",
-      "theme_description": "精選以台灣食材與職人手藝製作的特色甜點, 簡單卻令人回味無窮。",
-      "price": 750,
-      "cover_image_url": "./images/Theme_Page/pic_theme_local.png",
-      "theme_plans": [
-        {
-          "id": 101,
-          "duration_months": 3,
-          "price": 740
-        },
-        {
-          "id": 102,
-          "duration_months": 6,
-          "price": 720
-        },
-        {
-          "id": 103,
-          "duration_months": 12,
-          "price": 700
-        }
-      ],
-      "theme_images": [
-        {
-          "id": 201,
-          "image_url": "",
-          "sort_order": 1
-        },
-        {
-          "id": 202,
-          "image_url": "",
-          "sort_order": 2
-        },
-        {
-          "id": 203,
-          "image_url": "",
-          "sort_order": 3
-        },
-        {
-          "id": 204,
-          "image_url": "",
-          "sort_order": 4
-        }
-      ],
-      "created_at": "2026-02-13T10:00:00Z",
-      "updated_at": "2026-02-13T10:00:00Z"
-    },
-    {
-      "id": 4,
-      "theme_title": "異國風味",
-      "theme_title_en": "Global",
-      "theme_title_abbr": "GB",
-      "theme_subtitle": "我們幫你挑最值得期待的那一盒",
-      "theme_description": "精選以台灣食材與職人手藝製作的特色甜點, 簡單卻令人回味無窮。",
-      "price": 750,
-      "cover_image_url": "./images/Theme_Page/pic_theme_world.png",
-      "theme_plans": [
-        {
-          "id": 101,
-          "duration_months": 3,
-          "price": 740
-        },
-        {
-          "id": 102,
-          "duration_months": 6,
-          "price": 720
-        },
-        {
-          "id": 103,
-          "duration_months": 12,
-          "price": 700
-        }
-      ],
-      "theme_images": [
-        {
-          "id": 201,
-          "image_url": "",
-          "sort_order": 1
-        },
-        {
-          "id": 202,
-          "image_url": "",
-          "sort_order": 2
-        },
-        {
-          "id": 203,
-          "image_url": "",
-          "sort_order": 3
-        },
-        {
-          "id": 204,
-          "image_url": "",
-          "sort_order": 4
-        }
-      ],
-      "created_at": "2026-02-13T10:00:00Z",
-      "updated_at": "2026-02-13T10:00:00Z"
-    },
-    {
-      "id": 5,
-      "theme_title": "無負擔甜點",
-      "theme_title_en": "Guilt-Free",
-      "theme_title_abbr": "GF",
-      "theme_subtitle": "剛剛好的甜，無負擔的美好",
-      "theme_description": "嚴選天然原料，低糖、無麩質、植物奶製作，每一口都純粹而滿足。",
-      "price": 730,
-      "cover_image_url": "./images/Theme_Page/pic_theme_health.png",
-      "theme_plans": [
-        {
-          "id": 101,
-          "duration_months": 3,
-          "price": 720
-        },
-        {
-          "id": 102,
-          "duration_months": 6,
-          "price": 700
-        },
-        {
-          "id": 103,
-          "duration_months": 12,
-          "price": 690
-        }
-      ],
-      "theme_images": [
-        {
-          "id": 201,
-          "image_url": "",
-          "sort_order": 1
-        },
-        {
-          "id": 202,
-          "image_url": "",
-          "sort_order": 2
-        },
-        {
-          "id": 203,
-          "image_url": "",
-          "sort_order": 3
-        },
-        {
-          "id": 204,
-          "image_url": "",
-          "sort_order": 4
-        }
-      ],
-      "created_at": "2026-02-13T10:00:00Z",
-      "updated_at": "2026-02-13T10:00:00Z"
-    },
-    {
-      "id": 6,
-      "theme_title": "素食甜點",
-      "theme_title_en": "Veggie",
-      "theme_title_abbr": "VG",
-      "theme_subtitle": "不加動物成分,不減幸福滋味",
-      "theme_description": "無蛋無奶植物系甜點，每一口甜，都是對自己與地球的一份溫柔。",
-      "price": 730,
-      "cover_image_url": "./images/Theme_Page/pic_theme_veg.png",
-      "theme_plans": [
-        {
-          "id": 101,
-          "duration_months": 3,
-          "price": 720
-        },
-        {
-          "id": 102,
-          "duration_months": 6,
-          "price": 700
-        },
-        {
-          "id": 103,
-          "duration_months": 12,
-          "price": 690
-        }
-      ],
-      "theme_images": [
-        {
-          "id": 201,
-          "image_url": "",
-          "sort_order": 1
-        },
-        {
-          "id": 202,
-          "image_url": "",
-          "sort_order": 2
-        },
-        {
-          "id": 203,
-          "image_url": "",
-          "sort_order": 3
-        },
-        {
-          "id": 204,
-          "image_url": "",
-          "sort_order": 4
-        }
-      ],
-      "created_at": "2026-02-13T10:00:00Z",
-      "updated_at": "2026-02-13T10:00:00Z"
->>>>>>> Stashed changes
     }
   ],
   "users": [
     {
       "id": 1,
-<<<<<<< Updated upstream
-      "name": "Debby Yang",
-      "email": "debby@example.com",
-=======
       "name": "Lucas Wang",
       "email": "lucas@example.com",
->>>>>>> Stashed changes
       "password": "hashed_password_123456",
       "phone": "0912345678",
+      "address": {
+        "zip_code": "243",
+        "city": "新北市",
+        "district": "泰山區",
+        "street": "貴子路 66 號 5 樓"
+      },
       "default_carrier": "/ABC1234",
-      "zip_code": "243",
-      "city": "新北市",
-      "district": "泰山區",
-      "address": "貴子路 66 號 5 樓",
       "created_at": "2025-10-01T10:00:00Z"
     }
   ],
@@ -339,73 +64,36 @@
       "id": 1,
       "user_id": 1,
       "theme_id": 1,
-      "theme_name": "精選甜點",
       "subscription_no": "SL12X9D2A1",
       "duration_months": 12,
       "quantity": 2,
-      "price": 685,
+      "original_price": 740,
+      "discounted_price": 685,
       "start_date": "2025-10-03",
       "end_date": "2026-09-03",
-      "status": 1,
+      "next_payment_date": "2026-11-03",
+      "status": "active",
       "is_processed": false,
-      "payment_info": {
-        "payment_method": "信用卡 token",
-        "card_type": "Visa",
+      "card_info": {
+        "token": "信用卡 token",
+        "type": "Visa",
         "last_four": "4242",
         "updated_at": "2025-10-03"
       },
-      "shipping": {
+      "shipping_info": {
         "zip_code": "243",
         "city": "新北市",
         "district": "泰山區",
-        "address": "貴子路 66 號 5 樓",
+        "street": "貴子路 66 號 5 樓",
         "email": "debby@example.com",
         "phone": "0912345678"
       },
       "invoice_info": {
-        "invoice_type": "default_carrier",
-        "invoice_carrier": "/ABC1234",
-        "invoice_tax_id": "",
-        "invoice_company_name": "",
-        "invoice_company_email": "",
-        "donate_code": ""
-      },
-      "created_at": "2025-10-03T10:00:00Z",
-      "updated_at": "2025-10-03T10:00:00Z"
-    },
-    {
-      "id": 2,
-      "user_id": 1,
-      "theme_id": 2,
-      "theme_name": "季節限定",
-      "subscription_no": "SS12X9D2A6",
-      "duration_months": 12,
-      "quantity": 2,
-      "price": 685,
-      "start_date": "2025-10-03",
-      "end_date": "2026-09-03",
-      "status": 1,
-      "is_processed": true,
-      "payment_info": {
-        "payment_method": "信用卡 token",
-        "card_type": "Visa",
-        "last_four": "4242",
-        "updated_at": "2025-10-03"
-      },
-      "shipping": {
-        "zip_code": "243",
-        "city": "新北市",
-        "district": "泰山區",
-        "address": "貴子路 66 號 5 樓",
-        "email": "debby@example.com",
-        "phone": "0912345678"
-      },
-      "invoice_info": {
-        "invoice_type": "default_carrier",
-        "invoice_carrier": "/ABC1234",
-        "invoice_tax_id": "",
-        "invoice_company_name": "",
-        "invoice_company_email": "",
+        "type": "default_carrier",
+        "carrier": "/ABC1234",
+        "tax_id": "",
+        "company_name": "",
+        "company_email": "",
         "donate_code": ""
       },
       "created_at": "2025-10-03T10:00:00Z",
@@ -421,82 +109,16 @@
       "amount": 1370,
       "created_at": "2025-10-03T10:00:00Z",
       "due_date": "2025-10-03",
-      "payment_status": 1,
+      "payment_status": "paid",
       "payment_date": "2025-10-03",
-      "shipping_status": 2,
+      "shipping_status": "delivered",
       "shipping_date": "2025-10-04",
-      "invoice_number": "AB-12345678",
-      "invoice_date": "2025-10-03T22:00:00Z",
-      "invoice_file_url": "/invoices/SL12X9D2A101.pdf",
+      "invoice": {
+        "number": "AB-12345678",
+        "date": "2025-10-03T22:00:00Z",
+        "file_url": "/invoices/SL12X9D2A101.pdf"
+      },
       "is_archived": true
-    },
-    {
-      "id": 2,
-      "subscription_no": "SL12X9D2A1",
-      "order_no": "SL12X9D2A102",
-      "transaction_id": "TRANS-002",
-      "amount": 1370,
-      "created_at": "2025-11-03T10:00:00Z",
-      "due_date": "2025-11-03",
-      "payment_status": 1,
-      "payment_date": "2025-11-03",
-      "shipping_status": 2,
-      "shipping_date": "2025-11-04",
-      "invoice_number": "CD-78123645",
-      "invoice_date": "2025-11-03T22:00:00Z",
-      "invoice_file_url": "/invoices/SL12X9D2A102.pdf",
-      "is_archived": true
-    },
-    {
-      "id": 3,
-      "subscription_no": "SL12X9D2A1",
-      "order_no": "SL12X9D2A103",
-      "transaction_id": "TRANS-003",
-      "amount": 1370,
-      "created_at": "2025-12-03T10:00:00Z",
-      "due_date": "2025-12-03",
-      "payment_status": 1,
-      "payment_date": "2025-12-03",
-      "shipping_status": 2,
-      "shipping_date": "2025-12-04",
-      "invoice_number": "ER-68223645",
-      "invoice_date": "2025-12-03T22:00:00Z",
-      "invoice_file_url": "/invoices/SL12X9D2A103.pdf",
-      "is_archived": true
-    },
-    {
-      "id": 4,
-      "subscription_no": "SL12X9D2A1",
-      "order_no": "SL12X9D2A104",
-      "transaction_id": "TRANS-004",
-      "amount": 1370,
-      "created_at": "2026-01-03T10:00:00Z",
-      "due_date": "2026-01-03",
-      "payment_status": 1,
-      "payment_date": "2026-01-03",
-      "shipping_status": 2,
-      "shipping_date": "2026-01-04",
-      "invoice_number": "FG-78177645",
-      "invoice_date": "2026-01-03T22:00:00Z",
-      "invoice_file_url": "/invoices/SL12X9D2A104.pdf",
-      "is_archived": true
-    },
-    {
-      "id": 5,
-      "subscription_no": "SL12X9D2A1",
-      "order_no": "SL12X9D2A105",
-      "transaction_id": "TRANS-005",
-      "amount": 1370,
-      "created_at": "2026-02-03T10:00:00Z",
-      "due_date": "2026-02-03",
-      "payment_status": 3,
-      "payment_date": "",
-      "shipping_status": 1,
-      "shipping_date": "",
-      "invoice_number": "",
-      "invoice_date": "",
-      "invoice_file_url": "",
-      "is_archived": false
     }
   ],
   "payments": [
@@ -505,27 +127,12 @@
       "subscription_order_id": 1,
       "transaction_id": "TRANS-001",
       "amount": 1370,
-      "status": true,
+      "status": "success",
       "card_type": "Visa",
-      "created_at": "2025-10-03T10:00:00Z"
-    },
-    {
-      "id": 2,
-      "subscription_order_id": 2,
-      "transaction_id": "TRANS-002",
-      "amount": 1370,
-      "status": true,
-      "card_type": "Visa",
-      "created_at": "2025-11-03T10:00:00Z"
-    },
-    {
-      "id": 3,
-      "subscription_order_id": 3,
-      "transaction_id": "TRANS-003",
-      "amount": 1370,
-      "status": true,
-      "card_type": "Visa",
-      "created_at": "2025-12-03T10:00:00Z"
+      "created_at": "2025-10-03T10:00:00Z",
+      "gateway_status": "",
+      "error_code": "",
+      "error_message": ""
     }
   ],
   "carts": [
@@ -535,28 +142,32 @@
       "subtotal": 2770,
       "discount_total": 200,
       "final_total": 2570,
+      "items": [
+        {
+          "id": 1,
+          "theme_id": 1,
+          "duration_months": 12,
+          "quantity": 2,
+          "price": 685
+        },
+        {
+          "id": 2,
+          "theme_id": 2,
+          "duration_months": 6,
+          "quantity": 2,
+          "price": 700
+        }
+      ],
+      "coupons": [
+        {
+          "id": 1,
+          "coupon_id": 1,
+          "applied_at": "2026-02-14T10:10:00Z",
+          "discount_applied": 200
+        }
+      ],
       "created_at": "2026-02-14T10:00:00Z",
       "updated_at": "2026-02-14T10:05:00Z"
-    }
-  ],
-  "cart_items": [
-    {
-      "id": 1,
-      "cart_id": 1,
-      "theme_id": 1,
-      "duration_months": 12,
-      "quantity": 2,
-      "price": 685,
-      "created_at": "2026-02-14T10:01:00Z"
-    },
-    {
-      "id": 2,
-      "cart_id": 1,
-      "theme_id": 2,
-      "duration_months": 6,
-      "quantity": 2,
-      "price": 700,
-      "created_at": "2026-02-14T10:01:00Z"
     }
   ],
   "coupons": [
@@ -578,18 +189,5 @@
       "expires_at": "2026-06-30",
       "created_at": "2026-01-01T00:00:00Z"
     }
-  ],
-  "cart_coupons": [
-    {
-      "id": 1,
-      "cart_id": 1,
-      "coupon_id": 1,
-      "applied_at": "2026-02-14T10:10:00Z",
-      "discount_applied": 200
-    }
   ]
-<<<<<<< Updated upstream
-=======
-  
->>>>>>> Stashed changes
 }

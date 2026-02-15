@@ -47,7 +47,7 @@ const routes = [
         element: <SubscribeDetail />
       },
       { 
-        path: "cart-checkout", 
+        path: "cartCheckout", 
         element: <CartCheckout /> 
       }
     ]
