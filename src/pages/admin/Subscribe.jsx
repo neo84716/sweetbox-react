@@ -5,8 +5,10 @@ import StatusButton, { STATUS } from "../../components/StatusButton";
 import React from 'react';
 import { DatePicker, Button } from 'antd';
 import Pagination from "../../components/Pagination";
-import AdminNav from "../../components/AdminNav"
+import AdminNav from "../../components/AdminNav";
+import Dropdown from "../../components/Dropdown";
 import api from "../../api";
+
 
 const { RangePicker } = DatePicker;
 
@@ -23,13 +25,13 @@ function Subscribe() {
         { label: "12個月", value: "12m" },
     ];
     const themeOptions = [
-        { label: "全部主題", value: "theme_all" },
-        { label: "精選甜點", value: "featured" },
-        { label: "季節限定", value: "seasonal" },
-        { label: "在地甜點", value: "local" },
-        { label: "異國風味", value: "international" },
-        { label: "無負擔甜點", value: "healthy" },
-        { label: "素食甜點", value: "vegan" },
+        { label: '全部主題', value: 'theme_all' },
+        { label: '精選甜點', value: 'featured' },
+        { label: '季節限定', value: 'seasonal' },
+        { label: '在地甜點', value: 'local' },
+        { label: '異國風味', value: 'international' },
+        { label: '無負擔甜點', value: 'healthy' },
+        { label: '素食甜點', value: 'vegan' },
     ];
     const statusOptions = [
         { label: "全部狀態", value: "status_all" },
@@ -104,32 +106,9 @@ function Subscribe() {
                                 className="custom-range-picker"
                             />
                         </div>
-                        <DropdownComponent
-                            label="全部方案"
-                            options={planOptions}
-                            activeValue={planFilter}
-                            onSelect={setPlanFilter}
-                            variant="default"
-                            menuWidth={124}
-                        />
-
-                        <DropdownComponent
-                            label="全部主題"
-                            options={themeOptions}
-                            activeValue={themeFilter}
-                            onSelect={setThemeFilter}
-                            variant="default"
-                            menuWidth={124}
-                        />
-
-                        <DropdownComponent
-                            label="全部狀態"
-                            options={statusOptions}
-                            activeValue={statusFilter}
-                            onSelect={setStatusFilter}
-                            variant="default"
-                            menuWidth={124}
-                        />
+                        <Dropdown options={planOptions} width="124px" />
+                        <Dropdown options={themeOptions} width="124px" />
+                        <Dropdown options={statusOptions} width="124px" />
                     </div>
 
                     {/* 表格 */}

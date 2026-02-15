@@ -30,7 +30,7 @@ function Dropdown({ options, width = '108px' }) {
     <div className="dropdown dropdown-neutral-250">
       <button
         ref={dropdownRef}
-        className={`btn btn-secondary dropdown-toggle 
+        className={`btn btn-secondary dropdown-toggle d-flex justify-content-center align-items-center
           ${isSelected ? 'text-neutral-800' : ''}
           ${isOpen ? 'is-open' : ''}`}
         style={{ width }}
@@ -38,7 +38,7 @@ function Dropdown({ options, width = '108px' }) {
         aria-expanded="false"
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <span>{option}</span>
+        <span className='me-1'>{option}</span>
         <Icon icon="iconamoon:arrow-down-2-bold" width="20" height="20" />
       </button>
       <ul
