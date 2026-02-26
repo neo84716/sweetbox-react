@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import api from "../api";
 
 
 function Cart() {
-    const [data,setData] = useState([]);
+    const [data, setData] = useState([]);
 
-    useEffect(()=>{
+    useEffect(() => {
         api.get("/project")
-        .then(res => setData(res.data))
-        .catch(err => console.log(err))
-    },[]);
+            .then(res => setData(res.data))
+            .catch(err => console.log(err))
+    }, []);
 
     console.log(data);
     return (
@@ -680,12 +681,9 @@ function Cart() {
                                             <span>合計</span><span className="fs-5 lh-base ls-1">NT$6,015</span>
                                         </p>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="btn-primary-text w-100 d-none d-sm-block"
-                                    >
+                                    <NavLink to="/cartCheckout" className="btn-primary-text w-100 d-none d-sm-block text-center">
                                         前往結帳
-                                    </button>
+                                    </NavLink>
                                 </section>
                                 <section className="py-4 px-3 p-lg-8 cart-notice">
                                     <h3 className="mb-3 mb-lg-4">購物須知</h3>

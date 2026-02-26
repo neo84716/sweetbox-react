@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { NavLink } from "react-router-dom";
 import DropdownComponent from "../../components/DropdownComponent";
 import { useEffect, useState } from "react";
 import StatusButton, { STATUS } from "../../components/StatusButton";
@@ -13,9 +14,6 @@ import api from "../../api";
 const { RangePicker } = DatePicker;
 
 function Subscribe() {
-    const [planFilter, setPlanFilter] = useState("plan_all");
-    const [themeFilter, setThemeFilter] = useState("theme_all");
-    const [statusFilter, setStatusFilter] = useState("status_all");
     const [dotsFilter, setDotsFilter] = useState("");
 
     const planOptions = [
@@ -141,7 +139,9 @@ function Subscribe() {
                                     return (
                                         <tr key={item.id}>
                                             <td className="text-start text-semantic-link">
-                                                <span className="order-id">{item.subscription_no}</span>
+                                                <NavLink to='/admin/subscribeDetail'>
+                                                    <span className="order-id">{item.subscription_no}</span>
+                                                </NavLink>
                                             </td>
                                             <td>{item.shipping_info.email}</td>
                                             <td className="text-center">{item.duration_months}個月</td>
@@ -232,7 +232,7 @@ function Subscribe() {
                                 <div className="p-6 bg-neutral-200 rounded-5" key={item.id}>
                                     <div className="d-flex mb-6">
                                         <div className="flex-fill">
-                                            <h3 className="text-neutral-600 fw-bold fs-9 mb-1">訂單編號</h3>
+                                            <h3 className="text-neutral-600 fw-bold fs-9 mb-1">訂閱編號</h3>
                                             <p className="text-neutral-800 fw-bold fs-5 ls-1">{item.subscription_no}</p>
                                         </div>
                                         <StatusButton

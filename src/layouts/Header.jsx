@@ -1,8 +1,10 @@
+import { NavLink } from "react-router-dom";
+
 function Header() {
     return (
         <nav className="navbar pt-3 px-3 pt-lg-5 px-lg-0">
             <div className="container header py-1 px-4 py-lg-2 px-lg-9">
-                <a href="index.html">
+                <NavLink to='/'>
                     <picture>
                         <source
                             srcSet="./images/Home_Page/sweetBox_logo.svg"
@@ -14,22 +16,24 @@ function Header() {
                             alt="一盒甜logo"
                         />
                     </picture>
-                </a>
+                </NavLink>
                 <ul className="d-none d-lg-flex align-items-center flex-grow-1">
                     <li className="nav-item mx-auto">
-                        <a className="nav-link" href="theme.html"
+                        <NavLink
+                            to='/theme'
+                            className='nav-link'
                         ><span className="underline">主題一覽</span>
-                        </a>
+                        </NavLink>
                     </li>
                     <li className="nav-item">
                         <a href="#" className="nav-icon service-icon" aria-label="客服圖示"></a>
                     </li>
                     <li className="nav-item">
-                        <a
-                            href="cart.html"
+                        <NavLink
+                            to='/cart'
                             className="nav-icon cart-icon"
-                            aria-label="購物車圖示"
-                        ></a>
+                            aria-label="購物車圖示">
+                        </NavLink>
                     </li>
                     <li className="nav-item">
                         <div className="dropdown">
@@ -104,8 +108,8 @@ function Header() {
                                 type="button"
                                 className="btn border-0 dropdown-item"
                                 aria-expanded="true"
-                                // 會報錯，暫時隱藏，切元件再處理
-                                // onClick="this.closest('.dropdown-menu').classNameList.remove('show')"
+                            // 會報錯，暫時隱藏，切元件再處理
+                            // onClick="this.closest('.dropdown-menu').classNameList.remove('show')"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +127,7 @@ function Header() {
                     </ul>
                 </div>
             </div>
-        </nav>
+        </nav >
     )
 }
 
