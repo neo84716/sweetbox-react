@@ -1,0 +1,33 @@
+@mixin badge-base($text-color, $bg-color) {
+  width: 68px;
+  height: 24px;
+  border-radius: 100px;
+  padding: 3px 16px;
+  font-size: 12px;
+  color: $text-color;
+  background-color: $bg-color;
+}
+
+.badge {
+  &-completed {
+    @include badge-base($semantic-link, $neutral-225);
+  }
+  &-cancelled {
+    @include badge-base($neutral-800, $neutral-300);
+  }
+  &-in-progress {
+    @include badge-base($CTA-100, $neutral-230);
+  }
+  &-pending {
+    @include badge-base($primary-600, $primary-200);
+  }
+  &-resolved {
+    @include badge-base($neutral-800, $neutral-300);
+  }
+  &-paid {
+    @include badge-base($neutral-800, $neutral-300);
+  }
+  &-failed {
+    @include badge-base($semantic-error, $neutral-240);
+  }
+}

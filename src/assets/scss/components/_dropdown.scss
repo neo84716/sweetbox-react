@@ -1,0 +1,376 @@
+.dropdown .btn {
+  color: $neutral-600;
+
+  &.show {
+    color: $neutral-800;
+  }
+}
+
+.sub-dropdown {
+  color: $neutral-600;
+  position: relative; // 讓子元素定位基準在這裡
+
+  & .btn {
+    color: $neutral-600;
+  }
+}
+
+.dropdown-toggle {
+  position: relative;
+
+  &:hover {
+    color: $primary-600;
+  }
+
+  &::after {
+    display: none;
+  }
+
+  &-burger {
+
+    &:active,
+    &.selected {
+      color: $primary-600;
+    }
+  }
+
+  &-login {
+
+    &:active,
+    &.selected {
+      &::before {
+        content: "";
+        position: absolute;
+        bottom: 4px;
+        width: 64px;
+        height: 2px;
+        border-radius: 100px;
+        background-color: $neutral-800;
+      }
+    }
+  }
+}
+
+.dropdown-menu {
+  padding: 0;
+  text-align: center;
+  backdrop-filter: blur(16px);
+  background-color: rgba($neutral-100, 0.4);
+  border: 1px solid $neutral-100;
+  border-radius: 20px;
+  line-height: 27px;
+  letter-spacing: 0.1rem;
+
+  &-avatar {
+    width: 192px;
+    background-color: rgba($neutral-100, 0.4);
+
+    &[data-bs-popper] {
+      top: 72px;
+      left: -40px;
+    }
+
+    .dropdown-item {
+      padding: 12px 0;
+    }
+  }
+
+  &-burger {
+    &[data-bs-popper] {
+      top: 72px;
+      left: 0;
+      right: 0;
+    }
+
+    &.show {
+      display: flex;
+      flex-direction: column;
+      height: 85vh;
+    }
+
+    .dropdown-item {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &-wrapper {
+        flex: 1;
+        display: flex;
+      }
+    }
+  }
+
+  &[data-bs-popper] {
+    margin-top: 0;
+  }
+
+  .dropdown-item {
+    padding: 12px 0;
+
+    &:hover {
+      background-color: transparent;
+      color: $primary-600;
+    }
+
+    &.active {
+      color: $primary-600;
+    }
+
+    button {
+      padding-top: 33px;
+      padding-bottom: 33px;
+    }
+  }
+
+  li:not(:last-child) {
+    border-bottom: 1px solid $neutral-100;
+  }
+}
+
+.dropdown-menu.sub-dropdown-menu {
+  background-color: $neutral-100;
+  border-radius: 12px;
+  padding: 0;
+  border: 0;
+  min-width: unset;
+  margin-top: 8px !important;
+
+  &.w-124 {
+    width: 124px;
+    left: 0;   // 預設靠左
+    right: auto;
+  }
+
+  &.w-84 {
+    width: 84px;
+    right: 0;  // 貼齊父層右邊
+    left: auto;
+    .dropdown-btn{
+      font-size: 14px;
+    }
+  }
+
+  .dropdown-btn {
+    color: $neutral-800;
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+    background: transparent;
+    border: none;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover,
+    &.active {
+      background-color: $primary-100;
+      border-radius: 0;
+    }
+
+    &:first-child,
+    &:first-child:hover,
+    &:first-child.active {
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+
+    &:last-child,
+    &:last-child:hover,
+    &:last-child.active {
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+  }
+}
+
+.dropdown-neutral-250 {
+  .btn {
+    padding-left: 16px;
+    padding-right: 8px;
+    background-color: $neutral-250;
+    font-size: 14px;
+    color: $neutral-600;
+
+    &:active {
+      background-color: $neutral-100;
+      color: $neutral-800;
+    }
+    
+    &.is-open {
+      background-color: $neutral-100;
+      color: $neutral-800;
+    }
+    &.disabled {
+      color: $neutral-500;
+    }
+  }
+}
+
+.dropdown-menu-neutral-250 {
+  &.show {
+    border-radius: 8px;
+    background-color: $neutral-100;
+    box-shadow: 0 2px 4px 0 rgba($black, 0.06);
+
+    li {
+      padding-left: 16px;
+      padding-right: 12px;
+      font-size: 14px;
+    }
+
+    li:hover {
+      background-color: $primary-200;
+      cursor: pointer;
+    }
+
+    li:first-of-type {
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    } 
+
+    li:last-of-type {
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    li > .dropdown-item {
+      color: $neutral-800;
+    }
+  }
+}
+
+
+
+// Avatar 下拉選單
+.avatar-dropdown {
+  .dropdown-menu {
+    width: 192px;
+
+    &[data-bs-popper] {
+      top: 72px;
+      left: -40px;
+    }
+  }
+}
+
+// Burger 下拉選單
+.burger-dropdown {
+  .dropdown-menu {
+    width: 351px;
+
+    &[data-bs-popper] {
+      top: 72px;
+      left: auto;
+      right: -16px;
+    }
+  }
+
+  .dropdown-item {
+    padding: 36px 0;
+  }
+}
+
+/* 下拉選單 */
+.custom-dropdown {
+  background-color: $neutral-250;
+  backdrop-filter: none;
+  border-radius: 8px;
+  min-width: 104px;
+  border: 0;
+
+  .dropdown-item {
+    padding: 12px 24px;
+    background-color: transparent;
+    margin: 0;
+
+    &.active {
+      background-color: $primary-200;
+      color: $neutral-800;
+      border-radius: 8px;
+    }
+  }
+}
+
+
+// 方案下拉選單
+.plan-dropdown {
+  .dropdown-toggle {
+    border-radius: 100px;
+    padding: 4px 8px;
+    background-color: $neutral-300;
+    color: $neutral-700;
+    font-size: 14px;
+    line-height: 21px;
+
+    &:active {
+      background-color: $neutral-300;
+    }
+  }
+
+  .dropdown-menu {
+    width: 137px;
+    min-width: 0;
+    backdrop-filter: none;
+    border: 0;
+    background-color: $neutral-300;
+    color: $neutral-700;
+    font-size: 14px;
+    line-height: 21px;
+    border-radius: 12px;
+    text-align: left;
+
+    .dropdown-item {
+      padding: 4px 8px;
+    }
+  }
+}
+
+//購物車資料 dropdown
+.cart-dropdown {
+  .btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 16px !important;
+  }
+  .custom-dropdown {
+    padding: 4px;
+    background-color: $neutral-100;
+    backdrop-filter: none;
+    border-radius: 16px;
+    width: 100%;
+    border: 1px solid $neutral-100;
+    overflow: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-shadow:
+      0 4px 6px -4px rgb(0 0 0 / 0.1),
+      0 10px 15px -3px rgb(0 0 0 / 0.1);
+      
+    li{
+      &:first-child .dropdown-item{
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+      }
+
+      &:last-child .dropdown-item{
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+      }
+    }
+
+    .dropdown-item {
+      padding: 16px;
+      background-color: transparent;
+      margin: 0;
+      font-size: 14px;
+      border-radius: unset;
+      text-align:left;
+      
+      &.active,
+      &:active {
+        background-color: $neutral-300;
+        color: $neutral-800;
+      }
+    }
+  }
+}
