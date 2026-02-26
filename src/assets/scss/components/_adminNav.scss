@@ -31,6 +31,9 @@
     padding: 8px 12px;
     gap: 8px;
     overflow-x: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
     .nav-item {
       flex-shrink: 0;
       .nav-link {

@@ -6,18 +6,19 @@ export const PAYSTATUS = {
   FAILED: "failed",
 };
 
-function PayStatusBadge({currentStatus}) {
+function PayStatusBadge({currentStatus, isArchived, isFailed}) {
   const [payStatus, setPayStatus] = useState(currentStatus)
   
   // 定義切換方法
   const handlePayStatus = () => {
-    setPayStatus((preStatus)=>{
-      switch(preStatus) {
+    setPayStatus((prev)=>{
+      switch(prev) {
         case PAYSTATUS.DEFAULT:
           return PAYSTATUS.PAID;
+        // case PAYSTATUS.PAID:
+          // return PAYSTATUS.FAILED;
+        // case PAYSTATUS.FAILED:
         case PAYSTATUS.PAID:
-          return PAYSTATUS.FAILED;
-        case PAYSTATUS.FAILED:
         default:
           return PAYSTATUS.DEFAULT;
       }
@@ -38,7 +39,7 @@ function PayStatusBadge({currentStatus}) {
   // const isPaid = payStatus === PayStatusOptions.PAID;
   // const isFailed = payStatus === PayStatusOptions.FAILED;
   return (
-    <button type="button" className={`badge payStatusBadge ${payStatus}`} onClick={()=>{handlePayStatus()}}>
+    <button type="button" className={`payStatusBadge ${payStatus}`} onClick={()=>{(!isFailed)&&(!isArchived)&&handlePayStatus()}}>
       {getPayLabel()}
     </button>
   )
