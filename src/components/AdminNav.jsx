@@ -11,7 +11,7 @@ function AdminNav() {
   ];
 
   return (
-    <nav className="mb-6">
+    <nav className="mb-6 d-none d-lg-block">
       <ul className="d-flex adminNav">
         {navItems.map((item) => (
           <li className="nav-item" key={item.label}>

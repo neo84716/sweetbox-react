@@ -4,6 +4,7 @@
   --neutral-600 : #{$neutral-600};
   --neutral-800 : #{$neutral-800};
   --semantic-error : #{$semantic-error};
+  --primary-600: #{$primary-600};
 }
 
 .backList {
@@ -26,25 +27,137 @@
   border: none;
   border-radius: 100px;
 }
+.underline {
+  border-bottom: 1px solid $neutral-400;
+}
+.column-table {
+  width: 100%;
+  table-layout: fixed;
+  >thead>tr> th:nth-child(7),
+  >tbody>tr> td:nth-child(7) {
+    width: 196px;
+  }
+  &>tbody>tr>th {
+    height: 68px;
+    border: none;
+  }
+}
+// .archived .column-table {
+//   width: 100%;
+//   table-layout: fixed;
 
+//   & th:nth-child(7),
+//   & td:nth-child(7) {
+//     width: 196px;
+//   }
+
+//   &>tbody>tr>th {
+//     height: 68px;
+//     border: none;
+//   }
+// }
+// .unprocessed table>tbody>tr>th,
+// .unprocessed table>tbody>tr>td,
+// .archived table>tbody>tr>th,
+// .archived table>tbody>tr>td {
+//           height: 68px;
+//           border: none;
+//         }
+
+// 手機板訂單編號
+@media (max-width: 992px) {
+  .sticky-section {
+    position: sticky;
+    top: 0;
+    transition: transform 0.3s ease, background-color 0.25s ease;
+    &.z-999 {
+      z-index: 9999;
+    }
+    &.is-sticky {
+      transform: translateY(-68px);
+    }
+    &.hide-top {
+      transform: translateY(-100%);
+    }
+    .container {
+      .order-mobile {
+        height: 92px;
+        .subscription-text, .subscription-id {
+          line-height: 1.2;
+        }
+        .icon {
+          width: 44px;
+          height: 44px;
+          padding: 11px;
+        }
+      }
+    }
+  }
+}
+.order-mobile-divider {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid $neutral-400;
+}
 .orderCard {
-  background-color: $neutral-200;
-  border-radius: 24px;
-  &.orderCase, &.orderSchedule {
-    padding: 24px;
+  // background-color: $neutral-400;
+  width: 100%;
+  &.orderCase {
+    padding: 24px 12px 32px;
+  }
+  &.orderSchedule {
+    padding: 16px 12px 32px;
   }
   &.memberInfo {
-    padding: 24px 32px;
+    padding: 24px 12px 32px;
   }
-  .caseTitle {
-    padding-bottom: 16px;
-    border-bottom: 1px solid $neutral-400;
-    margin-bottom: 14px;
+  @media (min-width: 992px) {
+    background-color: $neutral-200;
+    border-radius: 24px;
+    .caseTitle {
+      // padding-bottom: 16px;
+      border-bottom: 1px solid $neutral-400;
+      margin-bottom: 14px;
+    }
+    &.orderCase {
+      width: 542px;
+      padding: 24px;
+      flex-shrink: 1;
+    }
+
+    &.orderSchedule {
+      width: 180px;
+      padding: 24px;
+      flex-shrink: 1;
+    }
+
+    &.memberInfo {
+      width: 542px;
+      padding: 24px 32px;
+      flex-shrink: 1;
+    }
+
+    
+  }
+}
+// 付款狀態
+.unprocessed, .archived, .unprocessed-mobile, .archived-mobile {
+  .payStatusBadge {
+    padding: 3px 16px;
+    background-color: var(--neutral-300);
+    color: var(--neutral-800);
+    border-radius: 100px;
+    border: none;
+    font-size: 12px;
+
+    &.failed {
+      color: var(--semantic-error);
+      background-color: #F4E6E2;
+    }
   }
 }
 
-
-.unprocessed table, .archived table{
+.unprocessed table, .archived table, .unprocessed-mobile{
   --bs-table-bg: var(--neutral-200);
   tbody {
     tr:hover > * {
@@ -56,17 +169,6 @@
   }
   .orderID {
     color: $semantic-link;
-  }
-  .payStatusBadge {
-    width: 68px;
-    background-color: var(--neutral-300);
-    color: var(--neutral-800);
-    border-radius: 100px;
-    border: none;
-    &.failed {
-      color: var(--semantic-error);
-      background-color: #F4E6E2;
-    }
   }
   .shipBadge {
     display: inline-flex;
@@ -233,6 +335,8 @@
     background-color: $neutral-100;
     border-radius: 4px;
     border: 2px solid $neutral-100;
+    position: absolute;
+    z-index: 999;
     .dropdown-btn {
       width: 100%;
       color: $neutral-800;
@@ -307,12 +411,70 @@
 }
 
 
-// 手機板訂單編號
-.order-mobile {
-  margin: 0 auto;
-  .icon {
-    width: 44px;
-    height: 44px;
-    padding: 11px;
+
+
+// 手機版本-未處理訂單
+.unprocessed-mobile {
+  .order-list {
+    .order-card {
+      .order-content {
+        .order-header {
+          .order-title {
+            line-height: 1.2;
+          }
+        }
+        .order-info {
+          padding-top: 6px; //避免跟上面的 divider 產生 margin-collapse(外距塌陷)
+          padding-bottom: 6px;  //避免跟下面的 divider 產生 margin-collapse
+        }
+        .order-shipStatus {
+          padding-top: 6px; //避免跟上面的 divider 產生 margin-collapse(外距塌陷)
+        }
+      }
+      .order-button {
+        padding: 12px 24px;
+        border-radius: 100px;
+        background-color: $neutral-800;
+        color: $neutral-100;
+        font-weight: bold;
+        text-align: center;
+        &.error {
+          background-color: $neutral-300;
+          color: $neutral-500;
+        }
+      }
+    }
   }
+}
+// 手機版-底部按鈕列
+.mobile-button-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transition: transform 0.3s ease;
+  background-color: $neutral-200;
+  &.hide-button-bar {
+    transform: translate(100%);
+  }
+  .button-text {
+    padding-left: 26px;
+    padding-right: 26px;
+  }
+  .save-button {
+    padding: 14px 77px;
+    line-height: 1.2;
+    background-color: $CTA-200;
+    border-radius: 100px;
+    border: none;
+  }
+}
+// 手機版本-按下出貨狀態，背景模糊
+.ship-overlay-mobile {
+  position: fixed;
+  inset: 0;
+
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 900;
 }
