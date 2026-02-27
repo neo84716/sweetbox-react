@@ -1,16 +1,16 @@
 {
   "themes": [
     {
-      "id": 1,
-      "title": "精選甜點",
-      "title_en": "Select",
-      "title_abbr": "SL",
-      "subtitle": "我們幫你挑最值得期待的那一盒",
-      "description": "不論是人氣爆款還是話題聯名，通通不錯過。喜歡嚐鮮的你一定會愛上。",
-      "base_price": 720,
+      "id": "1",
+      "theme_title": "精選甜點",
+      "theme_title_en": "Select",
+      "theme_title_abbr": "SL",
+      "theme_subtitle": "我們幫你挑最值得期待的那一盒",
+      "theme_description": "不論是人氣爆款還是話題聯名，通通不錯過。喜歡嚐鮮的你一定會愛上。",
+      "price": 720,
       "theme_image_url": "./images/Theme_Page/pic_theme_feature.png",
       "square_image_url": "./images/Cart_Page/pic_feature.jpg",
-      "plans": [
+      "theme_plans": [
         {
           "id": 101,
           "duration_months": 3,
@@ -31,7 +31,7 @@
       "updated_at": "2026-02-13T10:00:00Z"
     },
     {
-      "id": 2,
+      "id": "2",
       "theme_title": "季節限定",
       "theme_title_en": "Seasonal",
       "theme_title_abbr": "SS",
@@ -61,7 +61,7 @@
       "updated_at": "2026-02-13T10:00:00Z"
     },
     {
-      "id": 3,
+      "id": "3",
       "theme_title": "在地甜點",
       "theme_title_en": "Local",
       "theme_title_abbr": "LC",
@@ -91,7 +91,7 @@
       "updated_at": "2026-02-13T10:00:00Z"
     },
     {
-      "id": 4,
+      "id": "4",
       "theme_title": "異國風味",
       "theme_title_en": "Global",
       "theme_title_abbr": "GB",
@@ -121,7 +121,7 @@
       "updated_at": "2026-02-13T10:00:00Z"
     },
     {
-      "id": 5,
+      "id": "5",
       "theme_title": "無負擔甜點",
       "theme_title_en": "Guilt-Free",
       "theme_title_abbr": "GF",
@@ -151,7 +151,7 @@
       "updated_at": "2026-02-13T10:00:00Z"
     },
     {
-      "id": 6,
+      "id": "6",
       "theme_title": "素食甜點",
       "theme_title_en": "Veggie",
       "theme_title_abbr": "VG",
@@ -181,7 +181,7 @@
   ],
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Lucas Wang",
       "email": "lucas@example.com",
       "password": "hashed_password_123456",
@@ -198,7 +198,7 @@
   ],
   "subscriptions": [
     {
-      "id": 1,
+      "id": "1",
       "user_id": 1,
       "theme_id": 1,
       "theme_name": "精選甜點",
@@ -207,8 +207,8 @@
       "quantity": 2,
       "original_price": 740,
       "discounted_price": 685,
-      "start_date": "2025-10-03",
-      "end_date": "2026-09-03",
+      "start_date": "2026-02-10",
+      "end_date": "2027-02-10",
       "next_payment_date": "2026-11-03",
       "status": "active",
       "is_processed": false,
@@ -235,10 +235,10 @@
         "donate_code": ""
       },
       "created_at": "2025-10-03T10:00:00Z",
-      "updated_at": "2025-10-03T10:00:00Z"
+      "updated_at": "2026-02-27T16:08:39.756Z"
     },
     {
-      "id": 2,
+      "id": "2",
       "user_id": 2,
       "theme_id": 1,
       "theme_name": "精選甜點",
@@ -280,7 +280,7 @@
   ],
   "subscription_orders": [
     {
-      "id": 1,
+      "id": "1",
       "subscription_no": "SL12X9D2A1",
       "order_no": "SL12X9D2A101",
       "transaction_id": "TRANS-001",
@@ -299,7 +299,7 @@
       "is_archived": true
     },
     {
-      "id": 2,
+      "id": "2",
       "subscription_no": "SL12X9D2A1",
       "order_no": "SL12X9D2A102",
       "transaction_id": "TRANS-002",
@@ -320,7 +320,7 @@
   ],
   "payments": [
     {
-      "id": 1,
+      "id": "1",
       "subscription_order_id": 1,
       "transaction_id": "TRANS-001",
       "amount": 1370,
@@ -334,7 +334,7 @@
   ],
   "carts": [
     {
-      "id": 1,
+      "id": "1",
       "user_id": 1,
       "subtotal": 2770,
       "discount_total": 200,
@@ -369,7 +369,7 @@
   ],
   "coupons": [
     {
-      "id": 1,
+      "id": "1",
       "code": "SWEET2026",
       "discount_type": "fixed",
       "discount_value": 100,
@@ -378,7 +378,7 @@
       "created_at": "2026-01-01T00:00:00Z"
     },
     {
-      "id": 2,
+      "id": "2",
       "code": "HAPPY88",
       "discount_type": "percentage",
       "discount_value": 0.88,

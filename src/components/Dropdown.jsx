@@ -1,17 +1,21 @@
 import { Icon } from '@iconify/react';
 import { useEffect, useRef, useState } from 'react';
 
-function Dropdown({ options, width = '108px' }) {
+function Dropdown({ options, width = '108px', onChange }) {
   const [option, setOption] = useState(options[0].label);
   const [isSelected, setIsSelected] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  function selectOption(e, label) {
+  function selectOption(e, opt) {
     e.preventDefault();
-    setOption(label);
+    setOption(opt.label);
     setIsSelected(true);
     setIsOpen(false);
+
+    if (onChange) {
+      onChange(opt.value); // 把選中的 value 傳出去
+    }
   }
 
   useEffect(() => {
@@ -20,11 +24,9 @@ function Dropdown({ options, width = '108px' }) {
         setIsOpen(false);
       }
     }
-
     document.addEventListener('click', handleClickOutside);
-
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [])
+  }, []);
 
   return (
     <div className="dropdown dropdown-neutral-250">
@@ -35,7 +37,6 @@ function Dropdown({ options, width = '108px' }) {
           ${isOpen ? 'is-open' : ''}`}
         style={{ width }}
         type="button"
-        aria-expanded="false"
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <span className='me-1'>{option}</span>
@@ -48,7 +49,7 @@ function Dropdown({ options, width = '108px' }) {
           <li key={index}>
             <a
               className="dropdown-item"
-              onClick={(e) => selectOption(e, opt.label)}
+              onClick={(e) => selectOption(e, opt)}
             >
               {opt.label}
             </a>

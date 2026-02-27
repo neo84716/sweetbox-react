@@ -7,8 +7,11 @@ import ShippedDate from "../../components/ShipDate";
 import ShippingStatus from "../../components/ShipStatus";
 import { useState, useEffect, useRef } from "react";
 import api from "../../api";
+import { useParams } from "react-router-dom";
 
 function SubscribeDetail() {
+  const { id } = useParams();
+  console.log("subscription id:", id);
   // 未歸檔資料，必須管理狀態，才能修改
   // 原本的假資料
   // const [orderData, setOrderData] = useState([
