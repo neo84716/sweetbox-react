@@ -43,7 +43,7 @@ const routes = [
         element: <Subscribe />
       },
       {
-        path: "admin/subscribeDetail",
+        path: "admin/subscribeDetail/:id",
         element: <SubscribeDetail />
       },
       { 
