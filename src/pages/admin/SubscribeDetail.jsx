@@ -7,59 +7,22 @@ import ShippedDate from "../../components/ShipDate";
 import ShippingStatus from "../../components/ShipStatus";
 import { useState, useEffect, useRef } from "react";
 import api from "../../api";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 
 function SubscribeDetail() {
   const { id } = useParams();
   console.log("subscription id:", id);
   // 未歸檔資料，必須管理狀態，才能修改
-  // 原本的假資料
-  // const [orderData, setOrderData] = useState([
-  //   {
-  //     orderID: 'SS12G2H23605',
-  //     period: 4,
-  //     price: '$675',
-  //     payDate: '2026-04-05',
-  //     payStatus: 2,
-  //     shipStatus: 3,
-  //     shipDate: '-',
-  //     operate: '歸檔',
-  //     isEditable: false,
-  //     isArchived: false
-  //   },
-  //   {
-  //     orderID: 'SS12G2H23604',
-  //     period: 3,
-  //     price: '$675',
-  //     payDate: '2026-03-05',
-  //     payStatus: 1,
-  //     shipStatus: 2,
-  //     shipDate: '2026-03-05',
-  //     operate: '歸檔',
-  //     isEditable: true,
-  //     isArchived: false
-  //   },
-  //   {
-  //     orderID: 'SS12G2H23603',
-  //     period: 3,
-  //     price: '$675',
-  //     payDate: '2026-03-05',
-  //     payStatus: 1,
-  //     shipStatus: 1,
-  //     shipDate: '-',
-  //     operate: '歸檔',
-  //     isEditable: true,
-  //     isArchived: false
-  //   }
-  // ])
   const [orderData, setOrderData] = useState([])
-  const [archievedData, setArchievedData] = useState([]);
+  const [archievedData, setArchievedData] = useState([])
+  const [userData, setUserData] = useState([])
   // 抓取資料
   useEffect(() => {
-    api.get("/subscription_orders")
+    api.get(`/subscription_orders?subscription_no=${id}`)
       .then(res => {
-
+        console.log('res', res.data)
         const formattedData = res.data.map((item, index) => ({
+          id: item.id,
           orderID: item.order_no,
           period: index + 1,
           price: `$${item.amount}`,
@@ -78,35 +41,27 @@ function SubscribeDetail() {
 
       })
       .catch(err => console.log(err))
-  }, [])
 
-  // 已歸檔的假資料
-  // const archievedData = [
-  //   {
-  //     orderID: 'SS12G2H23604',
-  //     period: 4,
-  //     price: '$675',
-  //     payDate: '2026-04-05',
-  //     payStatus: 1,
-  //     shipStatus: 2,
-  //     shipDate: '2026-04-05',
-  //     operate: '歸檔',
-  //     isEditable: false,
-  //     isArchived: true
-  //   },
-  //   {
-  //     orderID: 'SS12G2H23603',
-  //     period: 3,
-  //     price: '$675',
-  //     payDate: '2026-03-05',
-  //     payStatus: 1,
-  //     shipStatus: 2,
-  //     shipDate: '2026-03-05',
-  //     operate: '歸檔',
-  //     isEditable: false,
-  //     isArchived: true
-  //   }
-  // ]
+    api.get('/users')
+      .then(res=>{
+        console.log('user: ', res.data)
+        setUserData(res.data)
+        console.log('user', userData[0])
+      })
+  }, [id])
+
+
+  const updateArchived = async (item)=>{
+    try {
+      const res = await api.patch(`/subscription_orders/${item.id}`, {
+        is_archived : !item.isArchived
+      })
+      setOrderData
+      console.log('update:', res.data.isArchived)
+    } catch (err) {
+      console.log("archived error:", err)
+    }
+  }
 
   
   /*
@@ -154,37 +109,8 @@ function SubscribeDetail() {
     // 清除事件監聽
     return () => window.removeEventListener("scroll", handleScroll);
   }, [])
-  // const [hoverId, setHoverId] = useState(null)
-  // const [openOrderId, setOpenOrderId] = useState(null)
-  // const [openDateOrderId, setOpenDateOrderId] = useState(null)
-  // const [payStatus, setPayStatus] = useState(PayStatusOptions.DEFAULT)
-  // const ChevronDownIcon = () => (
-  //   <svg
-  //     width="16"
-  //     height="16"
-  //     viewBox="0 0 24 24"
-  //     fill="none"
-  //     xmlns="http://www.w3.org/2000/svg"
-  //   >
-  //     <path
-  //       d="M6 9L12 15L18 9"
-  //       stroke="currentColor"
-  //       strokeWidth="2"
-  //       strokeLinecap="round"
-  //       strokeLinejoin="round"
-  //     />
-  //   </svg>
-  // )
 
-  // 管理所有訂單開啟或關閉的狀態
-  // const [openDatePicker, setOpenDatePicker] = useState({})
-
-  // 定義點了按鈕會開關 datepicker 的機制
-  // const toggleDatePicker = (orderID) => {
-  //   console.log('切換前', orderID, openDatePicker[orderID]);
-  //   setOpenDatePicker({...openDatePicker, [orderID]: !openDatePicker[orderID]})
-  //   console.log('切換後', orderID, openDatePicker[orderID]);
-  // }
+  
   // 定義將選好的日期回寫的動作
 
   // 出貨狀態按鈕管理
@@ -227,7 +153,7 @@ function SubscribeDetail() {
         {/* 沒置頂時區塊背景色300，置頂時覆蓋navbar，並且CSS設定translate(-80px)，視覺上就不會有預留的mt-20 */}
         <div className={`container mt-20`}>
           {/* 訂單編號 - mobile */}
-          <div className={`order-mobile d-flex align-items-center underline  `}>
+          <div className={`order-mobile d-flex align-items-center subscribeDetail-underline  `}>
             <div className="icon me-2">
               <Icon icon={"material-symbols:chevron-left"} width={"22px"}/>
             </div>
@@ -252,7 +178,9 @@ function SubscribeDetail() {
           <section className="mb-8 d-none d-lg-block">
             <div className="d-flex align-items-center p-3">
               <Icon icon={"material-symbols:chevron-left"} className="me-1"/>
-              <p className="backList neutral-800 fs-8">返回列表</p>
+              <NavLink to={"/admin/subscribe"}>
+                <p className="backList neutral-800 fs-8">返回列表</p>
+              </NavLink>
             </div>
             <div className="d-flex align-items-center">
               <p className="fs-2 fw-bold me-3 orderID">SS12G2H236</p>
@@ -262,27 +190,11 @@ function SubscribeDetail() {
             </div>
           </section>
           {/* 訂單編號 - mobile */}
-          {/* <div className={`order-mobile d-block d-lg-none d-flex align-items-center underline sticky-top ${isSticky ? "bg-neutral-200" : ""} `}>
-            <div className="icon me-2">
-              <Icon icon={"material-symbols:chevron-left"} width={"22px"}/>
-            </div>
-            <div className="order-info d-flex justify-content-between align-items-center pe-3 w-100">
-              <div className="subscription-title">
-                <p className="fs-9 fw-bold mb-1 text-neutral-600 subscription-text">訂單編號</p>
-                <p className="fs-5 fw-bold me-3 text-neutral-800 subscription-id">SS12G2H236</p>
-              </div>
-              <div className="order-status">
-                <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
-                未處理
-              </button>
-              </div>
-            </div>
-          </div> */}
           {/* 訂閱內容 */}
           <section className="">
             <div className="d-flex flex-column flex-lg-row align-items-stretch gap-lg-2 mb-lg-6">
               {/* 訂閱方案 */}
-              <div className="orderCard orderCase order-2 order-lg-1 underline">
+              <div className="orderCard orderCase order-2 order-lg-1 subscribeDetail-underline">
                 <div className="caseTitle pt-1 pb-1 pb-lg-4 mb-6 fw-bold fs-8 fs-lg-7 ">
                   訂閱方案
                 </div>
@@ -310,7 +222,7 @@ function SubscribeDetail() {
                 </div>
               </div>
               {/* 訂單進度 */}
-              <div className="orderCard orderSchedule order-1 underline">
+              <div className="orderCard orderSchedule order-1 subscribeDetail-underline">
                 <div className="caseTitle pt-1 pb-1 pb-lg-4 mb-6 fw-bold fs-8 fs-lg-7 ">
                   訂閱進度
                 </div>
@@ -326,7 +238,7 @@ function SubscribeDetail() {
                 </div>
               </div>
               {/* 會員資訊 */}
-              <div className="orderCard memberInfo order-3 underline">
+              <div className="orderCard memberInfo order-3 subscribeDetail-underline">
                 <div className="caseTitle pt-1 pb-1 pb-lg-4 mb-6 fw-bold fs-8 fs-lg-7">
                   會員資訊
                 </div>
@@ -334,22 +246,23 @@ function SubscribeDetail() {
                   <div className="title">
                     <p className="mb-2">會員姓名 </p>
                     <p className="mb-2">Email
- </p>
+</p>
                     <p className="mb-2">電子載具 </p>
                     <p className="mb-2">統一編號 </p>
                     <p className="mb-2">配送地址 </p>
                   </div>
                   <div className="content text-neutral-800">
-                    <p className="mb-2">王小明</p>
-                    <p className="mb-2">alma.lawson@example.com</p>
-                    <p className="mb-2">/3SVJDTP</p>
+                    <p className="mb-2">{userData[0]?.name}</p>
+                    <p className="mb-2">{userData[0]?.email}</p>
+                    <p className="mb-2">{userData[0]?.default_carrier}</p>
                     <p className="mb-2">無</p>
-                    <p className="mb-2">115 新北市泰山區泰山路 123 號 1 樓</p>
+                    <p className="mb-2">{Object.values(userData[0]?.address || {}).join(" ")}</p>
                   </div>
                 </div>
               </div>
             </div>
           </section>
+          
           {/* 未處理訂單 桌機版 */}
           <section className="unprocessed d-none d-lg-block bg-neutral-200 rounded-6 mb-6">
             <div className="p-6">
@@ -390,7 +303,7 @@ function SubscribeDetail() {
                             <ShippedDate record={item} isOpen={openDateId === item.orderID} onToggle={()=>{setOpenDateId(openDateId === item.orderID ? null : item.orderID)}} onChange={(date)=>handleShipDateChange(item.orderID, date)} />
                           </td>
                           <td className="text-center fw-normal">
-                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shipStatus === 'failed' ? "shipped-failed" : ""}`}>
+                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shipStatus === 'failed' ? "shipped-failed" : ""}`} onClick={()=>updateArchived(item)}>
                               {item.isArchived ? "" : "歸檔"}
                             </span>
                           </td>
@@ -403,7 +316,7 @@ function SubscribeDetail() {
             </div>
           </section>
           {/* 未處理訂單 mobile版*/}
-          <div className="unprocessed-mobile d-block d-lg-none  pt-6 px-3 pb-8 underline">
+          <div className="unprocessed-mobile d-block d-lg-none  pt-6 px-3 pb-8 subscribeDetail-underline">
             <div className="order-category-text pt-1 pb-1 mb-4 fs-8 fw-bold">
               未處理訂單
             </div>
