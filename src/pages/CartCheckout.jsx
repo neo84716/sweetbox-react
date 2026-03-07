@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import Header from "../layouts/Header";
 import Footer from "../layouts/Footer";
 import taiwanData from "../assets/utils/taiwanDistricts.json";
+import api from "../api";
 
 // 信用卡效期
 const currentYear = new Date().getFullYear();
@@ -21,6 +22,19 @@ const invoiceOpts = [
 ];
 
 function CartCheckout() {
+    const [cartData, setCartData] = useState([]);
+    const [themes, setThemes] = useState([]);
+
+    useEffect(() => {
+        api.get("/carts")
+            .then(res => setCartData(res.data))
+            .catch(err => console.log(err));
+
+        api.get("/themes")
+            .then(res => setThemes(res.data))
+            .catch(err => console.log(err));
+    }, []);
+
     // 地址
     const [selectedCity, setSelectedCity] = useState("城市");
     const [selectedDistrict, setSelectedDistrict] = useState("鄉鎮市區");
@@ -56,29 +70,29 @@ function CartCheckout() {
     };
 
     // 訂購清單
-    const orderList = [
-        {
-            theme_title: '季節限定甜點盒',
-            duration_months: 12,
-            price: 675,
-            quantity: 3,
-            imageUrl: './images/Cart_Page/pic_season.jpg'
-        },
-        {
-            theme_title: '精選甜點盒',
-            duration_months: 12,
-            price: 675,
-            quantity: 2,
-            imageUrl: './images/Cart_Page/pic_feature.jpg'
-        },
-        {
-            theme_title: '無負擔甜點盒',
-            duration_months: 3,
-            price: 720,
-            quantity: 1,
-            imageUrl: './images/Cart_Page/pic_health.jpg'
-        }
-    ]
+    // const orderList = [
+    //     {
+    //         theme_title: '季節限定甜點盒',
+    //         duration_months: 12,
+    //         price: 675,
+    //         quantity: 3,
+    //         imageUrl: './images/Cart_Page/pic_season.jpg'
+    //     },
+    //     {
+    //         theme_title: '精選甜點盒',
+    //         duration_months: 12,
+    //         price: 675,
+    //         quantity: 2,
+    //         imageUrl: './images/Cart_Page/pic_feature.jpg'
+    //     },
+    //     {
+    //         theme_title: '無負擔甜點盒',
+    //         duration_months: 3,
+    //         price: 720,
+    //         quantity: 1,
+    //         imageUrl: './images/Cart_Page/pic_health.jpg'
+    //     }
+    // ]
 
     return (<>
         <Header />
@@ -202,12 +216,12 @@ function CartCheckout() {
                                         </div>
                                         <div className="col-6">
                                             <div className="dropdown cart-dropdown">
-                                                <button className="btn  d-flex align-items-center p-3 "  type="button" id="shipping_district"
+                                                <button className="btn  d-flex align-items-center p-3 " type="button" id="shipping_district"
                                                     data-bs-toggle="dropdown" aria-expanded="false" disabled={selectedCity === "城市"}>
                                                     <span>{selectedDistrict}</span>
                                                     <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
                                                 </button>
-                                                <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{maxHeight:'253px'}}>
+                                                <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '253px' }}>
                                                     {districts.map((dist) => (
                                                         <li key={dist}>
                                                             <button
@@ -620,48 +634,55 @@ function CartCheckout() {
                                 <h2 className="cart-section-title mb-3 mb-lg-6">訂單明細</h2>
                                 <div className="px-2 px-lg-0 mb-0 mb-sm-6">
                                     <ul className="fs-8 order-list mb-6">
-                                        {orderList.map((item, index) => (
-                                            <li key={index} className="py-2 mb-3 d-flex text-neutral-800">
-                                                <div className="flex-shrink-0 me-1 me-lg-2 align-self-lg-center">
-                                                    <img
-                                                        className="order-img rounded-2 bg-secondary d-inline-block"
-                                                        src={item.imageUrl}
-                                                        alt={item.theme_title}
-                                                    />
-                                                </div>
-                                                <div className="px-2 flex-grow-1 d-flex flex-column justify-content-center">
-                                                    <div className="fw-bold mb-1 text-neutral-800">{item.theme_title}</div>
-                                                    <div>
-                                                        <span>{item.duration_months}個月訂閱方案</span>
-                                                        <span className="d-none d-lg-inline"> · </span>
-                                                        <span className="d-block d-lg-inline">NT${item.price} / 盒</span>
+                                        {cartData[0]?.items.map(item => {
+                                            const theme = themes.find(t => t.id.toString() === item.theme_id.toString());
+                                            return (
+                                                <li key={item.id} className="py-2 mb-3 d-flex text-neutral-800">
+                                                    <div className="flex-shrink-0 me-1 me-lg-2 align-self-lg-center">
+                                                        <img
+                                                            className="order-img rounded-2 bg-secondary d-inline-block"
+                                                            src={theme?.square_image_url}
+                                                            alt={theme?.theme_title}
+                                                        />
                                                     </div>
-                                                </div>
-                                                <div className="flex-shrink-0 text-end px-2 ms-2 align-self-end">
-                                                    <div className="mb-lg-1">x {item.quantity}</div>
-                                                    <div className="fw-bold text-neutral-800">
-                                                        ${(item.price * item.quantity).toLocaleString()}
+                                                    <div className="px-2 flex-grow-1 d-flex flex-column justify-content-center">
+                                                        <div className="fw-bold mb-1 text-neutral-800">
+                                                            {theme?.theme_title}甜點盒
+                                                        </div>
+                                                        <div>
+                                                            <span>{item.duration_months}個月訂閱方案</span>
+                                                            <span className="d-none d-lg-inline"> · </span>
+                                                            <span className="d-block d-lg-inline">NT${item.price} / 盒</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </li>
-                                        ))}
+                                                    <div className="flex-shrink-0 text-end px-2 ms-2 align-self-end">
+                                                        <div className="mb-lg-1">x {item.quantity}</div>
+                                                        <div className="fw-bold text-neutral-800">
+                                                            NT${(item.price * item.quantity).toLocaleString()}
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
+
+                                    {/* 小計、折扣、合計 */}
                                     <div className="lh-base pb-6 mb-6 border-bottom border-neutral-400">
-                                        <p
-                                            className="d-flex justify-content-between align-items-center mb-2"
-                                        >
-                                            <span>小計</span><span>NT$6,190</span>
+                                        <p className="d-flex justify-content-between align-items-center mb-2">
+                                            <span>小計</span>
+                                            <span>NT${cartData[0]?.subtotal}</span>
                                         </p>
                                         <p className="d-flex justify-content-between align-items-center">
-                                            <span>折扣</span><span className="text-cta-200">- NT$175</span>
+                                            <span>折扣</span>
+                                            <span className="text-cta-200">- NT${cartData[0]?.discount_total}</span>
                                         </p>
                                     </div>
-                                    <p
-                                        className="d-flex justify-content-between align-items-center lh-sm ls-1 fw-bold"
-                                    >
-                                        <span>合計</span><span className="fs-5 lh-base ls-1">NT$6,015</span>
+                                    <p className="d-flex justify-content-between align-items-center lh-sm ls-1 fw-bold">
+                                        <span>合計</span>
+                                        <span className="fs-5 lh-base ls-1">NT${cartData[0]?.final_total}</span>
                                     </p>
                                 </div>
+
                                 <button
                                     type="button"
                                     className="btn-primary-text w-100 d-none d-sm-block"

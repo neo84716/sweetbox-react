@@ -78,7 +78,7 @@ function Pagination() {
                             1
                         </a>
                     </li>
-                    <li className={`page-item`} >
+                    <li className={`page-item disabled`} >
                         <a className="page-link" href="#">
                             <Icon icon="iconoir:slash" width="16" height="16" />
                         </a>
