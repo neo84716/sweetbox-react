@@ -27,7 +27,7 @@ const routes = [
         element: <Theme />
       },
       {
-        path: "themeDetail",
+        path: "themeDetail/:id",
         element: <ThemeDetail />
       },
       {

@@ -4,15 +4,58 @@ import api from "../api";
 
 
 function Cart() {
-    const [data, setData] = useState([]);
+    const [cartData, setCartData] = useState([]);
+    const [themes, setThemes] = useState([]);
 
     useEffect(() => {
-        api.get("/project")
-            .then(res => setData(res.data))
-            .catch(err => console.log(err))
-    }, []);
+        api.get("/carts")
+            .then(res => setCartData(res.data))
+            .catch(err => console.log(err));
 
-    console.log(data);
+        api.get("/themes")
+            .then(res => setThemes(res.data))
+            .catch(err => console.log(err));
+    }, []);
+    const updateCart = (updatedItems) => {
+        const cart = cartData[0];
+        const updatedCart = {
+            ...cart,
+            items: updatedItems,
+            subtotal: updatedItems.reduce((sum, i) => sum + i.price * i.quantity, 0),
+            final_total: updatedItems.reduce((sum, i) => sum + i.price * i.quantity, 0),
+            updated_at: new Date().toISOString()
+        };
+
+        api.put(`/carts/${cart.id}`, updatedCart)
+            .then(() => setCartData([updatedCart]))
+            .catch(err => console.log(err));
+    };
+    // 移除商品
+    const handleRemove = (itemId) => {
+        const updatedItems = cartData[0].items.filter(item => item.id !== itemId);
+        updateCart(updatedItems);
+    };
+
+    // 編輯數量
+    const handleQuantityChange = (itemId, delta) => {
+        const updatedItems = cartData[0].items.map(item =>
+            item.id === itemId
+                ? { ...item, quantity: Math.max(item.quantity + delta, 1) }
+                : item
+        );
+        updateCart(updatedItems);
+    };
+
+    // 編輯方案
+    const handlePlanChange = (itemId, duration, price) => {
+        const updatedItems = cartData[0].items.map(item =>
+            item.id === itemId
+                ? { ...item, duration_months: duration, price }
+                : item
+        );
+        updateCart(updatedItems);
+    };
+    console.log(cartData);
     return (
         <>
             <main className="bg-neutral-300 cart-body">
@@ -42,7 +85,116 @@ function Cart() {
                         <div className="row mx-0 mx-sm-n3">
                             <div className="col-lg-8 px-0 px-lg-4 mb-2 mb-lg-0">
                                 <ul className="cart-list cart-panel p-lg-4 px-0 py-4">
-                                    <li className="d-flex align-items-center cart-item">
+                                    {cartData[0]?.items.map(item => {
+                                        const theme = themes.find(t => t.id.toString() === item.theme_id.toString());
+                                        return (
+                                            <li key={item.id} className="d-flex align-items-center cart-item">
+                                                <img
+                                                    className="rounded-4 me-3 me-lg-6 d-block theme-img"
+                                                    src={theme?.square_image_url}
+                                                    alt={`${theme?.theme_title}圖片`}
+                                                />
+                                                <div className="cart-intro">
+                                                    <div
+                                                        className="d-flex justify-content-between align-items-center px-2 mb-2"
+                                                    >
+                                                        <h2 className="fs-7 lh-sm fw-bold ls-1">{theme?.theme_title}甜點盒</h2>
+                                                        <button
+                                                            type="button"
+                                                            className="btn p-0 btn-remove"
+                                                            onClick={() => handleRemove(item.id)}
+                                                        >
+                                                            移除
+                                                        </button>
+                                                    </div>
+                                                    {/* 方案選單 */}
+                                                    <div className="dropdown plan-dropdown mb-2">
+                                                        <button
+                                                            className="btn dropdown-toggle border-0 d-flex align-items-center me-1"
+                                                            type="button"
+                                                            data-bs-toggle="dropdown"
+                                                            aria-expanded="false"
+                                                        >
+                                                            <span className="me-1">{item.duration_months}個月訂閱方案</span>
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width="16"
+                                                                height="16"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    fill="currentColor"
+                                                                    fillRule="evenodd"
+                                                                    d="M7.293 9.293a1 1 0 0 1 1.414 0L12 12.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414"
+                                                                    clipRule="evenodd"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                        <ul className="dropdown-menu">
+                                                            {theme?.theme_plans.map(plan => (
+                                                                <li key={plan.id}>
+                                                                    <button
+                                                                        className="dropdown-item"
+                                                                        href="#"
+                                                                        onClick={() => handlePlanChange(item.id, plan.duration_months, plan.price)}
+                                                                    >
+                                                                        {plan.duration_months}個月訂閱方案
+                                                                    </button>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                    <p className="px-2 theme-price mb-2 mb-sm-4">
+                                                        單價：NT${item.price} / 盒
+                                                    </p>
+                                                    <div className="d-flex justify-content-between">
+                                                        <span className="theme-total-price">NT${item.price * item.quantity}</span>
+                                                        <div className="px-2 d-flex align-items-center">
+                                                            <button
+                                                                type="button"
+                                                                className="btn-minus"
+                                                                onClick={() => handleQuantityChange(item.id, -1)}
+                                                            >
+                                                                <svg
+                                                                    width="24"
+                                                                    height="24"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                >
+                                                                    <path
+                                                                        d="M5 12C5 11.7348 5.10536 11.4804 5.29289 11.2929C5.48043 11.1054 5.73478 11 6 11H18C18.2652 11 18.5196 11.1054 18.7071 11.2929C18.8946 11.4804 19 11.7348 19 12C19 12.2652 18.8946 12.5196 18.7071 12.7071C18.5196 12.8946 18.2652 13 18 13H6C5.73478 13 5.48043 12.8946 5.29289 12.7071C5.10536 12.5196 5 12.2652 5 12Z"
+                                                                        fill="#C1B9AC"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                            <span className="py-2 px-4 mx-1">{item.quantity}</span>
+                                                            <button
+                                                                type="button"
+                                                                className="btn-plus"
+                                                                onClick={() => handleQuantityChange(item.id, +1)}
+                                                            >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    width="24"
+                                                                    height="24"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        fill="currentColor"
+                                                                        d="M13 6a1 1 0 1 0-2 0v5H6a1 1 0 1 0 0 2h5v5a1 1 0 1 0 2 0v-5h5a1 1 0 1 0 0-2h-5z"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        )
+
+
+                                    })}
+                                    {/* <li className="d-flex align-items-center cart-item">
                                         <img
                                             className="rounded-4 me-3 me-lg-6 d-block theme-img"
                                             src="./images/Cart_Page/pic_season.jpg"
@@ -131,8 +283,8 @@ function Cart() {
                                         <input type="hidden" name="price" value="675" />
                                         <input type="hidden" name="quantity" value="3" />
                                         <input type="hidden" name="theme_total_price" value="2025" />
-                                    </li>
-                                    <li className="d-flex align-items-center cart-item">
+                                    </li> */}
+                                    {/* <li className="d-flex align-items-center cart-item">
                                         <img
                                             className="rounded-4 me-3 me-lg-6 d-block theme-img"
                                             src="./images/Cart_Page/pic_feature.jpg"
@@ -581,7 +733,7 @@ function Cart() {
                                         <input type="hidden" name="price" value="720" />
                                         <input type="hidden" name="quantity" value="1" />
                                         <input type="hidden" name="theme_total_price" value="720" />
-                                    </li>
+                                    </li> */}
                                 </ul>
                             </div>
                             <div className="col-lg-4 px-0 px-lg-3">
@@ -638,53 +790,55 @@ function Cart() {
                                 <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
                                     <h2 className="cart-section-title mb-3 mb-lg-6">訂單資料</h2>
                                     <div className="px-2 px-lg-0 mb-0 mb-sm-6">
-                                        <p className="lh-base mb-2">共 9 件商品</p>
+                                        {/* 商品總數 */}
+                                        <p className="lh-base mb-2">
+                                            共 {cartData[0]?.items.reduce((sum, i) => sum + i.quantity, 0)} 件商品
+                                        </p>
+
+                                        {/* 商品清單 */}
                                         <ul className="ps-4 subscription-list mb-6">
-                                            <li>
-                                                <span className="me-4"
-                                                >季節限定甜點盒<span className="mx-1">-</span>12個月訂閱方案</span><span>x 3</span>
-                                            </li>
-                                            <li>
-                                                <span className="me-4"
-                                                >精選甜點盒<span className="mx-1">-</span>12個月訂閱方案</span><span>x 2</span>
-                                            </li>
-                                            <li>
-                                                <span className="me-4"
-                                                >無負擔甜點盒<span className="mx-1">-</span>3個月訂閱方案</span><span>x 1</span>
-                                            </li>
-                                            <li>
-                                                <span className="me-4"
-                                                >異國風味甜點盒<span className="mx-1">-</span>6個月訂閱方案</span><span>x 1</span>
-                                            </li>
-                                            <li>
-                                                <span className="me-4"
-                                                >素食甜點盒<span className="mx-1">-</span>12個月訂閱方案</span><span>x 1</span>
-                                            </li>
-                                            <li>
-                                                <span className="me-4"
-                                                >在地甜點盒<span className="mx-1">-</span>3個月訂閱方案</span><span>x 1</span>
-                                            </li>
+                                            {cartData[0]?.items.map(item => {
+                                                const theme = themes.find(t => t.id.toString() === item.theme_id.toString());
+                                                return (
+                                                    <li key={item.id}>
+                                                        <span className="me-4">
+                                                            {theme?.theme_title}甜點盒
+                                                            <span className="mx-1">-</span>
+                                                            {item.duration_months}個月訂閱方案
+                                                        </span>
+                                                        <span>x {item.quantity}</span>
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
+
+                                        {/* 小計、折扣、合計 */}
                                         <div className="lh-base pb-6 mb-6 border-bottom border-neutral-400">
-                                            <p
-                                                className="d-flex justify-content-between align-items-center mb-2"
-                                            >
-                                                <span>小計</span><span>NT$6,190</span>
+                                            <p className="d-flex justify-content-between align-items-center mb-2">
+                                                <span>小計</span>
+                                                <span>
+                                                    NT${cartData[0]?.subtotal}
+                                                </span>
                                             </p>
                                             <p className="d-flex justify-content-between align-items-center">
-                                                <span>折扣</span><span className="text-cta-200">- NT$175</span>
+                                                <span>折扣</span>
+                                                <span className="text-cta-200">- NT${cartData[0]?.discount_total}</span>
                                             </p>
                                         </div>
-                                        <p
-                                            className="d-flex justify-content-between align-items-center lh-sm ls-1 fw-bold"
-                                        >
-                                            <span>合計</span><span className="fs-5 lh-base ls-1">NT$6,015</span>
+                                        <p className="d-flex justify-content-between align-items-center lh-sm ls-1 fw-bold">
+                                            <span>合計</span>
+                                            <span className="fs-5 lh-base ls-1">NT${cartData[0]?.final_total}</span>
                                         </p>
                                     </div>
-                                    <NavLink to="/cartCheckout" className="btn-primary-text w-100 d-none d-sm-block text-center">
+
+                                    <NavLink
+                                        to="/cartCheckout"
+                                        className="btn-primary-text w-100 d-none d-sm-block text-center"
+                                    >
                                         前往結帳
                                     </NavLink>
                                 </section>
+
                                 <section className="py-4 px-3 p-lg-8 cart-notice">
                                     <h3 className="mb-3 mb-lg-4">購物須知</h3>
                                     <ol>
