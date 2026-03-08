@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
-import Header from "../layouts/Header";
-import Footer from "../layouts/Footer";
 import taiwanData from "../assets/utils/taiwanDistricts.json";
 import api from "../api";
 
@@ -95,7 +93,6 @@ function CartCheckout() {
     // ]
 
     return (<>
-        <Header />
         <div className="bg-neutral-300 cart-body">
             <div className="cart-main">
                 <ol
@@ -715,7 +712,6 @@ function CartCheckout() {
                 </div>
             </div>
         </div>
-        <Footer />
     </>)
 }
 
