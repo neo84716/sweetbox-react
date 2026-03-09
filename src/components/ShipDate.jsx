@@ -140,32 +140,32 @@ import zhTW from 'antd/locale/zh_TW';
 const isMobile = window.innerWidth < 992;
 
 function ShippedDate({record, isOpen, onToggle, onChange}) {
-  const {payStatus, shipDate, isArchived} = record
-  const hasData = !(shipDate === "-")
+  const {payment_status, shipping_date, is_archived} = record
+  const hasData = !(shipping_date === null)
   // 付款失敗或是未付款
-  if(payStatus !== "paid") {
+  if(payment_status !== 1) {
     return (
       <div className="shipDate-disabled">-</div>
     )
   }
   // 已付款已歸檔
-  if(payStatus === "paid" && isArchived) {
+  if(payment_status === 1 && is_archived) {
     return (
       <div className="shipDate archived text-neutral-800">
-        {shipDate}
+        {shipping_date}
       </div>
     )
   }
   // 已付款未歸檔
-  console.log(shipDate)
+  console.log(shipping_date)
   return (
     <div className="shipDate-wrapper position-relative">
       {/* 按鈕 */}
       <div className={`shipDate-btn d-flex align-items-center px-4 py-2 ${isOpen ? "open" : ""}`} onClick={onToggle}>
         <div className="flex-grow-1 text-neutral-800 shipDate-value">
-          {hasData ? shipDate : "選擇日期"}
+          {hasData ? shipping_date : "選擇日期"}
         </div>
-        {!isArchived && <div className="icon-box text-neutral-600">
+        {!is_archived && <div className="icon-box text-neutral-600">
           <Icon icon="mdi:calendar-month-outline" className="icon" />
         </div>}
       </div>
@@ -178,7 +178,7 @@ function ShippedDate({record, isOpen, onToggle, onChange}) {
             }
           }}
         >
-          <DatePicker className="shipDate-picker" value={hasData ? dayjs(shipDate) : null} 
+          <DatePicker className="shipDate-picker" value={hasData ? dayjs(shipping_date) : null} 
             onChange={(date)=>{
               if(!date){
                 onChange(null)
