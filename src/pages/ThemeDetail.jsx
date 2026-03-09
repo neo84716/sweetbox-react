@@ -9,12 +9,14 @@ import SideMenuFloat from "../components/SideMenuFloat"
 import Pagination from "../components/Pagination";
 import { useParams } from "react-router-dom"
 import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function ThemeDetail() {
   const { id } = useParams();
   const [themeData, setThemeData] = useState(null);
   const [activePlan, setActivePlan] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
 
   const handleSubscribe = () => {
     if (!activePlan || !themeData) return;
@@ -46,6 +48,7 @@ function ThemeDetail() {
       api.put("/carts/1", updatedCart)
         .then(() => {
           console.log("已加入購物車");
+          navigate("/cart");
         })
         .catch(err => console.log(err));
     });
@@ -290,10 +293,10 @@ function ThemeDetail() {
                     <div className="subscribe-fixed-bar d-flex justify-content-between">
                       <div className="pb-4">
                         <p className="mb-1 fs-9 text-cta-200">
-                          {activePlan ? `節省$${themeData.price - activePlan.price}` : ""}
+                          {activePlan ? `節省$${(themeData.price - activePlan.price)*quantity}` : ""}
                         </p>
                         <p className="fs-4 fw-bold ls-1">
-                          {activePlan ? `NT$ ${activePlan.price}` : ""}
+                          {activePlan ? `NT$ ${activePlan.price*quantity}` : ""}
                         </p>
                       </div>
                       <div className="pt-3">

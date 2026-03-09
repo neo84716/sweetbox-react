@@ -6,6 +6,9 @@ import api from "../api";
 function Cart() {
     const [cartData, setCartData] = useState([]);
     const [themes, setThemes] = useState([]);
+    const [couponCode, setCouponCode] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
 
     useEffect(() => {
         api.get("/carts")
@@ -16,13 +19,26 @@ function Cart() {
             .then(res => setThemes(res.data))
             .catch(err => console.log(err));
     }, []);
-    const updateCart = (updatedItems) => {
+    const updateCart = (updatedItems, appliedCoupon = null, discountApplied = 0) => {
         const cart = cartData[0];
+        const subtotal = updatedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
         const updatedCart = {
             ...cart,
             items: updatedItems,
-            subtotal: updatedItems.reduce((sum, i) => sum + i.price * i.quantity, 0),
-            final_total: updatedItems.reduce((sum, i) => sum + i.price * i.quantity, 0),
+            subtotal,
+            discount_total: discountApplied || 0,
+            final_total: subtotal - (discountApplied || 0),
+            coupons: appliedCoupon
+                ? [
+                    {
+                        id: 1, // 永遠只有一筆，固定 id 或重新生成
+                        coupon_id: appliedCoupon.id,
+                        applied_at: new Date().toISOString(),
+                        discount_applied: discountApplied
+                    }
+                ]
+                : [],
             updated_at: new Date().toISOString()
         };
 
@@ -55,7 +71,49 @@ function Cart() {
         );
         updateCart(updatedItems);
     };
-    console.log(cartData);
+    // 套用優惠代碼
+    const handleApplyCoupon = async () => {
+        try {
+            const res = await api.get("/coupons");
+            const coupons = res.data;
+            const cart = cartData[0];
+            const subtotal = cart.subtotal;
+
+            const coupon = coupons.find(c => c.code === couponCode.trim());
+            if (!coupon) {
+                setError("此優惠代碼無效。");
+                setSuccess("");
+                return;
+            }
+
+            if (new Date(coupon.expires_at) < new Date()) {
+                setError("此優惠代碼已過期。");
+                setSuccess("");
+                return;
+            }
+
+            if (subtotal < coupon.min_amount) {
+                setError(`需滿 ${coupon.min_amount} 元才能使用此代碼。`);
+                setSuccess("");
+                return;
+            }
+
+            let discountApplied = 0;
+            if (coupon.discount_type === "fixed") {
+                discountApplied = coupon.discount_value;
+            } else if (coupon.discount_type === "percentage") {
+                discountApplied = subtotal * (1 - coupon.discount_value);
+            }
+
+            setError("");
+            setSuccess(true);
+            updateCart(cart.items, coupon, discountApplied);
+        } catch (err) {
+            console.log(err);
+            setError("套用優惠代碼時發生錯誤。");
+            setSuccess("");
+        }
+    };
     return (
         <>
             <main className="bg-neutral-300 cart-body">
@@ -755,21 +813,25 @@ function Cart() {
                                         </span>
                                         <input
                                             type="text"
-                                            className="form-control ps-2 py-0 pe-0"
+                                            className={`form-control ps-2 py-0 pe-0 ${success ? "text-cta" : ""}`}
                                             placeholder="請輸入優惠代碼"
                                             aria-label="優惠代碼"
                                             aria-describedby="button-addon2"
                                             name="discount_number"
+                                            value={couponCode}
+                                            onChange={e => setCouponCode(e.target.value)}
                                         />
                                         <button
                                             className="btn d-block border-0"
                                             type="button"
                                             id="button-addon2"
+                                            onClick={handleApplyCoupon}
                                         >
                                             套用
                                         </button>
                                     </div>
-                                    <div className="px-2 error-message text-semantic-error">
+
+                                    {error && <div className="px-2 error-message text-semantic-error">
                                         <svg
                                             className="me-2"
                                             xmlns="http://www.w3.org/2000/svg"
@@ -783,9 +845,7 @@ function Cart() {
                                                 d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10s10-4.477 10-10M12 7a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0V8a1 1 0 0 1 1-1m-1 9a1 1 0 0 1 1-1h.008a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1"
                                                 clipRule="evenodd"
                                             />
-                                        </svg>
-                                        此優惠代碼無效。
-                                    </div>
+                                        </svg>{error}</div>}
                                 </section>
                                 <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
                                     <h2 className="cart-section-title mb-3 mb-lg-6">訂單資料</h2>
