@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react";
 import { NavLink } from "react-router-dom";
 import * as bootstrap from "bootstrap";
 import { useRef, useState, useEffect } from 'react';
+import { useForm, Controller } from "react-hook-form";
 
 import Dropdown from "../components/Dropdown";
 import Pagination from "../components/Pagination";
@@ -166,7 +167,7 @@ const creditCards = [
   {
     id: 1,
     userId: 1,
-    type: 'Visa',
+    type: 'visa',
     lastFour: '4242',
     expMonth: '12',
     expYear: '2026',
@@ -182,7 +183,7 @@ const creditCards = [
   {
     id: 2,
     userId: 1,
-    type: 'Mastercard',
+    type: 'mastercard',
     lastFour: '5136',
     expMonth: '6',
     expYear: '2028',
@@ -199,8 +200,9 @@ const creditCards = [
 
 // 信用卡 icon 樣式
 const cardIcons = {
-  Visa: 'logos:visaelectron',
-  Mastercard: 'logos:mastercard'
+  visa: 'logos:visaelectron',
+  mastercard: 'logos:mastercard',
+  jcb: 'logos:jcb'
 };
 
 // 狀態樣式
@@ -226,11 +228,20 @@ const shippingStatus = [
 
 function Subscription() {
   const [isAdd, setIsAdd] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [cvc, setCvc] = useState('');
   const [cards, setCards] = useState(creditCards);
   const paymentModalRef = useRef(null);
   const paymentModalInstanceRef = useRef(null);
+
+  const { register, handleSubmit, formState: { errors }, control, reset, trigger, getValues} = useForm({
+    defaultValues: {
+      cardNumber: '',
+      userName: '',
+      expMonth: '',
+      expYear: '',
+      cvc: ''
+    },
+    mode: 'onBlur'
+  });
 
   const defaultCard = cards?.find(card => card?.isDefault) || cards?.[0];
 
@@ -267,6 +278,7 @@ function Subscription() {
 
   const handleAddCard = () => {
     setIsAdd((prev) => !prev);
+    reset();
   };
 
   // 格式化卡號
@@ -280,18 +292,18 @@ function Subscription() {
     return name.toUpperCase();
   }
 
-  const formatExpireDate = (month, year) => {
-    return `${month.padStart(2, '0')}/${year.slice(-2)}`;
+  const formatExpireDate = (month = '', year = '') => {
+    return `${String(month).padStart(2, '0')}/${String(year).slice(-2)}`;
   }
 
   const handleCardNumberChange = (e) => {
     const formattedValue = formatCardNumber(e.target.value);
-    setCardNumber(formattedValue);
+    e.target.value = formattedValue;
   }
 
   const handleCvcChange = (e) => {
     const formattedValue = e.target.value.replace(/\D/g, '');
-    setCvc(formattedValue);
+    e.target.value = formattedValue;
   }
 
   const setDefaultCard = (cardId) => {
@@ -300,6 +312,44 @@ function Subscription() {
       isDefault: card.id === cardId
     }));
     setCards(newCards);
+  }
+
+  // 判斷信用卡類型
+  const getCardType = (number) => {
+    if (/^4/.test(number)) return 'visa';
+    if (/^5[1-5]/.test(number)) return 'mastercard';
+    if (/^35/.test(number)) return 'jcb';
+    return 'visa';
+  }
+
+  const submitPaymentForm = (data) => {
+    const { cardNumber, expMonth, expYear } = data;
+    const creditCard = {
+      id: crypto.randomUUID(),
+      userId: 1,
+      type: getCardType(cardNumber),
+      lastFour: cardNumber.slice(-4),
+      expMonth,
+      expYear,
+      isDefault: true,
+      token: crypto.randomUUID(),
+      users: [
+        {
+          id: 1,
+          name: 'Lucas Wang',
+        },
+      ],
+    };
+
+    // 將使用者的信用卡都設為非預設卡片
+    const newCards = cards.map((card) => ({
+      ...card,
+      isDefault: false
+    }))
+
+    setIsAdd(false);
+    setCards([creditCard, ...newCards])
+    reset();
   }
 
   return (
@@ -541,7 +591,10 @@ function Subscription() {
                                     <h2 className="py-3 fs-8 ls-1 text-neutral-600 mb-6">
                                       新增付款方式
                                     </h2>
-                                    <form className="flex-grow-1 d-flex flex-column">
+                                    <form
+                                      className="flex-grow-1 d-flex flex-column"
+                                      onSubmit={handleSubmit(submitPaymentForm)}
+                                    >
                                       {/* label 包 input 是為了解決 Bootstrap Modal focus trap 問題 */}
                                       <div className="d-flex flex-column gap-4 flex-grow-1">
                                         {/* 信用卡卡號 */}
@@ -576,15 +629,32 @@ function Subscription() {
                                               />
                                               <input
                                                 type="text"
-                                                className="form-control ms-0"
+                                                className={`form-control ms-0 ${errors.cardNumber && 'border border-semantic-error'}`}
                                                 aria-describedby="error-message"
                                                 placeholder="0000-0000-0000-0000"
-                                                value={cardNumber}
-                                                onChange={(e) =>
-                                                  handleCardNumberChange(e)
-                                                }
+                                                {...register('cardNumber', {
+                                                  required: '請輸入信用卡卡號',
+                                                  minLength: {
+                                                    value: 16,
+                                                    message:
+                                                      '信用卡卡號需為 16 碼',
+                                                  },
+                                                  onChange:
+                                                    handleCardNumberChange,
+                                                })}
                                               />
                                             </div>
+                                            {errors.cardNumber && (
+                                              <div className="text-semantic-error mt-2">
+                                                <Icon
+                                                  className="mx-2"
+                                                  icon="gridicons:notice-outline"
+                                                  width="16"
+                                                  height="16"
+                                                ></Icon>
+                                                {errors.cardNumber.message}
+                                              </div>
+                                            )}
                                           </label>
                                         </div>
                                         {/* 持卡人姓名 */}
@@ -602,11 +672,25 @@ function Subscription() {
                                               />
                                               <input
                                                 type="text"
-                                                className="form-control ms-0"
+                                                className={`form-control ms-0 ${errors.userName && 'border border-semantic-error'}`}
                                                 aria-describedby="error-message"
                                                 placeholder="請輸入卡片上的英文姓名"
+                                                {...register('userName', {
+                                                  required: '請輸入持卡人姓名',
+                                                })}
                                               />
                                             </div>
+                                            {errors.userName && (
+                                              <div className="text-semantic-error mt-2">
+                                                <Icon
+                                                  className="mx-2"
+                                                  icon="gridicons:notice-outline"
+                                                  width="16"
+                                                  height="16"
+                                                ></Icon>
+                                                {errors.userName.message}
+                                              </div>
+                                            )}
                                           </label>
                                         </div>
                                         {/* 有效期限 */}
@@ -615,15 +699,87 @@ function Subscription() {
                                             有效期限
                                           </label>
                                           <div className="d-flex gap-3">
-                                            <FormSelect
-                                              options={months}
-                                              suffix="月"
+                                            <Controller
+                                              name="expMonth"
+                                              control={control}
+                                              rules={{
+                                                validate: (val) => {
+                                                  if (!val)
+                                                    return '請選擇有效期限';
+
+                                                  const currentYear =
+                                                    getValues('expYear');
+                                                  if (!currentYear) return true;
+
+                                                  const now = new Date();
+                                                  const expiration = new Date(
+                                                    Number(currentYear),
+                                                    Number(val),
+                                                    1,
+                                                  );
+
+                                                  if (now >= expiration) {
+                                                    return '信用卡已過期';
+                                                  }
+
+                                                  return true;
+                                                },
+                                              }}
+                                              render={({
+                                                field: { value, onChange },
+                                              }) => (
+                                                <FormSelect
+                                                  options={months}
+                                                  suffix="月"
+                                                  value={value}
+                                                  onChange={(val) => {
+                                                    onChange(val);
+                                                    trigger(['expMonth', 'expYear']);
+                                                  }}
+                                                  hasError={!!errors.expMonth}
+                                                />
+                                              )}
                                             />
-                                            <FormSelect
-                                              options={years}
-                                              suffix="年"
+                                            <Controller
+                                              name="expYear"
+                                              control={control}
+                                              rules={{
+                                                validate: (val) => {
+                                                  if (!val)
+                                                    return '請選擇有效期限';
+
+                                                  return true;
+                                                },
+                                              }}
+                                              render={({
+                                                field: { value, onChange },
+                                              }) => (
+                                                <FormSelect
+                                                  options={years}
+                                                  suffix="年"
+                                                  value={value}
+                                                  onChange={(val) => {
+                                                    onChange(val);
+                                                    trigger('expMonth');
+                                                  }}
+                                                  hasError={!!errors.expYear}
+                                                />
+                                              )}
                                             />
                                           </div>
+                                          {(errors.expMonth ||
+                                            errors.expYear) && (
+                                            <div className="text-semantic-error mt-2">
+                                              <Icon
+                                                className="mx-2"
+                                                icon="gridicons:notice-outline"
+                                                width="16"
+                                                height="16"
+                                              ></Icon>
+                                              {errors.expMonth?.message ||
+                                                errors.expYear?.message}
+                                            </div>
+                                          )}
                                         </div>
                                         {/* 安全碼 */}
                                         <div>
@@ -640,18 +796,29 @@ function Subscription() {
                                               />
                                               <input
                                                 type="text"
-                                                className="form-control ms-0"
+                                                className={`form-control ms-0 ${errors.cvc && 'border border-semantic-error'}`}
                                                 aria-describedby="error-message"
                                                 placeholder="CVC"
                                                 pattern="[0-9]*"
                                                 inputMode="numeric"
-                                                maxLength="4"
-                                                value={cvc}
-                                                onChange={(e) =>
-                                                  handleCvcChange(e)
-                                                }
+                                                maxLength="3"
+                                                {...register('cvc', {
+                                                  required: '請輸入安全碼',
+                                                  onChange: handleCvcChange,
+                                                })}
                                               />
                                             </div>
+                                            {errors.cvc && (
+                                              <div className="text-semantic-error mt-2">
+                                                <Icon
+                                                  className="mx-2"
+                                                  icon="gridicons:notice-outline"
+                                                  width="16"
+                                                  height="16"
+                                                ></Icon>
+                                                {errors.cvc.message}
+                                              </div>
+                                            )}
                                           </label>
                                         </div>
                                       </div>
@@ -664,9 +831,8 @@ function Subscription() {
                                           取消新增
                                         </button>
                                         <button
-                                          type="button"
+                                          type="submit"
                                           className="btn btn-cta-200 btn-action py-3 px-6"
-                                          onClick={() => closePaymentModal()}
                                         >
                                           確認並儲存
                                         </button>
@@ -715,14 +881,22 @@ function Subscription() {
                                                   <p className="text-neutral-600 fs-9">
                                                     CARD HOLDER
                                                   </p>
-                                                  <p className="fs-8">{formatToUpperCase(defaultCard.users[0].name)}
+                                                  <p className="fs-8">
+                                                    {formatToUpperCase(
+                                                      defaultCard.users[0].name,
+                                                    )}
                                                   </p>
                                                 </div>
                                                 <div className="text-end">
                                                   <p className="text-neutral-600 fs-9">
                                                     EXPIRES
                                                   </p>
-                                                  <p className="fs-8">{formatExpireDate(defaultCard.expMonth, defaultCard.expYear)}</p>
+                                                  <p className="fs-8">
+                                                    {formatExpireDate(
+                                                      defaultCard.expMonth,
+                                                      defaultCard.expYear,
+                                                    )}
+                                                  </p>
                                                 </div>
                                               </div>
                                             </div>
@@ -770,7 +944,11 @@ function Subscription() {
                                                 {`${card.type.toUpperCase()} • • • • ${card.lastFour}`}
                                               </p>
                                               <p className="text-neutral-600">
-                                                到期日 {formatExpireDate(card.expMonth, card.expYear)}
+                                                到期日{' '}
+                                                {formatExpireDate(
+                                                  card.expMonth,
+                                                  card.expYear,
+                                                )}
                                               </p>
                                             </div>
                                           </div>
