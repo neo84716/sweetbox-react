@@ -116,8 +116,11 @@
     }
   }
   &-list {
-    max-height: 78px;
+    max-height: 144px;
     overflow: auto;
+    @media (min-width: 576px) {
+      max-height: 78px;
+    }
   }
 }
 

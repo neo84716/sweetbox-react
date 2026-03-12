@@ -44,6 +44,9 @@ const years = Array.from({ length: 10 }, (_, i) => ({
   value: currentYear + i
 }));
 
+// 最多的卡片數量
+const maxCards = 5;
+
 // /api/users/:userId/subscriptions，取得所有使用者訂閱，來自 user_subscriptions table
 const userSubscriptions = [
   {
@@ -172,6 +175,7 @@ const creditCards = [
     expMonth: '12',
     expYear: '2026',
     isDefault: true,
+    isDeleted: false,
     token: 'tok_demo_1',
     users: [
       {
@@ -188,6 +192,7 @@ const creditCards = [
     expMonth: '6',
     expYear: '2028',
     isDefault: false,
+    isDeleted: false,
     token: 'tok_demo_2',
     users: [
       {
@@ -232,7 +237,7 @@ function Subscription() {
   const paymentModalRef = useRef(null);
   const paymentModalInstanceRef = useRef(null);
 
-  const { register, handleSubmit, formState: { errors }, control, reset, trigger, getValues} = useForm({
+  const { register, handleSubmit, formState: { errors }, control, reset, trigger, getValues, setValue} = useForm({
     defaultValues: {
       cardNumber: '',
       userName: '',
@@ -244,6 +249,7 @@ function Subscription() {
   });
 
   const defaultCard = cards?.find(card => card?.isDefault) || cards?.[0];
+  const activeCards = cards?.filter(card => !card?.isDeleted);
 
   // Modal 初始化
   useEffect(() => {
@@ -298,12 +304,12 @@ function Subscription() {
 
   const handleCardNumberChange = (e) => {
     const formattedValue = formatCardNumber(e.target.value);
-    e.target.value = formattedValue;
+    setValue('cardNumber', formattedValue, { shouldValidate: true});
   }
 
   const handleCvcChange = (e) => {
     const formattedValue = e.target.value.replace(/\D/g, '');
-    e.target.value = formattedValue;
+    setValue('cvc', formattedValue, { shouldValidate: true});
   }
 
   const setDefaultCard = (cardId) => {
@@ -312,6 +318,16 @@ function Subscription() {
       isDefault: card.id === cardId
     }));
     setCards(newCards);
+  }
+
+  const handleRemoveCard = (cardId) => {
+    setCards((prev) =>
+      prev.map((card) =>
+        card.id === cardId 
+          ? { ...card, isDeleted: true } 
+          : card,
+      ),
+    );
   }
 
   // 判斷信用卡類型
@@ -629,15 +645,18 @@ function Subscription() {
                                               />
                                               <input
                                                 type="text"
-                                                className={`form-control ms-0 ${errors.cardNumber && 'border border-semantic-error'}`}
+                                                className={`form-control ms-0 ${errors.cardNumber ? 'border border-semantic-error' : ''}`}
                                                 aria-describedby="error-message"
                                                 placeholder="0000-0000-0000-0000"
                                                 {...register('cardNumber', {
                                                   required: '請輸入信用卡卡號',
-                                                  minLength: {
-                                                    value: 16,
-                                                    message:
-                                                      '信用卡卡號需為 16 碼',
+                                                  validate: (value) => {
+                                                    const numbers =
+                                                      value.replace(/\D/g, '');
+                                                    if (numbers.length !== 16) {
+                                                      return '信用卡卡號需為 16 碼';
+                                                    }
+                                                    return true;
                                                   },
                                                   onChange:
                                                     handleCardNumberChange,
@@ -734,7 +753,10 @@ function Subscription() {
                                                   value={value}
                                                   onChange={(val) => {
                                                     onChange(val);
-                                                    trigger(['expMonth', 'expYear']);
+                                                    trigger([
+                                                      'expMonth',
+                                                      'expYear',
+                                                    ]);
                                                   }}
                                                   hasError={!!errors.expMonth}
                                                 />
@@ -760,7 +782,10 @@ function Subscription() {
                                                   value={value}
                                                   onChange={(val) => {
                                                     onChange(val);
-                                                    trigger('expMonth');
+                                                    trigger([
+                                                      'expMonth',
+                                                      'expYear',
+                                                    ]);
                                                   }}
                                                   hasError={!!errors.expYear}
                                                 />
@@ -799,11 +824,14 @@ function Subscription() {
                                                 className={`form-control ms-0 ${errors.cvc && 'border border-semantic-error'}`}
                                                 aria-describedby="error-message"
                                                 placeholder="CVC"
-                                                pattern="[0-9]*"
                                                 inputMode="numeric"
                                                 maxLength="3"
                                                 {...register('cvc', {
                                                   required: '請輸入安全碼',
+                                                  pattern: {
+                                                    value: /^[0-9]{3}$/,
+                                                    message: '安全碼需為 3 碼',
+                                                  },
                                                   onChange: handleCvcChange,
                                                 })}
                                               />
@@ -907,31 +935,45 @@ function Subscription() {
                                       )}
                                     </div>
                                     {/* 信用卡列表 */}
-                                    <div className="d-flex justify-content-between align-items-center mb-0 mb-lg-1 px-2">
-                                      <h2 className="small ls-1 text-neutral-600 py-3">
-                                        其他卡片
-                                      </h2>
-                                      <button
-                                        type="button"
-                                        className="btn d-none d-lg-flex align-items-center p-3 border-0"
-                                        onClick={() => handleAddCard()}
+                                    <div className="d-flex justify-content-between align-items-center mb-0 mb-lg-1 px-2 pb-2">
+                                      <h2
+                                        className={`small ls-1 text-neutral-600 py-3 ${activeCards.length === maxCards ? 'text-semantic-error' : ''}`}
                                       >
-                                        <Icon
-                                          icon="ic:round-plus"
-                                          width="16"
-                                          height="16"
-                                          className="me-1"
-                                        />
-                                        <span className="small">新增卡片</span>
-                                      </button>
+                                        其他卡片
+                                        {activeCards.length === maxCards
+                                          ? `(已達上限 ${maxCards} 張)`
+                                          : `(目前 ${activeCards.length} / ${maxCards} 張)`}
+                                      </h2>
+                                      {activeCards.length < maxCards ? (
+                                        <button
+                                          type="button"
+                                          className="btn d-none d-lg-flex align-items-center p-3 border-0"
+                                          onClick={() => handleAddCard()}
+                                        >
+                                          <Icon
+                                            icon="ic:round-plus"
+                                            width="16"
+                                            height="16"
+                                            className="me-1"
+                                          />
+                                          <span className="small">
+                                            新增卡片
+                                          </span>
+                                        </button>
+                                      ) : (
+                                        <div className="d-flex flex-column text-neutral-600 gap-1">
+                                          <small>已達信用卡上限 (5 張)</small>
+                                          <small>如需新增請先移除卡片</small>
+                                        </div>
+                                      )}
                                     </div>
-                                    <ul className="mb-4 credit-card-list">
-                                      {cards.map((card) => (
+                                    <ul className="mb-4 credit-card-list d-flex flex-column gap-2">
+                                      {activeCards.map((card) => (
                                         <li
                                           key={card.id}
-                                          className="d-flex justify-content-between align-items-center rounded-4 bg-neutral-100 p-4"
+                                          className={`d-flex ${!card.isDefault && 'flex-column'} flex-sm-row justify-content-between align-items-start align-items-sm-center rounded-4 bg-neutral-100 p-4`}
                                         >
-                                          <div className="d-flex justify-content-start justify-content-lg-between gap-3 mb-4 mb-lg-0">
+                                          <div className="d-flex justify-content-start justify-content-sm-between gap-3 mb-4 mb-sm-0">
                                             <div className="mastercard-logo align-self-center">
                                               <Icon
                                                 icon={cardIcons[card.type]}
@@ -940,8 +982,11 @@ function Subscription() {
                                               />
                                             </div>
                                             <div className="small">
-                                              <p className="mb-1">
-                                                {`${card.type.toUpperCase()} • • • • ${card.lastFour}`}
+                                              <p className="mb-1 d-flex flex-column flex-sm-row">
+                                                <span className="mb-1 mb-sm-0">
+                                                  {card.type.toUpperCase()}
+                                                </span>
+                                                <span>{`• • • • ${card.lastFour}`}</span>
                                               </p>
                                               <p className="text-neutral-600">
                                                 到期日{' '}
@@ -953,48 +998,76 @@ function Subscription() {
                                             </div>
                                           </div>
                                           {/* 編輯和設為預設按鈕 */}
-                                          <div className="d-none d-lg-block">
+                                          <div className="d-none d-sm-block">
                                             {card.isDefault ? (
                                               <span className="badge-completed">
                                                 預設
                                               </span>
                                             ) : (
+                                              <>
+                                                <button
+                                                  type="button"
+                                                  className="btn p-3 fs-8 border-0"
+                                                  onClick={() =>
+                                                    setDefaultCard(card.id)
+                                                  }
+                                                >
+                                                  設為預設
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  className="btn p-3 fs-8 border-0 text-semantic-error"
+                                                  onClick={() =>
+                                                    handleRemoveCard(card.id)
+                                                  }
+                                                >
+                                                  移除
+                                                </button>
+                                              </>
+                                            )}
+                                          </div>
+                                          {/* 編輯和設為預設按鈕-mobile */}
+                                          {card.isDefault ? (
+                                            <span className="badge-completed d-block d-sm-none text-center align-self-center">
+                                              預設
+                                            </span>
+                                          ) : (
+                                            <div className="d-sm-none d-flex w-100 gap-2">
                                               <button
                                                 type="button"
-                                                className="btn p-3 fs-8 border-0"
+                                                className="btn btn-neutral-300 rounded-pill flex-fill py-2 py-sm-3 px-3 px-sm-6 fs-9"
                                                 onClick={() =>
                                                   setDefaultCard(card.id)
                                                 }
                                               >
                                                 設為預設
                                               </button>
-                                            )}
-                                          </div>
-                                          {/* 編輯和設為預設按鈕-mobile */}
-                                          <div className="d-lg-none d-block">
-                                            <button
-                                              type="button"
-                                              className="btn btn-neutral-300 rounded-pill flex-grow-1 py-2 py-lg-3 px-3 px-lg-6 fs-9"
-                                            >
-                                              設為預設
-                                            </button>
-                                          </div>
+                                              <button
+                                                type="button"
+                                                className="btn btn-semantic-error rounded-pill flex-fill py-2 py-sm-3 px-3 px-sm-6 fs-9"
+                                              >
+                                                移除
+                                              </button>
+                                            </div>
+                                          )}
                                         </li>
                                       ))}
                                     </ul>
-                                    <button
-                                      type="button"
-                                      className="btn btn-neutral-100 w-100 opacity-70 border-neutral-300 rounded-4 py-3 d-block d-lg-none"
-                                      onClick={() => handleAddCard()}
-                                    >
-                                      <Icon
-                                        icon="ic:round-plus"
-                                        width="16"
-                                        height="16"
-                                        className="me-1"
-                                      />
-                                      <span className="small">新增卡片</span>
-                                    </button>
+                                    {activeCards.length < maxCards && (
+                                      <button
+                                        type="button"
+                                        className="btn btn-neutral-100 w-100 opacity-70 border-neutral-300 rounded-4 py-3 d-block d-lg-none"
+                                        onClick={() => handleAddCard()}
+                                      >
+                                        <Icon
+                                          icon="ic:round-plus"
+                                          width="16"
+                                          height="16"
+                                          className="me-1"
+                                        />
+                                        <span className="small">新增卡片</span>
+                                      </button>
+                                    )}
                                     <button
                                       type="button"
                                       className="btn btn-cta-200 btn-action w-100 py-3 d-none d-lg-block"
@@ -1081,9 +1154,9 @@ function Subscription() {
                                   取消新增
                                 </button>
                                 <button
-                                  type="button"
+                                  type="submit"
                                   className="btn btn-cta-200 btn-action py-3 px-6 flex-grow-1"
-                                  onClick={() => closePaymentModal()}
+                                  onClick={handleSubmit(submitPaymentForm)}
                                 >
                                   確認並儲存
                                 </button>
