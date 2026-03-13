@@ -350,3 +350,17 @@
 .btn-md {
   padding: 12px 24px;
 }
+
+.btn-close-md {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-action {
+  border: 0;
+  border-radius: 100px;
+  font-weight: bold;
+  line-height: 1.2;
+  letter-spacing: 0.1rem;
+  color: $neutral-100;
+}

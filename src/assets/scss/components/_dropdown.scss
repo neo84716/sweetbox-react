@@ -218,7 +218,8 @@
       font-size: 14px;
     }
 
-    li:hover {
+    li:hover,
+    li.active {
       background-color: $primary-200;
       cursor: pointer;
     }
