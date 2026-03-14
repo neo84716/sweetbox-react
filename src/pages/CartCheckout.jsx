@@ -1,25 +1,61 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Link } from "react-router-dom";
-import taiwanData from "../assets/utils/taiwanDistricts.json";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import api from "../api";
+import { message } from "antd";
+import taiwanData from "../assets/utils/taiwanDistricts.json";
+import { creditCardYears, creditCardMonths, invoiceOpts } from "../assets/utils/formOptions";
+import Input from "../components/Input";
+import Select from "../components/Select";
+import { formatCardNumber } from "../assets/utils/paymentUtils";
 
-// 信用卡效期
-const currentYear = new Date().getFullYear();
-const creditCardYears = Array.from({ length: 11 }, (_, i) => currentYear + i);
-const creditCardMonths = Array.from({ length: 12 }, (_, i) => i + 1);
-
-// 發票類型
-const invoiceOpts = [
-    { label: '請選擇發票類型', value: 'default' },
-    { label: '會員載具(自動儲存)', value: 'member' },
-    { label: '手機條碼', value: 'mobile' },
-    { label: '捐贈發票', value: 'donation' },
-    { label: '不使用載具', value: 'na' },
-    { label: '公司戶發票(開立抬頭)', value: 'business' }
-];
 
 function CartCheckout() {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        setValue,
+        getValues,
+        control,
+        trigger,
+        formState: { errors }
+    } = useForm({
+        mode: 'onTouched'
+    });
+    const onSubmit = (data) => {
+        console.log(data);
+    }
+    const handleSyncMemberData = async (e) => {
+        const isChecked = e.target.checked;
+        if (isChecked) {
+            try {
+                const res = await api.get("/users/1");
+                const userData = res.data;
+
+                setValue("shipping_name", userData.name, { shouldValidate: true });
+                setValue("shipping_phone", userData.phone, { shouldValidate: true });
+                setValue("shipping_city", userData.address.city, { shouldValidate: true });
+                setValue("shipping_district", userData.address.district, { shouldValidate: true });
+                setValue("shipping_address", userData.address.street, { shouldValidate: true });
+
+            } catch (error) {
+                console.error("取得會員資料失敗：", error);
+                message.error("無法帶入會員資料，請稍後再試。");
+            }
+        } else {
+            // 取消勾選，清空欄位
+            setValue("shipping_name", "");
+            setValue("shipping_phone", "");
+            setValue("shipping_city", "");
+            setValue("shipping_district", "");
+            setValue("shipping_address", "");
+        }
+    }
+
+
+
     const [cartData, setCartData] = useState([]);
     const [themes, setThemes] = useState([]);
 
@@ -34,18 +70,27 @@ function CartCheckout() {
     }, []);
 
     // 地址
-    const [selectedCity, setSelectedCity] = useState("城市");
-    const [selectedDistrict, setSelectedDistrict] = useState("鄉鎮市區");
+    // const [selectedCity, setSelectedCity] = useState("城市");
+    // const [selectedDistrict, setSelectedDistrict] = useState("鄉鎮市區");
+    // const cities = Object.keys(taiwanData["台灣"]);
+    // const districts = selectedCity !== "城市" ? Object.keys(taiwanData["台灣"][selectedCity]) : [];
+    // const handleCityChange = (city) => {
+    //     setSelectedCity(city);
+    //     setSelectedDistrict("鄉鎮市區"); // 切換城市時，重設district預設值
+    // };
+    const currentCity = watch('shipping_city');
     const cities = Object.keys(taiwanData["台灣"]);
-    const districts = selectedCity !== "城市" ? Object.keys(taiwanData["台灣"][selectedCity]) : [];
-    const handleCityChange = (city) => {
-        setSelectedCity(city);
-        setSelectedDistrict("鄉鎮市區"); // 切換城市時，重設district預設值
-    };
+    const districts = currentCity ? Object.keys(taiwanData["台灣"][currentCity]) : [];
+
+    const handleCardNumberChange = (e) => {
+        const formattedValue = formatCardNumber(e.target.value);
+        setValue('credit-card-number', formattedValue, { shouldValidate: true });
+    }
+
 
     //信用卡效期
-    const [selectedExpMonth, setSelectedExpMonth] = useState("月份");
-    const [selectedExpYear, setSelectedExpYear] = useState("年份");
+    // const [selectedExpMonth, setSelectedExpMonth] = useState("月份");
+    // const [selectedExpYear, setSelectedExpYear] = useState("年份");
 
     // 發票
     const [selectedInvoice, setSelectedInvoice] = useState('default');
@@ -67,31 +112,6 @@ function CartCheckout() {
         }
     };
 
-    // 訂購清單
-    // const orderList = [
-    //     {
-    //         theme_title: '季節限定甜點盒',
-    //         duration_months: 12,
-    //         price: 675,
-    //         quantity: 3,
-    //         imageUrl: './images/Cart_Page/pic_season.jpg'
-    //     },
-    //     {
-    //         theme_title: '精選甜點盒',
-    //         duration_months: 12,
-    //         price: 675,
-    //         quantity: 2,
-    //         imageUrl: './images/Cart_Page/pic_feature.jpg'
-    //     },
-    //     {
-    //         theme_title: '無負擔甜點盒',
-    //         duration_months: 3,
-    //         price: 720,
-    //         quantity: 1,
-    //         imageUrl: './images/Cart_Page/pic_health.jpg'
-    //     }
-    // ]
-
     return (<>
         <div className="bg-neutral-300 cart-body">
             <div className="cart-main">
@@ -111,7 +131,7 @@ function CartCheckout() {
                         <span className="step-intro">訂單確認</span>
                     </li>
                 </ol>
-                <form className="container px-3 p-lg-0">
+                <form id="checkoutForm" className="container px-3 p-lg-0" onSubmit={handleSubmit(onSubmit)}>
                     <div
                         className="d-flex justify-content-between align-items-center mb-2 mb-lg-6">
                         <h1 className="cart-title p-3 py-lg-2 px-lg-4">填寫資料</h1>
@@ -122,286 +142,317 @@ function CartCheckout() {
                             {/* 收件資料 */}
                             <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
                                 <h2 className="cart-section-title mb-6">收件資料</h2>
-                                <div className="mb-4 mb-lg-6">
-                                    <div className="d-flex justify-content-between align-items-center px-2">
-                                        <label htmlFor="shipping_name" className="form-label">姓名</label>
+                                <Input
+                                    id='shipping_name'
+                                    register={register}
+                                    errors={errors}
+                                    labelText='姓名'
+                                    type='text'
+                                    placeholderText='請輸入真實姓名'
+                                    ariaLabel='收件者姓名'
+                                    iconName='material-symbols:person-outline-rounded'
+                                    rules={{
+                                        required: {
+                                            value: true,
+                                            message: '請輸入真實收件人全名。'
+                                        }
+                                    }}
+                                    labelRight={
                                         <div className="form-check">
                                             <input
                                                 className="form-check-input rounded-5"
                                                 type="checkbox"
-                                                id="sync_member_data"
-                                                name="sync_member_data"
+                                                id='sync_member_data'
+                                                {...register('sync_member_data', {
+                                                    onChange: handleSyncMemberData
+                                                })}
                                             />
-                                            <label className="form-check-label s-text" htmlFor="sync_member_data">
+                                            <label className="form-check-label s-text" htmlFor='sync_member_data'>
                                                 帶入會員資料
                                             </label>
                                         </div>
-                                    </div>
-                                    <div className="input-group form-group-filled">
-                                        <span className="input-group-text text-neutral-600">
-                                            <Icon icon="material-symbols:person-outline-rounded" width="20" height="20"></Icon>
-                                        </span>
-                                        <input
-                                            type="text"
-                                            className="form-control ps-1"
-                                            placeholder="請輸入真實姓名"
-                                            id="shipping_name"
-                                            aria-label="收件者姓名"
-                                            name="shipping_name"
-                                        />
-                                    </div>
-                                    {/*錯誤訊息 */}
-                                    <div className="px-2 error-message text-semantic-error">
-                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon> 請輸入收件人姓名。
-                                    </div>
-                                </div>
-                                <div className="mb-4 mb-lg-6">
-                                    <label htmlFor="shipping_phone" className="form-label px-2">電話</label>
-                                    <div className="input-group form-group-filled">
-                                        <span className="input-group-text text-neutral-600">
-                                            <Icon icon="bx:phone" width="20" height="20"></Icon>
-                                        </span>
-                                        <input
-                                            type="tel"
-                                            pattern="[0-9]*"
-                                            className="form-control ps-1"
-                                            placeholder="請輸入電話號碼"
-                                            id="shipping_phone"
-                                            aria-label="收件者電話號碼"
-                                            name="shipping_phone"
-                                            maxLength={10}
-                                            onInput={(e) => {
-                                                e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
-                                            }}
-                                        />
-                                    </div>
-                                    {/*錯誤訊息 */}
-                                    <div className="px-2 error-message text-semantic-error">
-                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                        電話格式不正確。
-                                    </div>
-                                </div>
+                                    }
+                                />
+                                <Input
+                                    id='shipping_phone'
+                                    register={register}
+                                    errors={errors}
+                                    labelText='電話'
+                                    type='tel'
+                                    placeholderText='請輸入電話號碼'
+                                    ariaLabel='收件者電話號碼'
+                                    iconName='bx:phone'
+                                    rules={{
+                                        required: {
+                                            value: true,
+                                            message: '請輸入電話號碼。'
+                                        },
+                                        minLength: {
+                                            value: 6,
+                                            message: '至少 6 碼。'
+                                        }
+                                    }}
+                                    // ...rest 部分
+                                    maxLength={10}
+                                    onInput={(e) => {
+                                        e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
+                                    }}
+                                />
                                 <div>
                                     <label htmlFor="shipping_city" className="form-label px-2">地址</label>
                                     <div className="row g-3 mb-3">
                                         <div className="col-6">
-                                            <div className="dropdown cart-dropdown">
-                                                <button className="btn  d-flex align-items-center p-3" type="button" id="shipping_city"
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <span>{selectedCity}</span>
-                                                    <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
-                                                </button>
-                                                <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '256px' }}>
-                                                    {cities.map((city) => (
-                                                        <li key={city}>
-                                                            <button
-                                                                className={`dropdown-item ${selectedCity === city ? 'active' : ''}`}
-                                                                type="button"
-                                                                onClick={() => handleCityChange(city)}
-                                                            >
-                                                                {city}
-                                                            </button>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                            {/*錯誤訊息 */}
-                                            <div className="px-2 error-message text-semantic-error">
-                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                                請選擇城市。
-                                            </div>
+                                            {/* <Select
+                                                id='shipping_city'
+                                                placeholderText='城市'
+                                                options={cities}
+                                                value={selectedCity}
+                                                onChange={handleCityChange}
+                                                errorMsg={errors?.shipping_city ? '請選擇城市' : ''}
+                                            /> */}
+                                            <Controller
+                                                name="shipping_city"
+                                                control={control}
+                                                rules={{ required: '請選擇城市' }}
+                                                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                                    <Select
+                                                        id='shipping_city'
+                                                        placeholderText='城市'
+                                                        options={cities}
+                                                        value={value}
+                                                        onChange={(val) => {
+                                                            onChange(val); // 告訴 RHF 城市換了
+                                                            setValue('shipping_district', ''); // 💡 連動防呆：城市切換時，清空鄉鎮市區的值
+                                                        }}
+                                                        errorMsg={error?.message}
+                                                    />
+                                                )}
+                                            />
                                         </div>
                                         <div className="col-6">
-                                            <div className="dropdown cart-dropdown">
-                                                <button className="btn  d-flex align-items-center p-3 " type="button" id="shipping_district"
-                                                    data-bs-toggle="dropdown" aria-expanded="false" disabled={selectedCity === "城市"}>
-                                                    <span>{selectedDistrict}</span>
-                                                    <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
-                                                </button>
-                                                <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '253px' }}>
-                                                    {districts.map((dist) => (
-                                                        <li key={dist}>
-                                                            <button
-                                                                className={`dropdown-item ${selectedDistrict === dist ? 'active' : ''}`}
-                                                                type="button"
-                                                                onClick={() => setSelectedDistrict(dist)}
-                                                            >
-                                                                {dist}
-                                                            </button>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                            {/*錯誤訊息 */}
-                                            <div className="px-2 error-message text-semantic-error">
-                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                                請選擇鄉鎮市區。
-                                            </div>
+                                            {/* <Select
+                                                id='shipping_district'
+                                                placeholderText='鄉鎮市區'
+                                                options={districts}
+                                                value={selectedDistrict}
+                                                onChange={setSelectedDistrict}
+                                                disabled={selectedCity === "城市"}
+                                                errorMsg={errors?.shipping_district ? '請選擇鄉鎮市區' : ''}
+                                            /> */}
+                                            <Controller
+                                                name="shipping_district"
+                                                control={control}
+                                                rules={{ required: '請選擇鄉鎮市區' }}
+                                                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                                    <Select
+                                                        id='shipping_district'
+                                                        placeholderText='鄉鎮市區'
+                                                        options={districts}
+                                                        value={value}
+                                                        onChange={onChange}
+                                                        disabled={!currentCity} // 💡 防呆：如果還沒選城市，鎖死不給選
+                                                        errorMsg={error?.message}
+                                                    />
+                                                )}
+                                            />
                                         </div>
                                     </div>
-                                    <div className="input-group form-group-filled">
-                                        <span className="input-group-text text-neutral-600">
-                                            <Icon icon="mi:location" width="20" height="20"></Icon>
-                                        </span>
-                                        <input
-                                            type="text"
-                                            className="form-control ps-1"
-                                            placeholder="請輸入地址"
-                                            id="shipping_address"
-                                            aria-label="收件者地址"
-                                            name="shipping_address"
-                                        />
-                                    </div>
-                                    {/*錯誤訊息 */}
-                                    <div className="px-2 error-message text-semantic-error">
-                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon> 請輸入地址。
-                                    </div>
+                                    <Input
+                                        id='shipping_address'
+                                        register={register}
+                                        errors={errors}
+                                        wrapperClass='mb-0'
+                                        type='text'
+                                        placeholderText='請輸入地址'
+                                        ariaLabel='收件者地址'
+                                        iconName='mi:location'
+                                        rules={{
+                                            required: {
+                                                value: true,
+                                                message: '請輸入地址。'
+                                            }
+                                        }}
+
+                                    />
                                 </div>
                             </section>
 
                             {/* 付款資料 */}
                             <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
                                 <h2 className="cart-section-title mb-6">付款資料</h2>
-                                <div className="mb-4 mb-lg-6">
-                                    <div className="d-flex justify-content-between align-items-center px-2">
-                                        <label htmlFor="shipping_name" className="form-label">信用卡卡號</label>
+                                <Input
+                                    id='credit-card-number'
+                                    register={register}
+                                    errors={errors}
+                                    labelText='信用卡卡號'
+                                    type='tel'
+                                    placeholderText='0000-0000-0000-0000'
+                                    ariaLabel='信用卡卡號'
+                                    iconName='tabler:credit-card'
+                                    rules={{
+                                        required: {
+                                            value: true,
+                                            message: '請輸入信用卡卡號。'
+                                        },
+                                        minLength: {
+                                            value: 19,
+                                            message: '信用卡卡號需為 16 碼。'
+                                        },
+                                        onChange: handleCardNumberChange
+                                    }}
+                                    labelRight={
                                         <div className="d-flex">
                                             <Icon className="me-3" icon="logos:visaelectron" width="35.93" height="16"></Icon>
                                             <Icon className="me-3" icon="logos:mastercard" width="20.59" height="16"></Icon>
                                             <Icon icon="logos:jcb" width="20.69" height="16"></Icon>
                                         </div>
-                                    </div>
-                                    <div className="">
-                                        <div className="input-group form-group-filled">
-                                            <span className="input-group-text text-neutral-600">
-                                                <Icon icon="tabler:credit-card" width="20" height="20"></Icon>
-                                            </span>
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                pattern="[0-9]*"
-                                                className="form-control ps-1"
-                                                placeholder="0000-0000-0000-0000"
-                                                id="credit-card-number"
-                                                aria-label="信用卡卡號"
-                                                name="credit-card-number"
-                                                maxLength={16}
-                                                onInput={(e) => {
-                                                    e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
-                                                }}
-                                            />
-                                        </div>
-                                        {/*錯誤訊息 */}
-                                        <div className="px-2 error-message text-semantic-error">
-                                            <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                            請輸入完整信用卡卡號。
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mb-4 mb-lg-6">
-                                    <label htmlFor="credit-card-owner" className="form-label px-2">持卡人姓名</label>
-                                    <div className="input-group form-group-filled">
-                                        <span className="input-group-text text-neutral-600">
-                                            <Icon icon="material-symbols:person-outline-rounded" width="20" height="20"></Icon>                                           </span>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="請輸入卡片上的英文姓名"
-                                            id="credit-card-owner"
-                                            aria-label="信用卡卡號"
-                                            name="credit-card-owner"
-                                        />
-                                    </div>
-                                    {/*錯誤訊息 */}
-                                    <div className="px-2 error-message text-semantic-error">
-                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                        請輸入持卡人英文姓名。
-                                    </div>
-                                </div>
-                                <div className="mb-4 mb-lg-6">
+                                    }
 
+                                    // ...rest 部分
+                                    maxLength={19}
+                                    onInput={(e) => {
+                                        e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
+                                    }}
+                                />
+                                <Input
+                                    id='credit-card-owner'
+                                    register={register}
+                                    errors={errors}
+                                    labelText='持卡人姓名'
+                                    type='text'
+                                    placeholderText='請輸入卡片上的英文姓名。'
+                                    ariaLabel='持卡人姓名'
+                                    iconName='material-symbols:person-outline-rounded'
+                                    rules={{
+                                        required: {
+                                            value: true,
+                                            message: '請輸入持卡人英文姓名。'
+                                        }
+                                    }}
+                                />
+
+                                <div className="mb-4 mb-lg-6">
                                     <div className="row g-3">
                                         <div className="col-lg-6">
                                             <label htmlFor="" className="form-label px-2">有效期限</label>
                                             <div className="row g-3">
                                                 <div className="col-6">
-                                                    <div className="dropdown cart-dropdown">
-                                                        <button className="btn  d-flex align-items-center p-3" type="button" id="expired-month"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <span>{selectedExpMonth === "月份" ? "月份" : `${selectedExpMonth}月`}</span>
-                                                            <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
-                                                        </button>
-                                                        <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '253px' }}>
-                                                            {creditCardMonths.map(month => (
-                                                                <li key={month}>
-                                                                    <button className={`dropdown-item ${selectedExpMonth === month ? 'active' : ''}`}
-                                                                        type="button" onClick={() => setSelectedExpMonth(month)}>
-                                                                        {month}月
-                                                                    </button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                    {/*錯誤訊息 */}
-                                                    <div className="px-2 error-message text-semantic-error">
-                                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                                        請選擇月份。
-                                                    </div>
+                                                    {/* <Select
+                                                        id='expired_month'
+                                                        placeholderText='月份'
+                                                        options={creditCardMonths}
+                                                        value={selectedExpMonth}
+                                                        onChange={setSelectedExpMonth}
+                                                        errorMsg={errors?.expired_month ? '請選擇月份' : ''}
+                                                        suffix=" 月"
+                                                    /> */}
+                                                    <Controller
+                                                        name="expired_month"
+                                                        control={control}
+                                                        rules={{
+                                                            validate: (val) => {
+                                                                if (!val)
+                                                                    return '請選擇有效期限';
+
+                                                                const currentYear =
+                                                                    getValues('expired_year');
+                                                                if (!currentYear) return true;
+
+                                                                const now = new Date();
+                                                                const expiration = new Date(
+                                                                    Number(currentYear),
+                                                                    Number(val),
+                                                                    1,
+                                                                );
+
+                                                                if (now >= expiration) {
+                                                                    return '信用卡已過期';
+                                                                }
+
+                                                                return true;
+                                                            },
+                                                        }}
+                                                        render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                                            <Select
+                                                                id='expired_month'
+                                                                placeholderText='月份'
+                                                                options={creditCardMonths}
+                                                                value={value}
+                                                                onChange={(val) => {
+                                                                    onChange(val);
+                                                                    trigger(['expired_month', 'expired_year']); // 💡 觸發年份與月份的連動驗證
+                                                                }}
+                                                                errorMsg={error?.message}
+                                                                suffix=" 月"
+                                                            />
+                                                        )}
+                                                    />
                                                 </div>
                                                 <div className="col-6">
-                                                    <div className="dropdown cart-dropdown">
-                                                        <button className="btn  d-flex align-items-center p-3" type="button" id="expired-year"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <span>{selectedExpYear === "年份" ? "年份" : `${selectedExpYear}年`}</span>
-                                                            <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
-                                                        </button>
-                                                        <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '253px' }}>
-                                                            {creditCardYears.map(year => (
-                                                                <li key={year}>
-                                                                    <button className={`dropdown-item ${selectedExpYear === year ? 'active' : ''}`}
-                                                                        type="button" onClick={() => setSelectedExpYear(year)}>
-                                                                        {year}年
-                                                                    </button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                    {/*錯誤訊息 */}
-                                                    <div className="px-2 error-message text-semantic-error">
-                                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                                        請選擇年份。
-                                                    </div>
+                                                    {/* <Select
+                                                        id='expired_year'
+                                                        placeholderText='年份'
+                                                        options={creditCardYears}
+                                                        value={selectedExpYear}
+                                                        onChange={setSelectedExpYear}
+                                                        errorMsg={errors?.expired_year ? '請選擇年份' : ''}
+                                                        suffix=" 年"
+                                                    /> */}
+                                                    <Controller
+                                                        name="expired_year"
+                                                        control={control}
+                                                        rules={{
+                                                            validate: (val) => {
+                                                                if (!val) return '請選擇年份';
+                                                                return true;
+                                                            }
+                                                        }}
+                                                        render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                                            <Select
+                                                                id='expired_year'
+                                                                placeholderText='年份'
+                                                                options={creditCardYears}
+                                                                value={value}
+                                                                onChange={(val) => {
+                                                                    onChange(val);
+                                                                    trigger(['expired_month', 'expired_year']);
+                                                                }}
+                                                                errorMsg={error?.message}
+                                                                suffix=" 年"
+                                                            />
+                                                        )}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
 
 
                                         <div className="col-lg-6">
-                                            <label htmlFor="card-cvv" className="form-label px-2">安全碼</label>
-                                            <div className=" input-group form-group-filled">
-                                                <span className="input-group-text text-neutral-600">
-                                                    <Icon icon="lets-icons:lock" width="20" height="20"></Icon>
-                                                </span>
-                                                <input
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    pattern="[0-9]*"
-                                                    className="form-control ps-1"
-                                                    placeholder="CVV"
-                                                    id="card-cvv"
-                                                    aria-label="安全碼"
-                                                    name="card-cvv"
-                                                    maxLength={3}
-                                                    onInput={(e) => {
-                                                        e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
-                                                    }}
-                                                />
-                                            </div>
-                                            {/*錯誤訊息 */}
-                                            <div className="px-2 error-message text-semantic-error">
-                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                                請輸入正確的安全碼。
-                                            </div>
+                                            <Input
+                                                id='card-cvv'
+                                                register={register}
+                                                errors={errors}
+                                                labelText='安全碼'
+                                                type='tel'
+                                                placeholderText='CVV'
+                                                ariaLabel='信用卡安全碼'
+                                                iconName='lets-icons:lock'
+                                                rules={{
+                                                    required: {
+                                                        value: true,
+                                                        message: '請輸入信用卡安全碼。'
+                                                    },
+                                                    minLength: {
+                                                        value: 3,
+                                                        message: '安全碼應為 3 碼。'
+                                                    }
+                                                }}
+                                                // ...rest 部分
+                                                maxLength={3}
+                                                onInput={(e) => {
+                                                    e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -421,11 +472,30 @@ function CartCheckout() {
                             {/* 索取發票 */}
                             <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
                                 <h2 className="cart-section-title mb-6">索取發票</h2>
-                                <label htmlFor="shipping_city" className="form-label px-2">發票類型</label>
-
+                                <label htmlFor="invoice_info" className="form-label px-2">發票類型</label>
+                                {/* 用 Controller 包裝 dropdown */}
+                                {/* <Controller
+                                    name="invoice_info"
+                                    control={control}
+                                    defaultValue="default"
+                                    rules={{
+                                        //不能是預設的 'default'
+                                        validate: (value) => value !== 'default' || '請選擇發票類型'
+                                    }}
+                                    render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                        <Dropdown
+                                            id='invoice_info'
+                                            placeholderText='請選擇發票類型'
+                                            options={invoiceOpts}
+                                            value={value}         // RHF 負責給值
+                                            onChange={onChange}   // RHF 負責接手變更事件
+                                            errorMsg={error ? error.message : ''} // RHF 負責顯示錯誤
+                                        />
+                                    )}
+                                /> */}
+                                {/* 原 html */}
                                 <div className="dropdown cart-dropdown">
                                     <button className="btn d-flex align-items-center p-3" type="button" data-bs-toggle="dropdown"
-                                    // aria-expanded="false" id="shipping_city"
                                     >
                                         <span>{currentInvoiceLabel}</span>
                                         <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
@@ -681,7 +751,7 @@ function CartCheckout() {
                                 </div>
 
                                 <button
-                                    type="button"
+                                    type="submit"
                                     className="btn-primary-text w-100 d-none d-sm-block"
                                 >
                                     確認支付並下單
@@ -708,7 +778,7 @@ function CartCheckout() {
                     </div>
                 </form>
                 <div className="checkout-btn d-block d-sm-none">
-                    <button type="button" className="btn-primary-text w-100">確認支付並下單</button>
+                    <button type="submit" form="checkoutForm" className="btn-primary-text w-100">確認支付並下單</button>
                 </div>
             </div>
         </div>
