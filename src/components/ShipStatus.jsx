@@ -125,13 +125,22 @@ const SHIP_TEXT = {
   2: "已出貨",
   3: "異常保留",
 }
-const isMobile = window.innerWidth < 992;
-function ShippingStatus({record, isOpen, onToggle, onChange}) {
-  const {payStatus, shipStatus, isArchived} = record
-  // const [open, setOpen] =useState(false)
-  const isPayFailed = payStatus === 2;
-  const hasData = shipStatus !== null && shipStatus !== undefined;
 
+function ShippingStatus({record, isOpen, onToggle, onChange}) {
+  const {payment_status, shipping_status, is_archived} = record
+  // const [open, setOpen] =useState(false)
+  const isPayFailed = payment_status === 2;
+  const hasData = shipping_status !== null && shipping_status !== undefined;
+
+  // 將寬度交給React管理，解決了從桌面板改成行動版，需要手動重新整理才能顯示行動版樣式的問題
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 992)
+  useEffect(()=>{
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 992)
+    }
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
   // const wrapperRef = useRef(null);
   // 偵測外部點選
 //   useEffect(() => {
@@ -150,10 +159,10 @@ function ShippingStatus({record, isOpen, onToggle, onChange}) {
 //   };
 // }, [isOpen, onToggle]);
   
-  if(isArchived) {
+  if(is_archived) {
     return (
       <span className="ship-badge archieved">
-        {SHIP_TEXT[shipStatus]}
+        {SHIP_TEXT[shipping_status]}
       </span>
     )
   }
@@ -161,7 +170,7 @@ function ShippingStatus({record, isOpen, onToggle, onChange}) {
     return (
       <div className="d-flex d-lg-block justify-content-center align-items-center gap-1 ship-error-button">
         <span className="ship-text error">
-          {SHIP_TEXT[shipStatus]}
+          {SHIP_TEXT[3]}
         </span>
         <Icon
           icon="mdi:chevron-down"
@@ -178,7 +187,7 @@ function ShippingStatus({record, isOpen, onToggle, onChange}) {
           onClick={() => onToggle()}
         >
           <span className={`ship-label ${hasData ? "hasData" : ""}`}>
-            {SHIP_TEXT[shipStatus]}
+            {SHIP_TEXT[shipping_status]}
           </span>
 
           <Icon
@@ -204,11 +213,11 @@ function ShippingStatus({record, isOpen, onToggle, onChange}) {
             </div>
             <div className="bottom-content">
               <div className="bottom-options d-flex flex-column px-3 mb-6">
-                <button className={`ship-option mb-4 ${shipStatus === 1 ? "active" : ""}`} onClick={() => onChange(1)}>
+                <button className={`ship-option mb-4 ${shipping_status === 1 ? "active" : ""}`} onClick={() => onChange(1)}>
                   <p className="fw-bold fs-8 text-neutral-800 mb-1">待出貨</p>
                   <p className="fs-8 text-neutral-600">訂單準備中，尚未安排物流</p>
                 </button>
-                <button className={`ship-option ${shipStatus === 2 ? "active" : ""}`} onClick={() => onChange(2)}>
+                <button className={`ship-option ${shipping_status === 2 ? "active" : ""}`} onClick={() => onChange(2)}>
                   <p className="fw-bold fs-8 text-neutral-800 mb-1">已出貨</p>
                   <p className="fs-8 text-neutral-600">訂單已完成出貨作業</p>
                 </button>
@@ -237,7 +246,7 @@ function ShippingStatus({record, isOpen, onToggle, onChange}) {
       </div>
       {!isMobile && isOpen && (
         <div className="ship-menu">
-          <button className="ship-option" onClick={() => onChange(1)}>
+          <button className="ship-option aa" onClick={() => onChange(1)}>
             待出貨
           </button>
           <button className="ship-option" onClick={() => onChange(2)}>
@@ -253,7 +262,7 @@ function ShippingStatus({record, isOpen, onToggle, onChange}) {
           </div>
           <div className="bottom-content">
             <div className="bottom-options">
-              <button className="ship-option" onClick={() => onChange(1)}>
+              <button className="ship-option aa" onClick={() => onChange(1)}>
                 待出貨
               </button>
               <button className="ship-option" onClick={() => onChange(2)}>
