@@ -22,7 +22,7 @@ const Select = ({
     const isSelected = value && value !== placeholderText;
     const displayText = isSelected ? `${value}${suffix}` : placeholderText;
     const textColorClass = isSelected ? 'text-neutral-800' : 'text-neutral-600';
-    const borderClass = errorMsg ? 'border border-semantic-error' : 'border border-transparent';
+    const borderClass = errorMsg ? 'border border-semantic-error' : '';
 
     return (
         <>

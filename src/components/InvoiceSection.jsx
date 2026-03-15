@@ -26,7 +26,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
                     rules={{ validate: (val) => val !== 'default' || '請選擇發票類型' }}
                     render={({ field: { onChange, value }, fieldState: { error } }) => {
                         const currentLabel = invoiceOpts.find(opt => opt.value === value)?.label || '請選擇發票類型';
-                        const borderClass = error ? 'border border-semantic-error' : 'border border-transparent';
+                        const borderClass = error ? 'border border-semantic-error' : '';
                         const textColorClass = value !== 'default' ? 'text-neutral-800' : 'text-neutral-600';
 
                         return (
