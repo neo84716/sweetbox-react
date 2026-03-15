@@ -68,7 +68,6 @@ function CartCheckout() {
 
     // 訂單備註字數
     const currentNote = watch('order_note', '');
-    const [noteText, setNoteText] = useState("");
 
     //訂單備註快選
     const [selectedChips, setSelectedChips] = useState([]);
