@@ -300,7 +300,7 @@ function Subscribe() {
 
             {/* 手機板 */}
             <main className="bg-neutral-300 overflow-hidden d-block d-lg-none">
-                <ul className="nav px-3 py-2 mb-sm-6 mb-0 nav-subscription gap-2 gap-sm-0 mt-20">
+                <ul className="container nav px-3 py-2 mb-sm-6 mb-0 nav-subscription gap-2 gap-sm-0 mt-20">
                     {tabs.map((tab, index) => (
                         <li className="nav-item" key={index}>
                             <NavLink
