@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import { useState, useEffect, useRef } from 'react';
+import FormError from "./FormError";
 
 const Select = ({
     //字尾(選用)
@@ -54,12 +55,7 @@ const Select = ({
                 </ul>
                 )}
             </div>
-            {errorMsg &&
-                <div className="px-2 error-message text-semantic-error">
-                    <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                    {errorMsg}
-                </div>
-            }
+            <FormError message={errorMsg} />
         </>
     )
 }

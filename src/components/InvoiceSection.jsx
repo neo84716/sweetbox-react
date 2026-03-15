@@ -3,6 +3,7 @@ import { Controller } from "react-hook-form";
 import { Icon } from "@iconify/react";
 import { invoiceOpts } from "../assets/utils/formOptions";
 import Input from "./Input";
+import FormError from "./FormError";
 
 const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
 
@@ -65,12 +66,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
                                         ))}
                                     </ul>
                                 )}
-                                {error && (
-                                    <div className="px-2 error-message text-semantic-error mt-1">
-                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16" />
-                                        {error.message}
-                                    </div>
-                                )}
+                                <FormError message={error?.message} />
                             </div>
                         )
                     }}

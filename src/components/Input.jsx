@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import FormError from "./FormError";
 
 const Input = ({
     id, register, errors, wrapperClass = "mb-4 mb-lg-6", labelText, type, placeholderText, ariaLabel, iconName, rules, labelRight,
@@ -31,11 +32,7 @@ const Input = ({
                 />
             </div>
             {/*錯誤訊息 */}
-            {errors[id] &&
-                <div className="px-2 error-message text-semantic-error">
-                    <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon> {errors?.[id]?.message}
-                </div>
-            }
+            <FormError message={errors?.[id]?.message} />
         </div>
     )
 }
