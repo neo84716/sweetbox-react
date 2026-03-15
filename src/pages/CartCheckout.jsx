@@ -175,14 +175,6 @@ function CartCheckout() {
                                     <label htmlFor="shipping_city" className="form-label px-2">地址</label>
                                     <div className="row g-3 mb-3">
                                         <div className="col-6">
-                                            {/* <Select
-                                                id='shipping_city'
-                                                placeholderText='城市'
-                                                options={cities}
-                                                value={selectedCity}
-                                                onChange={handleCityChange}
-                                                errorMsg={errors?.shipping_city ? '請選擇城市' : ''}
-                                            /> */}
                                             <Controller
                                                 name="shipping_city"
                                                 control={control}
@@ -195,7 +187,8 @@ function CartCheckout() {
                                                         value={value}
                                                         onChange={(val) => {
                                                             onChange(val); // 告訴 RHF 城市換了
-                                                            setValue('shipping_district', ''); // 💡 連動防呆：城市切換時，清空鄉鎮市區的值
+                                                            //清空值時，觸發鄉鎮市區「必填」提醒
+                                                            setValue('shipping_district', '', { shouldValidate: true }); // 💡 連動防呆：城市切換時，清空鄉鎮市區的值
                                                         }}
                                                         errorMsg={error?.message}
                                                     />
@@ -203,15 +196,6 @@ function CartCheckout() {
                                             />
                                         </div>
                                         <div className="col-6">
-                                            {/* <Select
-                                                id='shipping_district'
-                                                placeholderText='鄉鎮市區'
-                                                options={districts}
-                                                value={selectedDistrict}
-                                                onChange={setSelectedDistrict}
-                                                disabled={selectedCity === "城市"}
-                                                errorMsg={errors?.shipping_district ? '請選擇鄉鎮市區' : ''}
-                                            /> */}
                                             <Controller
                                                 name="shipping_district"
                                                 control={control}
@@ -222,7 +206,10 @@ function CartCheckout() {
                                                         placeholderText='鄉鎮市區'
                                                         options={districts}
                                                         value={value}
-                                                        onChange={onChange}
+                                                        onChange={(val) => {
+                                                                    onChange(val);
+                                                                    trigger(['shipping_city', 'shipping_district']);
+                                                                }}
                                                         disabled={!currentCity} // 💡 防呆：如果還沒選城市，鎖死不給選
                                                         errorMsg={error?.message}
                                                     />
