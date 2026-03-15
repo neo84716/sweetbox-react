@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import { useEffect, useRef, useState } from 'react';
 
-function Dropdown({ options, width = '108px', onChange }) {
+function Dropdown({ options, width = '108px', variant = "default", value, onChange, prefix }) {
   const [option, setOption] = useState(options[0].label);
   const [isSelected, setIsSelected] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +18,15 @@ function Dropdown({ options, width = '108px', onChange }) {
     }
   }
 
+  // 當外部 value 改變時，更新內部顯示
+  useEffect(() => {
+    const matched = options.find((opt) => opt.value === value);
+    if (matched) {
+      setOption(matched.label);
+      setIsSelected(value !== options[0].value); // 第一個通常是 "全部"
+    }
+  }, [value, options]);
+
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -28,22 +37,44 @@ function Dropdown({ options, width = '108px', onChange }) {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
+  // 顯示文字邏輯：有 prefix 且不是全部時才加上前綴
+  const displayText =
+    prefix && value !== options[0].value
+      ? `${prefix}：${option}`
+      : option;
+
   return (
     <div className="dropdown dropdown-neutral-250">
-      <button
-        ref={dropdownRef}
-        className={`btn btn-secondary dropdown-toggle d-flex justify-content-center align-items-center
+      {variant === "default" ? (
+        <button
+          ref={dropdownRef}
+          className={`btn btn-secondary dropdown-toggle d-flex justify-content-center align-items-center
           ${isSelected ? 'text-neutral-800' : ''}
           ${isOpen ? 'is-open' : ''}`}
-        style={{ width }}
-        type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
-      >
-        <span className='me-1'>{option}</span>
-        <Icon icon="iconamoon:arrow-down-2-bold" width="20" height="20" />
-      </button>
+          style={{ width }}
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+        >
+          <span className='me-1'>{displayText}</span>
+          <Icon icon="iconamoon:arrow-down-2-bold" width="20" height="20" />
+        </button>
+      ) : (
+        <button
+          ref={dropdownRef}
+          className={`btn btn-secondary dropdown-toggle d-flex justify-content-center align-items-center p-3 ${isOpen ? 'is-open' : ''}`}
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+        >
+          <div className="three-dots text-neutral-700">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+      )}
       <ul
         className={`dropdown-menu mt-2 dropdown-menu-neutral-250 ${isOpen ? 'show' : ''}`}
+        style={{ right: 0 }}
       >
         {options.map((opt, index) => (
           <li key={index}>

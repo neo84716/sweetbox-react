@@ -1,5 +1,5 @@
 .custom-input {
-  background-color: $neutral-200;
+  background-color: $neutral-250;
 
   &::placeholder {
     color: $neutral-600;
@@ -81,6 +81,48 @@
       color: $semantic-link;
     }
   }
+}
+
+.filterBadge {
+  background-color: $primary-600;
+  width: 20px;         
+  height: 20px;        
+  display: flex;
+  align-items: center;  
+  justify-content: center; 
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1.2;
+  color: #fff;
+  top: 0;
+  right:0;
+}
+
+.textBadge{
+  width: 32px;         
+  height: 32px;        
+  display: flex;
+  align-items: center;  
+  justify-content: center; 
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.2;
+  color: #fff;
+
+}
+.mobile-button-bar{
+  z-index: 9999;
+}
+.custom-checkbox .form-check-input {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;    /* 邊框粗細 */
+  border-color: $neutral-800;   /* 邊框顏色 */
+}
+
+.custom-checkbox .form-check-input:checked {
+  background-color: $neutral-800; /* 你要的顏色，例如橘紅色 */
+  border-color: $neutral-800;     /* 邊框顏色也一起改 */
 }
 
 // 付款 modal
