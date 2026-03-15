@@ -33,7 +33,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
                         return (
                             <div className="dropdown cart-dropdown flex-grow-1" ref={dropdownRef}>
                                 <button
-                                    className={`btn d-flex align-items-center justify-content-between p-3 w-100 ${textColorClass} ${borderClass}`}
+                                    className={`btn d-flex align-items-center justify-content-between py-2 px-4 w-100 ${textColorClass} ${borderClass}`}
                                     type="button"
                                     onClick={() => setIsOpen(prev => !prev)}
                                 >
