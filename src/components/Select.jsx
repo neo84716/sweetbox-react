@@ -28,7 +28,7 @@ const Select = ({
     return (
         <>
             <div className="dropdown cart-dropdown" ref={dropdownRef}>
-                <button className={`btn d-flex align-items-center p-3 justify-content-between w-100 py-2 px-4 ${textColorClass} ${borderClass}`}
+                <button className={`btn d-flex align-items-center justify-content-between w-100 py-2 px-4 ${textColorClass} ${borderClass}`}
                     type="button" id={id}
                     aria-expanded={isOpen} disabled={disabled}
                     onClick={() => setIsOpen((prev) => !prev)}
