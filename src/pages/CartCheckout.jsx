@@ -9,21 +9,11 @@ import { creditCardYears, creditCardMonths, invoiceOpts } from "../assets/utils/
 import Input from "../components/Input";
 import Select from "../components/Select";
 import { formatCardNumber } from "../assets/utils/paymentUtils";
-
+import InvoiceSection from "../components/InvoiceSection";
 
 function CartCheckout() {
-    const {
-        register,
-        handleSubmit,
-        watch,
-        setValue,
-        getValues,
-        control,
-        trigger,
-        formState: { errors }
-    } = useForm({
-        mode: 'onTouched'
-    });
+    const { register, handleSubmit, watch, setValue, getValues, control, trigger, formState: { errors }
+    } = useForm({ mode: 'onTouched' });
     const onSubmit = (data) => {
         console.log(data);
     }
@@ -39,7 +29,6 @@ function CartCheckout() {
                 setValue("shipping_city", userData.address.city, { shouldValidate: true });
                 setValue("shipping_district", userData.address.district, { shouldValidate: true });
                 setValue("shipping_address", userData.address.street, { shouldValidate: true });
-
             } catch (error) {
                 console.error("取得會員資料失敗：", error);
                 message.error("無法帶入會員資料，請稍後再試。");
@@ -53,8 +42,6 @@ function CartCheckout() {
             setValue("shipping_address", "");
         }
     }
-
-
 
     const [cartData, setCartData] = useState([]);
     const [themes, setThemes] = useState([]);
@@ -70,14 +57,6 @@ function CartCheckout() {
     }, []);
 
     // 地址
-    // const [selectedCity, setSelectedCity] = useState("城市");
-    // const [selectedDistrict, setSelectedDistrict] = useState("鄉鎮市區");
-    // const cities = Object.keys(taiwanData["台灣"]);
-    // const districts = selectedCity !== "城市" ? Object.keys(taiwanData["台灣"][selectedCity]) : [];
-    // const handleCityChange = (city) => {
-    //     setSelectedCity(city);
-    //     setSelectedDistrict("鄉鎮市區"); // 切換城市時，重設district預設值
-    // };
     const currentCity = watch('shipping_city');
     const cities = Object.keys(taiwanData["台灣"]);
     const districts = currentCity ? Object.keys(taiwanData["台灣"][currentCity]) : [];
@@ -87,16 +66,8 @@ function CartCheckout() {
         setValue('credit-card-number', formattedValue, { shouldValidate: true });
     }
 
-
-    //信用卡效期
-    // const [selectedExpMonth, setSelectedExpMonth] = useState("月份");
-    // const [selectedExpYear, setSelectedExpYear] = useState("年份");
-
-    // 發票
-    const [selectedInvoice, setSelectedInvoice] = useState('default');
-    const currentInvoiceLabel = invoiceOpts.find(opt => opt.value === selectedInvoice)?.label;
-
     // 訂單備註字數
+    const currentNote = watch('order_note', '');
     const [noteText, setNoteText] = useState("");
 
     //訂單備註快選
@@ -105,10 +76,13 @@ function CartCheckout() {
         '請在下午送達。', '請直接放門口。', '請放管理室。', '請提前來電。', '對堅果過敏。', '對花生過敏。'
     ]
     const toggleChip = (chip) => {
+        const currentText = getValues("order_note") || "";
         if (selectedChips.includes(chip)) {
             setSelectedChips(selectedChips.filter(item => item !== chip));
+            setValue("order_note", currentText.replace(chip, ""), { shouldValidate: true });
         } else {
             setSelectedChips([...selectedChips, chip]);
+            setValue("order_note", currentText + chip, { shouldValidate: true });
         }
     };
 
@@ -337,15 +311,6 @@ function CartCheckout() {
                                             <label htmlFor="" className="form-label px-2">有效期限</label>
                                             <div className="row g-3">
                                                 <div className="col-6">
-                                                    {/* <Select
-                                                        id='expired_month'
-                                                        placeholderText='月份'
-                                                        options={creditCardMonths}
-                                                        value={selectedExpMonth}
-                                                        onChange={setSelectedExpMonth}
-                                                        errorMsg={errors?.expired_month ? '請選擇月份' : ''}
-                                                        suffix=" 月"
-                                                    /> */}
                                                     <Controller
                                                         name="expired_month"
                                                         control={control}
@@ -389,15 +354,6 @@ function CartCheckout() {
                                                     />
                                                 </div>
                                                 <div className="col-6">
-                                                    {/* <Select
-                                                        id='expired_year'
-                                                        placeholderText='年份'
-                                                        options={creditCardYears}
-                                                        value={selectedExpYear}
-                                                        onChange={setSelectedExpYear}
-                                                        errorMsg={errors?.expired_year ? '請選擇年份' : ''}
-                                                        suffix=" 年"
-                                                    /> */}
                                                     <Controller
                                                         name="expired_year"
                                                         control={control}
@@ -473,216 +429,43 @@ function CartCheckout() {
                             <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
                                 <h2 className="cart-section-title mb-6">索取發票</h2>
                                 <label htmlFor="invoice_info" className="form-label px-2">發票類型</label>
-                                {/* 用 Controller 包裝 dropdown */}
-                                {/* <Controller
-                                    name="invoice_info"
+                                <InvoiceSection
+                                    register={register}
                                     control={control}
-                                    defaultValue="default"
-                                    rules={{
-                                        //不能是預設的 'default'
-                                        validate: (value) => value !== 'default' || '請選擇發票類型'
-                                    }}
-                                    render={({ field: { onChange, value }, fieldState: { error } }) => (
-                                        <Dropdown
-                                            id='invoice_info'
-                                            placeholderText='請選擇發票類型'
-                                            options={invoiceOpts}
-                                            value={value}         // RHF 負責給值
-                                            onChange={onChange}   // RHF 負責接手變更事件
-                                            errorMsg={error ? error.message : ''} // RHF 負責顯示錯誤
-                                        />
-                                    )}
-                                /> */}
-                                {/* 原 html */}
-                                <div className="dropdown cart-dropdown">
-                                    <button className="btn d-flex align-items-center p-3" type="button" data-bs-toggle="dropdown"
-                                    >
-                                        <span>{currentInvoiceLabel}</span>
-                                        <Icon className="ms-2" icon="iconamoon:arrow-down-2-duotone" width="24" height="24"></Icon>
-                                    </button>
-                                    <ul className="dropdown-menu m-0 custom-dropdown" aria-labelledby="dropdownMenu" style={{ maxHeight: '256px' }}>
-                                        {invoiceOpts.map((opt) => (
-                                            <li key={opt.value}>
-                                                <button
-                                                    className={`dropdown-item ${selectedInvoice === opt.value ? 'active' : ''}`}
-                                                    type="button"
-                                                    onClick={() => setSelectedInvoice(opt.value)}
-                                                >
-                                                    {opt.label}
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                {/*錯誤訊息 */}
-                                <div className="px-2 error-message text-semantic-error">
-                                    <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                    請選擇發票類型
-                                </div>
-
-
-                                {/* 會員載具提示 */}
-                                {selectedInvoice === 'member' && (
-                                    <p className="px-2 s-text text-neutral-600 fs-8 mt-2">發票將自動儲存至您的會員帳戶</p>
-                                )}
-
-                                {/* 手機條碼 */}
-                                {selectedInvoice === 'mobile' && (
-                                    <div className="mt-4">
-                                        <label htmlFor="invoice_carrier" className="form-label px-2">手機條碼</label>
-                                        <div className="input-group form-group-filled">
-                                            <span className="input-group-text text-neutral-600">
-                                                <Icon icon="mdi:cellphone" width="20" height="20"></Icon>
-                                            </span>
-                                            <input
-                                                type="text"
-                                                className="form-control ps-1"
-                                                placeholder="例：/ABC1234"
-                                                maxLength={8}
-                                                id="invoice_carrier"
-                                                name="invoice_carrier"
-                                            />
-                                        </div>
-                                        {/*錯誤訊息 */}
-                                        <div className="px-2 error-message text-semantic-error">
-                                            <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                            條碼格式不正確（例：/ABC1234）
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* 捐贈發票 */}
-                                {selectedInvoice === 'donation' && (
-                                    <div className="mt-4">
-                                        <label htmlFor="donate_code" className="form-label px-2">捐贈碼</label>
-                                        <div className="input-group form-group-filled">
-                                            <span className="input-group-text text-neutral-600">
-                                                <Icon icon="humbleicons:heart" width="20" height="20"></Icon>
-                                            </span>
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                pattern="[0-9]*"
-                                                className="form-control ps-1"
-                                                placeholder="例：919"
-                                                id="donate_code"
-                                                name="donate_code"
-                                                maxLength={7}
-                                                onInput={(e) => {
-                                                    e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
-                                                }}
-                                            />
-                                        </div>
-                                        {/*錯誤訊息 */}
-                                        <div className="px-2 error-message text-semantic-error">
-                                            <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                            請輸入慈善機構愛心碼
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* 不使用載具 */}
-                                {selectedInvoice === 'na' && (
-                                    <p className="px-2 s-text text-neutral-600 fs-8 mt-2">將開立電子發票證明聯</p>
-                                )}
-
-                                {/* 公司戶發票 (包含多個欄位) */}
-                                {selectedInvoice === 'business' && (
-                                    <div className="mt-4 d-flex flex-column gap-4">
-                                        <div>
-                                            <label htmlFor="invoice_company_name" className="form-label px-2">公司名稱(發票抬頭)</label>
-                                            <div className="input-group form-group-filled">
-                                                <span className="input-group-text text-neutral-600">
-                                                    <Icon icon="fluent:building-multiple-16-regular" width="20" height="20"></Icon>
-                                                </span>
-                                                <input
-                                                    type="text"
-                                                    className="form-control ps-1"
-                                                    placeholder="例：○○有限公司"
-                                                    id="invoice_company_name"
-                                                    name="invoice_company_name"
-                                                />
-                                            </div>
-                                            {/*錯誤訊息 */}
-                                            <div className="px-2 error-message text-semantic-error">
-                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                                請輸入公司名稱
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label htmlFor="invoice_tax_id" className="form-label px-2">統一編號</label>
-                                            <div className="input-group form-group-filled">
-                                                <span className="input-group-text text-neutral-600">
-                                                    <Icon icon="jam:hashtag" width="20" height="20"></Icon>
-                                                </span>
-                                                <input
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    pattern="[0-9]*"
-                                                    className="form-control ps-1"
-                                                    placeholder="例：40595252"
-                                                    id="invoice_tax_id"
-                                                    name="invoice_tax_id"
-                                                    maxLength={8}
-                                                    onInput={(e) => {
-                                                        e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
-                                                    }}
-                                                />
-                                            </div>
-                                            {/*錯誤訊息 */}
-                                            <div className="px-2 error-message text-semantic-error">
-                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                                請輸入統一編號
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label htmlFor="invoice_company_email" className="form-label px-2">收件信箱</label>
-                                            <div className="input-group form-group-filled">
-                                                <span className="input-group-text text-neutral-600">
-                                                    <Icon icon="eva:email-outline" width="20" height="20"></Icon>
-                                                </span>
-                                                <input
-                                                    type="email"
-                                                    className="form-control ps-1"
-                                                    placeholder="例：example@company.com"
-                                                    id="invoice_company_email"
-                                                    name="invoice_company_email"
-                                                />
-                                            </div>
-                                            {/*錯誤訊息 */}
-                                            <div className="px-2 error-message text-semantic-error">
-                                                <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                                信箱格式不正確
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
+                                    errors={errors}
+                                    watch={watch}
+                                    setValue={setValue}
+                                />
                             </section>
 
                             {/* 訂單備註 */}
                             <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
                                 <h2 className="cart-section-title mb-6">訂單備註</h2>
                                 <div className="mb-4 mb-lg-6">
-                                    <div className="form-group-filled note-group">
+                                    <div className={`form-group-filled note-group ${errors.order_note ? 'border border-semantic-error' : ''}`}>
                                         <textarea
                                             id="order_note"
                                             className="form-control mb-3"
                                             placeholder="有什麼想告訴我們的嗎？"
-                                            maxLength={200}
-                                            value={noteText}
-                                            onChange={(e) => setNoteText(e.target.value)}
+                                            {...register("order_note", {
+                                                maxLength: {
+                                                    value: 200,
+                                                    message: "備註內容過長，請精簡至 200 字以內。"
+                                                }
+                                            })}
                                         />
                                         <div className="note-count text-end text-neutral-600">
-                                            <span className="current-count">{noteText.length}</span>
+                                            <span className="current-count">{currentNote.length}</span>
                                             <span className="total-count"> / 200</span>
                                         </div>
                                     </div>
                                     {/*錯誤訊息 */}
-                                    <div className="px-2 error-message text-semantic-error">
-                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
-                                        備註內容過長，請精簡至200字以內。
-                                    </div>
+                                    {errors.order_note && (
+                                        <div className="px-2 error-message text-semantic-error mt-2">
+                                            <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16"></Icon>
+                                            {errors.order_note.message}
+                                        </div>
+                                    )}
                                 </div>
                                 {/* 快選備註 */}
                                 <div className="order-note d-flex flex-wrap gap-2">
