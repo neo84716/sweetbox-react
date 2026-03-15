@@ -140,16 +140,18 @@ import zhTW from 'antd/locale/zh_TW';
 const isMobile = window.innerWidth < 992;
 
 function ShippedDate({record, isOpen, onToggle, onChange}) {
-  const {payment_status, shipping_date, is_archived} = record
+  const {payment, shipping_date, is_archived} = record
+  console.log('payment_status:', record.id, payment.status)
+  const currentPayment = payment.status
   const hasData = !(shipping_date === null)
   // 付款失敗或是未付款
-  if(payment_status !== 1) {
+  if(currentPayment !== "success") {
     return (
       <div className="shipDate-disabled">-</div>
     )
   }
   // 已付款已歸檔
-  if(payment_status === 1 && is_archived) {
+  if(currentPayment === "success" && is_archived) {
     return (
       <div className="shipDate archived text-neutral-800">
         {shipping_date}

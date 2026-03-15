@@ -25,8 +25,15 @@ function SubscribeDetail() {
   // 抓取訂單資料 subscription_orders
   const getOrderData = async () => {
     try {
-      const res = await api.get(`/subscription_orders?subscription_no=${id}`)
-      setAllOrders(res.data)
+      const resOrders = await api.get(`/subscription_orders?subscription_no=${id}`)
+      const resPayments = await api.get(`/payments`)
+      // console.log('payments:', resPayments.data)
+      const res = resOrders.data.map(resOrder => ({
+        ...resOrder,
+        payment: resPayments.data.find(resPayment => resPayment.subscription_order_id === Number(resOrder.id))
+      }))
+      setAllOrders(res)
+      console.log('res.data: ', res)
       // setOrderData(unarchived)
       // setArchievedData(archived)
     } catch (err) {
@@ -158,7 +165,7 @@ function SubscribeDetail() {
   // 更新歸檔
   const updateArchived = async (item)=>{
     try {
-      if ((item.payment_status ===1)&&(item.shipping_status===2)&&(item.shipping_date !== null)) {
+      if ((item.payment.status === "success")&&(item.shipping_status===2)&&(item.shipping_date !== null)) {
         const res = await api.patch(`/subscription_orders/${item.id}`, {
           is_archived : !item.is_archived
         })
@@ -322,7 +329,7 @@ function SubscribeDetail() {
                           <td className="text-center fw-normal">{item.amount}</td>
                           <td className="text-center fw-normal">{item.payment_date}</td>
                           <td className="text-center fw-normal">
-                            <PayStatusBadge currentStatus={item.payment_status} isArchived={item.is_archived} isFailed={item.payment_status === 2} onChange={(status)=>updatePayStatusChange(item.id, status)}/>
+                            <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === 2} onChange={(status)=>updatePayStatusChange(item.id, status)}/>
                           </td>
                           <td className="text-center fw-normal">
                             <ShippingStatus record={item} isOpen={openId === item.order_no} onToggle={()=> setOpenId(openId === item.order_no ? null : item.order_no)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>  
@@ -332,8 +339,8 @@ function SubscribeDetail() {
                             <ShippedDate record={item} isOpen={openDateId === item.order_no} onToggle={()=>{setOpenDateId(openDateId === item.order_no ? null : item.order_no)}} onChange={(date)=>updateShipDateChange(item.id, date)} />
                           </td>
                           <td className="text-center fw-normal">
-                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shipping_status === 3 ? "shipped-failed" : ""}`} onClick={() => {
-                              if (item.payment_status !==2) {
+                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shipping_status === 3 ? "shipped-failed" : item.shipping_status === 2 ? "pointer" : ""}`} onClick={() => {
+                              if (item.payment.status !=="failed") {
                                 updateArchived(item)
                               }
                             }}>
@@ -368,7 +375,7 @@ function SubscribeDetail() {
                               {item.order_no}
                             </div>
                           </div>
-                          <PayStatusBadge currentStatus={item.payment_status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
+                          <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
                         </div>
                         <div className="order-mobile-divider"></div>
                         
@@ -500,7 +507,7 @@ function SubscribeDetail() {
                           </div>
                         </div>
                         <div className="order-status d-flex justify-content-start gap-3 mb-3">
-                          <PayStatusBadge currentStatus={item.payment_status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
+                          <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
                           <ShippingStatus record={item} isOpen={openId === item.order_no} onToggle={()=> setOpenId(openId === item.order_no ? null : item.order_no)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>
                         </div>
                         <div className="order-mobile-divider"></div>
