@@ -15,18 +15,32 @@ function SubscribeDetail() {
   // 未歸檔資料，必須管理狀態，才能修改
   // const [orderData, setOrderData] = useState([])
   // const [archievedData, setArchievedData] = useState([])
+  // 原始資料
   const [allOrders, setAllOrders] = useState([])
+  // 可編輯資料
+  const [editedOrders, setEditedOrders] = useState([])
   const [userData, setUserData] = useState([])
   const [subscriptionData, setSubscriptionData] = useState({})
-  const orderData = allOrders.filter(item => !item.is_archived)
-  const archivedData = allOrders.filter(item => item.is_archived)
-  const shippedCount = allOrders.filter(item => item.shipping_status === 2).length
+  // 未歸檔
+  const orderData = editedOrders.filter(item => !item.is_archived)
+  // 已歸檔
+  const archivedData = editedOrders.filter(item => item.is_archived)
+  // 已出貨筆數
+  const shippedCount = editedOrders.filter(item => item.shipping_status === 2).length
   const shippedProgress = (shippedCount / subscriptionData?.duration_months)*100
   // 抓取訂單資料 subscription_orders
   const getOrderData = async () => {
     try {
-      const res = await api.get(`/subscription_orders?subscription_no=${id}`)
-      setAllOrders(res.data)
+      const resOrders = await api.get(`/subscription_orders?subscription_no=${id}`)
+      const resPayments = await api.get(`/payments`)
+      // console.log('payments:', resPayments.data)
+      const res = resOrders.data.map(resOrder => ({
+        ...resOrder,
+        payment: resPayments.data.find(resPayment => resPayment.subscription_order_id === Number(resOrder.id))
+      }))
+      setAllOrders(res)
+      setEditedOrders(res)
+      console.log('res.data: ', res)
       // setOrderData(unarchived)
       // setArchievedData(archived)
     } catch (err) {
@@ -115,10 +129,21 @@ function SubscribeDetail() {
   // 修改資料的出貨狀態
   const updateShipStatusChange = async (id, newStatus) => {
     try {
-      await api.patch(`/subscription_orders/${id}`, {
-        shipping_status : newStatus
+      // prev代表還沒更改前的 editedOrders
+      setEditedOrders(prev => {
+        return prev.map(order => {
+          return (
+            // 找到被按的那筆，展開後覆寫新的狀態，不是該筆就回傳原本的資料
+            order.id === id
+            ? {...order, shipping_status: newStatus}
+            : order
+          )
+        })
       })
-      getOrderData()
+      // await api.patch(`/subscription_orders/${id}`, {
+      //   shipping_status : newStatus
+      // })
+      // getOrderData()
     } catch (err) {
       console.log("update shipping status error: ", err)
     }
@@ -138,10 +163,19 @@ function SubscribeDetail() {
   // 更新出貨日期的資料
   const updateShipDateChange = async (id, newDate) => {
     try {
-      await api.patch(`/subscription_orders/${id}`, {
-        shipping_date : newDate
+      setEditedOrders(prev => {
+        return prev.map(order => {
+          return (
+            order.id === id 
+            ? {...order, shipping_date: newDate}
+            : order
+          )
+        })
       })
-      getOrderData()
+      // await api.patch(`/subscription_orders/${id}`, {
+      //   shipping_date : newDate
+      // })
+      // getOrderData()
     } catch (err) {
       console.log('update shipping_date err: ', err)
     }
@@ -158,17 +192,52 @@ function SubscribeDetail() {
   // 更新歸檔
   const updateArchived = async (item)=>{
     try {
-      if ((item.payment_status ===1)&&(item.shipping_status===2)&&(item.shipping_date !== null)) {
-        const res = await api.patch(`/subscription_orders/${item.id}`, {
-          is_archived : !item.is_archived
+      if ((item.payment.status === "success")&&(item.shipping_status===2)&&(item.shipping_date !== null)) {
+        setEditedOrders(prev => {
+          return prev.map(order => {
+            return (
+              order.id === item.id
+              ? {...order, is_archived: !item.is_archived}
+              : order 
+            )
+          })
         })
-        getOrderData()
-        console.log('update:', res.data.is_archived)
+        // const res = await api.patch(`/subscription_orders/${item.id}`, {
+        //   is_archived : !item.is_archived
+        // })
+        // getOrderData()
+        // console.log('update:', res.data.is_archived)
       }
       
     } catch (err) {
       console.log("archived error:", err)
     }
+  }
+  // 取消變更
+  const cancelChange = () => {
+   setEditedOrders(allOrders) 
+  }
+  // 儲存變更
+  const saveChange = async () => {
+    // 遍歷可編輯的資料
+    const updates = editedOrders.filter(editedO => {
+      // 根據該輪的訂單找出對應的原始資料
+      const origin = allOrders.find(originO => originO.id === editedO.id)
+      return (
+        // 比對可編輯的資料跟原始資料是否有差異，有差異就回傳true，filter就會放到updates
+        editedO.shipping_status !== origin.shipping_status ||
+        editedO.shipping_date !== origin.shipping_date
+      )
+    })
+    // 遍歷需要更新的資料，一筆一筆做patch
+    for (const order of updates) {
+      await api.patch(`/subscription_orders/${order.id}`, {
+        shipping_status: order.shipping_status,
+        shipping_date: order.shipping_date
+      })
+    }
+    // 把原始資料變更成更新後的資料
+    setAllOrders(editedOrders)
   }
 
   return (
@@ -211,11 +280,17 @@ function SubscribeDetail() {
                 <p className="backList neutral-800 fs-8">返回列表</p>
               </NavLink>
             </div>
-            <div className="d-flex align-items-center">
-              <p className="fs-2 fw-bold me-3 orderID">{id}</p>
-              <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
-                未處理
-              </button>
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex gap-3 align-items-center">
+                <p className="fs-2 fw-bold me-3 orderID">{id}</p>
+                <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
+                  未處理
+                </button>
+              </div>
+              <div className="d-flex gap-3">
+                <button type="button" className="cancelButton px-6 py-3 text-neutral-800" onClick={()=>cancelChange()}>取消</button>
+                <button type="button" className="saveButton fw-bold text-neutral-100" onClick={()=>saveChange()}>儲存變更</button>
+              </div>
             </div>
           </section>
           {/* 訂單編號 - mobile */}
@@ -322,7 +397,7 @@ function SubscribeDetail() {
                           <td className="text-center fw-normal">{item.amount}</td>
                           <td className="text-center fw-normal">{item.payment_date}</td>
                           <td className="text-center fw-normal">
-                            <PayStatusBadge currentStatus={item.payment_status} isArchived={item.is_archived} isFailed={item.payment_status === 2} onChange={(status)=>updatePayStatusChange(item.id, status)}/>
+                            <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === 2} onChange={(status)=>updatePayStatusChange(item.id, status)}/>
                           </td>
                           <td className="text-center fw-normal">
                             <ShippingStatus record={item} isOpen={openId === item.order_no} onToggle={()=> setOpenId(openId === item.order_no ? null : item.order_no)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>  
@@ -332,8 +407,8 @@ function SubscribeDetail() {
                             <ShippedDate record={item} isOpen={openDateId === item.order_no} onToggle={()=>{setOpenDateId(openDateId === item.order_no ? null : item.order_no)}} onChange={(date)=>updateShipDateChange(item.id, date)} />
                           </td>
                           <td className="text-center fw-normal">
-                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shipping_status === 3 ? "shipped-failed" : ""}`} onClick={() => {
-                              if (item.payment_status !==2) {
+                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shipping_status === 3 ? "shipped-failed" : item.shipping_status === 2 ? "pointer" : ""}`} onClick={() => {
+                              if (item.payment.status !=="failed") {
                                 updateArchived(item)
                               }
                             }}>
@@ -368,7 +443,7 @@ function SubscribeDetail() {
                               {item.order_no}
                             </div>
                           </div>
-                          <PayStatusBadge currentStatus={item.payment_status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
+                          <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
                         </div>
                         <div className="order-mobile-divider"></div>
                         
@@ -500,7 +575,7 @@ function SubscribeDetail() {
                           </div>
                         </div>
                         <div className="order-status d-flex justify-content-start gap-3 mb-3">
-                          <PayStatusBadge currentStatus={item.payment_status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
+                          <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
                           <ShippingStatus record={item} isOpen={openId === item.order_no} onToggle={()=> setOpenId(openId === item.order_no ? null : item.order_no)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>
                         </div>
                         <div className="order-mobile-divider"></div>
@@ -539,8 +614,8 @@ function SubscribeDetail() {
       </main>
       {/* 底部按鈕列-mobile版才有 */}
       <div className={`d-flex d-lg-none justify-content-between align-items-center mobile-button-bar p-6 ${mode === "sticky-visible" ? "" : "hide-button-bar"}`}>
-        <p className="fs-7 text-neutral-700 button-text">取消</p>
-        <button type="button" className="btn fw-bold text-neutral-100 bg-CTA-200 save-button">儲存變更</button>
+        <p className="fs-7 text-neutral-700 button-text" onClick={cancelChange}>取消</p>
+        <button type="button" className="btn fw-bold text-neutral-100 bg-CTA-200 save-button" onClick={saveChange}>儲存變更</button>
       </div>
       {openId !== null && (
         <div

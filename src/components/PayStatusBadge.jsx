@@ -1,12 +1,12 @@
 // import { useState } from "react";
 
 const PAYSTATUS = {
-  1: "已付款",
-  2: "付款失敗",
-  3: "即將付款",
+  "success": "已付款",
+  "failed": "付款失敗",
+  "pending": "即將付款",
 };
 
-function PayStatusBadge({currentStatus, isArchived, isFailed, onChange}) {
+function PayStatusBadge({currentStatus, isArchived, onChange}) {
   // const [payStatus, setPayStatus] = useState(currentStatus)
   
   // 定義切換方法
@@ -46,11 +46,13 @@ function PayStatusBadge({currentStatus, isArchived, isFailed, onChange}) {
         return 1
     }
   }
+  const isFailed = currentStatus === "failed"
   // payStatus === PayStatusOptions.DEFAULT;
   // const isPaid = payStatus === PayStatusOptions.PAID;
   // const isFailed = payStatus === PayStatusOptions.FAILED;
+  // onClick={()=>{(!isFailed)&&(!isArchived)&&onChange(getNewStatus())}}
   return (
-    <button type="button" className={`payStatusBadge ${currentStatus === 2 ? "failed": ""}`} onClick={()=>{(!isFailed)&&(!isArchived)&&onChange(getNewStatus())}}>
+    <button type="button" className={`payStatusBadge ${isFailed ? "failed": ""}`} >
       {PAYSTATUS[currentStatus]}
     </button>
   )

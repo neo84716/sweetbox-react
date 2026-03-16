@@ -8,8 +8,10 @@ function CircleProgress({
 }) {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  const offset = circumference * (1 - progress / 100)
-
+  const offseto = circumference * (1 - 0.33)
+  const safeProgress = Number(progress) || 0
+  const offset = circumference * (1 - safeProgress / 100)
+  console.log('offset:', offseto)
   return (
     <div
       style={{
