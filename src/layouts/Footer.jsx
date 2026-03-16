@@ -1,6 +1,7 @@
 function Footer() {
     return (
         <footer className="footer bg-neutral-400 position-relative">
+            <div className="footer-wave"></div>
             <nav className="container d-flex flex-column flex-lg-row justify-content-between align-items-center mb-3 px-0">
                 <a href="index.html"><img className="footer-logo mb-3 mb-lg-0" src="./images/Home_Page/sweetBox_logo.svg"
                     alt="一盒甜logo" /></a>

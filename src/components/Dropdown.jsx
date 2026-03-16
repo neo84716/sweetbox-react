@@ -74,7 +74,7 @@ function Dropdown({ options, width = '108px', variant = "default", value, onChan
       )}
       <ul
         className={`dropdown-menu mt-2 dropdown-menu-neutral-250 ${isOpen ? 'show' : ''}`}
-        style={{ right: 0 }}
+        style={{ right: 0}}
       >
         {options.map((opt, index) => (
           <li key={index}>

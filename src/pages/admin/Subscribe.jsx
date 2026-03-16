@@ -5,7 +5,6 @@ import StatusButton, { STATUS } from "../../components/StatusButton";
 import React from 'react';
 import { DatePicker, Button } from 'antd';
 import Pagination from "../../components/Pagination";
-import AdminNav from "../../components/AdminNav";
 import Dropdown from "../../components/Dropdown";
 import api from "../../api";
 
@@ -299,7 +298,7 @@ function Subscribe() {
             </main>
 
             {/* 手機板 */}
-            <main className="bg-neutral-300 overflow-hidden d-block d-lg-none">
+            <main className="bg-neutral-300 d-block d-lg-none pb-9">
                 <ul className="container nav px-3 py-2 mb-sm-6 mb-0 nav-subscription gap-2 gap-sm-0 mt-20">
                     {tabs.map((tab, index) => (
                         <li className="nav-item" key={index}>

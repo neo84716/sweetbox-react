@@ -68,13 +68,13 @@ function Pagination() {
             {/* 手機板 */}
             <nav aria-label="Page navigation example" className="d-lg-none d-block">
                 <ul className="pagination sub-pagination">
-                    <li className={`page-item`}>
+                    <li className={`page-item disabled`}>
                         <a className="page-link" href="#" aria-label="Previous">
-                            <Icon icon="iconamoon:arrow-left-2-bold" width="14" height="14" />
+                            {/* <Icon icon="iconamoon:arrow-left-2-bold" width="14" height="14" /> */}
                         </a>
                     </li>
-                    <li className={`page-item active`} >
-                        <a className="page-link" href="#">
+                    <li className={`page-item`} >
+                        <a className="page-link border border-1" href="#">
                             1
                         </a>
                     </li>
@@ -83,14 +83,14 @@ function Pagination() {
                             <Icon icon="iconoir:slash" width="16" height="16" />
                         </a>
                     </li>
-                    <li className={`page-item`} >
+                    <li className={`page-item disabled`} >
                         <a className="page-link" href="#">
-                            5
+                            1
                         </a>
                     </li>
-                    <li className={`page-item`}>
+                    <li className={`page-item disabled`}>
                         <a className="page-link" href="#" aria-label="Next">
-                            <Icon icon="iconamoon:arrow-right-2-bold" width="14" height="14" />
+                            {/* <Icon icon="iconamoon:arrow-right-2-bold" width="14" height="14" /> */}
                         </a>
                     </li>
                 </ul>
