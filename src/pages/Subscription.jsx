@@ -1,12 +1,20 @@
+// 外部工具
 import { Icon } from "@iconify/react";
 import { NavLink } from "react-router-dom";
 import * as bootstrap from "bootstrap";
 import { useRef, useState, useEffect } from 'react';
 import { useForm, Controller } from "react-hook-form";
 
+// 元件區
 import Dropdown from "../components/Dropdown";
 import Pagination from "../components/Pagination";
-import FormSelect from "../components/FormSelect";
+import Select from "../components/Select";
+import FormError from "../components/FormError";
+
+// js 工具
+import { formatCardNumber, getCardType } from "../assets/utils/paymentUtils";
+import { creditCardYears, creditCardMonths } from "../assets/utils/formOptions";
+
 
 const tabs = [
   { label: '會員資料', to: '/' },
@@ -32,17 +40,6 @@ const statusOptions = [
   { label: '已完成', value: 'done' },
   { label: '已取消', value: 'cancelled' },
 ];
-
-const months = Array.from({ length: 12 } , (_, i) => ({
-  label: `${i + 1}月`,
-  value: i + 1
-}))
-
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 10 }, (_, i) => ({
-  label: `${currentYear + i}年`,
-  value: currentYear + i
-}));
 
 // 最多的卡片數量
 const maxCards = 5;
@@ -323,12 +320,6 @@ function Subscription() {
     reset();
   };
 
-  // 格式化卡號
-  const formatCardNumber = (value) => {
-    const numbers = value.replace(/\D/g, '').slice(0, 16);
-    const groups = numbers.match(/.{1,4}/g);
-    return groups ? groups.join('-') : '';
-  }
 
   const formatToUpperCase = (name) => {
     return name.toUpperCase();
@@ -364,14 +355,6 @@ function Subscription() {
           : card,
       ),
     );
-  }
-
-  // 判斷信用卡類型
-  const getCardType = (number) => {
-    if (/^4/.test(number)) return 'visa';
-    if (/^5[1-5]/.test(number)) return 'mastercard';
-    if (/^35/.test(number)) return 'jcb';
-    return 'visa';
   }
 
   const submitPaymentForm = (data) => {
@@ -698,17 +681,11 @@ function Subscription() {
                                                 })}
                                               />
                                             </div>
-                                            {errors.cardNumber && (
-                                              <div className="text-semantic-error mt-2">
-                                                <Icon
-                                                  className="mx-2"
-                                                  icon="gridicons:notice-outline"
-                                                  width="16"
-                                                  height="16"
-                                                ></Icon>
-                                                {errors.cardNumber.message}
-                                              </div>
-                                            )}
+                                            <FormError
+                                              message={
+                                                errors?.cardNumber?.message
+                                              }
+                                            />
                                           </label>
                                         </div>
                                         {/* 持卡人姓名 */}
@@ -734,17 +711,11 @@ function Subscription() {
                                                 })}
                                               />
                                             </div>
-                                            {errors.userName && (
-                                              <div className="text-semantic-error mt-2">
-                                                <Icon
-                                                  className="mx-2"
-                                                  icon="gridicons:notice-outline"
-                                                  width="16"
-                                                  height="16"
-                                                ></Icon>
-                                                {errors.userName.message}
-                                              </div>
-                                            )}
+                                            <FormError
+                                              message={
+                                                errors?.userName?.message
+                                              }
+                                            />
                                           </label>
                                         </div>
                                         {/* 有效期限 */}
@@ -753,93 +724,97 @@ function Subscription() {
                                             有效期限
                                           </label>
                                           <div className="d-flex gap-3">
-                                            <Controller
-                                              name="expMonth"
-                                              control={control}
-                                              rules={{
-                                                validate: (val) => {
-                                                  if (!val)
-                                                    return '請選擇有效期限';
+                                            <div className="flex-grow-1">
+                                              <Controller
+                                                name="expMonth"
+                                                control={control}
+                                                rules={{
+                                                  validate: (val) => {
+                                                    if (!val)
+                                                      return '請選擇有效期限';
 
-                                                  const currentYear =
-                                                    getValues('expYear');
-                                                  if (!currentYear) return true;
+                                                    const currentYear =
+                                                      getValues('expYear');
+                                                    if (!currentYear)
+                                                      return true;
 
-                                                  const now = new Date();
-                                                  const expiration = new Date(
-                                                    Number(currentYear),
-                                                    Number(val),
-                                                    1,
-                                                  );
+                                                    const now = new Date();
+                                                    const expiration = new Date(
+                                                      Number(currentYear),
+                                                      Number(val),
+                                                      1,
+                                                    );
 
-                                                  if (now >= expiration) {
-                                                    return '信用卡已過期';
-                                                  }
+                                                    if (now >= expiration) {
+                                                      return '信用卡已過期';
+                                                    }
 
-                                                  return true;
-                                                },
-                                              }}
-                                              render={({
-                                                field: { value, onChange },
-                                              }) => (
-                                                <FormSelect
-                                                  options={months}
-                                                  suffix="月"
-                                                  value={value}
-                                                  onChange={(val) => {
-                                                    onChange(val);
-                                                    trigger([
-                                                      'expMonth',
-                                                      'expYear',
-                                                    ]);
-                                                  }}
-                                                  hasError={!!errors.expMonth}
-                                                />
-                                              )}
-                                            />
-                                            <Controller
-                                              name="expYear"
-                                              control={control}
-                                              rules={{
-                                                validate: (val) => {
-                                                  if (!val)
-                                                    return '請選擇有效期限';
-
-                                                  return true;
-                                                },
-                                              }}
-                                              render={({
-                                                field: { value, onChange },
-                                              }) => (
-                                                <FormSelect
-                                                  options={years}
-                                                  suffix="年"
-                                                  value={value}
-                                                  onChange={(val) => {
-                                                    onChange(val);
-                                                    trigger([
-                                                      'expMonth',
-                                                      'expYear',
-                                                    ]);
-                                                  }}
-                                                  hasError={!!errors.expYear}
-                                                />
-                                              )}
-                                            />
-                                          </div>
-                                          {(errors.expMonth ||
-                                            errors.expYear) && (
-                                            <div className="text-semantic-error mt-2">
-                                              <Icon
-                                                className="mx-2"
-                                                icon="gridicons:notice-outline"
-                                                width="16"
-                                                height="16"
-                                              ></Icon>
-                                              {errors.expMonth?.message ||
-                                                errors.expYear?.message}
+                                                    return true;
+                                                  },
+                                                }}
+                                                render={({
+                                                  field: { value, onChange },
+                                                }) => (
+                                                  <Select
+                                                    options={creditCardMonths}
+                                                    value={value}
+                                                    onChange={(val) => {
+                                                      onChange(val);
+                                                      trigger([
+                                                        'expMonth',
+                                                        'expYear',
+                                                      ]);
+                                                    }}
+                                                    placeholderText="月"
+                                                    suffix="月"
+                                                    errorMsg={
+                                                      errors?.expMonth?.message
+                                                    }
+                                                  />
+                                                )}
+                                              />
                                             </div>
-                                          )}
+                                            <div className="flex-grow-1">
+                                              <Controller
+                                                name="expYear"
+                                                control={control}
+                                                rules={{
+                                                  validate: (val) => {
+                                                    if (!val)
+                                                      return '請選擇有效期限';
+
+                                                    return true;
+                                                  },
+                                                }}
+                                                render={({
+                                                  field: { value, onChange },
+                                                }) => (
+                                                  <Select
+                                                    options={creditCardYears}
+                                                    value={value}
+                                                    onChange={(val) => {
+                                                      onChange(val);
+                                                      trigger([
+                                                        'expMonth',
+                                                        'expYear',
+                                                      ]);
+                                                    }}
+                                                    placeholderText="年"
+                                                    suffix="年"
+                                                    errorMsg={
+                                                      errors?.expYear?.message
+                                                    }
+                                                  />
+                                                )}
+                                              />
+                                            </div>
+                                          </div>
+                                          <FormError
+                                            message={
+                                              errors?.expMonth?.message ||
+                                              errors?.expYear?.message
+                                            }
+                                          />
                                         </div>
                                         {/* 安全碼 */}
                                         <div>
@@ -871,17 +846,11 @@ function Subscription() {
                                                 })}
                                               />
                                             </div>
-                                            {errors.cvc && (
-                                              <div className="text-semantic-error mt-2">
-                                                <Icon
-                                                  className="mx-2"
-                                                  icon="gridicons:notice-outline"
-                                                  width="16"
-                                                  height="16"
-                                                ></Icon>
-                                                {errors.cvc.message}
-                                              </div>
-                                            )}
+                                            <FormError
+                                              message={
+                                                errors?.cvc?.message
+                                              }
+                                            />
                                           </label>
                                         </div>
                                       </div>
