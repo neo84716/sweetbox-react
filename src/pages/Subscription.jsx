@@ -553,33 +553,19 @@ function Subscription() {
                     </button>
                     {/* 輸入付款號碼 */}
                     <div className="mb-3">
-                      <label
-                        htmlFor={`${userSubscription.id}`}
-                        className="form-label fs-8 text-neutral-600"
-                      >
-                        目前付款方式
-                      </label>
-                      <div className="input-group">
-                        <span
-                          className="input-group-text border-0 rounded-start-pill bg-neutral-300 py-3 ps-4 pe-0"
-                          id="visa"
-                        >
-                          <img
-                            className="py-1 px-2"
-                            src="./images/Subscription_Page/logo_visa.png"
-                            alt="visa icon"
-                            width="44"
-                            height="24"
-                          />
-                        </span>
-                        <input
-                          type="text"
-                          className="form-control border-0 rounded-end-pill bg-neutral-300 ps-3 pe-4 ls-0"
-                          id={`${userSubscription.id}`}
-                          aria-describedby="visa payment-number"
-                          value="•••• •••• •••• 4321"
-                          readOnly
+                      <p className="text-label mb-2">目前付款方式</p>
+                      <div className="rounded-pill py-3 px-4 bg-neutral-300 d-flex gap-3">
+                        <Icon
+                          className="py-1 px-2"
+                          icon="logos:visaelectron"
+                          width="44"
+                          height="24"
                         />
+                        <div className="credit-card-number gap-2">
+                          <span className="masked-number-compact">••••</span>
+                          <span className="masked-number-compact">••••</span>
+                          <span className="masked-number-compact">••••</span>
+                          4321                        </div>
                       </div>
                     </div>
                     {/* Modal */}
@@ -910,10 +896,10 @@ function Subscription() {
                                               </div>
                                             </div>
                                             <div>
-                                              <p className="mb-6 text-neutral-100 h6 ls-1 credit-card-number">
-                                                <span>••••</span>
-                                                <span>••••</span>
-                                                <span>••••</span>
+                                              <p className="mb-6 text-neutral-100 h6 ls-1 credit-card-number gap-6">
+                                                <span className="masked-number">••••</span>
+                                                <span className="masked-number">••••</span>
+                                                <span className="masked-number">••••</span>
                                                 {defaultCard.lastFour}
                                               </p>
                                               <div className="d-flex justify-content-between text-neutral-100">

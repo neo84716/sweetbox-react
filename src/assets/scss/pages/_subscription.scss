@@ -149,19 +149,24 @@
     border-radius: 16px;
     background: linear-gradient(#322D26, #48423B);
   }
-  &-number {
-    display: flex;
-    gap: 24px;
 
-    span {
-      letter-spacing: -0.3rem;
-    }
-  }
   &-list {
     max-height: 144px;
     overflow: auto;
     @media (min-width: 576px) {
       max-height: 78px;
+    }
+  }
+}
+
+.credit-card-number {
+  display: flex;
+
+  .masked-number {
+    letter-spacing: -0.3rem;
+
+    &-compact {
+      letter-spacing: -0.66rem;
     }
   }
 }
