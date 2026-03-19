@@ -231,6 +231,8 @@ const shippingStatus = [
 function Subscription() {
   const [isAdd, setIsAdd] = useState(false);
   const [cards, setCards] = useState(creditCards);
+  const [expandedIds, setExpandedIds] = useState([]); // 已展開的訂閱 Id
+  
   const paymentModalRef = useRef(null);
   const paymentModalInstanceRef = useRef(null);
   const cancelReminderModalRef = useRef(null);
@@ -387,6 +389,13 @@ function Subscription() {
     reset();
   }
 
+  // Accordion
+  const handleToggleAccordion = (id) => {
+    setExpandedIds((prev) => expandedIds.includes(id) 
+      ? prev.filter(expandedId => expandedId !== id) 
+      : [...prev, id]);
+  }
+
   return (
     <div className="py-sm-11 pt-20 pb-5 bg-neutral-300">
       <main className="container">
@@ -527,15 +536,16 @@ function Subscription() {
                   {/* 付款方式 */}
                   <div className="py-0 py-xl-2 flex-grow-1">
                     <button
+                      id={userSubscription.id}
                       className="accordion-button d-xl-flex justify-content-end align-items-center d-none"
                       type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target={`#collapse-${userSubscription.id}`}
-                      aria-expanded="true"
+                      aria-expanded="false"
                       aria-controls={`collapse-${userSubscription.id}`}
+                      onClick={() => handleToggleAccordion(userSubscription.id)}
                     >
                       <Icon
-                        icon="iconamoon:arrow-up-2-bold"
+                        className={`arrow-down-icon ${expandedIds.includes(userSubscription.id) ? 'rotate' : ''}`}
+                        icon="iconamoon:arrow-down-2-bold"
                         width="32"
                         height="32"
                       />
@@ -577,7 +587,6 @@ function Subscription() {
                       <button
                         type="button"
                         className="btn btn-cta-200 btn-action w-100 py-3 mb-1"
-                        // data-bs-target="#paymentManageModal"
                         onClick={() => {
                           openModal('paymentModal');
                           setIsAdd(false);
@@ -847,9 +856,7 @@ function Subscription() {
                                               />
                                             </div>
                                             <FormError
-                                              message={
-                                                errors?.cvc?.message
-                                              }
+                                              message={errors?.cvc?.message}
                                             />
                                           </label>
                                         </div>
@@ -1183,7 +1190,6 @@ function Subscription() {
                       <button
                         type="button"
                         className="btn p-3 border-0 mb-1"
-                        // data-bs-target="#paymentCancelModal"
                         onClick={() => openModal('cancelReminderModal')}
                       >
                         <small>取消目前訂閱方案</small>
@@ -1191,7 +1197,6 @@ function Subscription() {
                       {/* 取消訂閱提醒 Modal */}
                       <div
                         className="modal fade"
-                        // id="paymentCancelModal"
                         tabIndex="-1"
                         aria-labelledby="paymentCancelModalLabel"
                         aria-hidden="true"
@@ -1546,16 +1551,15 @@ function Subscription() {
                   <button
                     className="accordion-button d-flex d-xl-none flex-column gap-2 mb-6"
                     type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target={`#collapse-${userSubscription.id}`}
-                    aria-expanded="true"
+                    aria-expanded="false"
                     aria-controls={`collapse-${userSubscription.id}`}
+                    onClick={() => handleToggleAccordion(userSubscription.id)}
                   >
                     <div className="subscription-info-divider"></div>
                     <div className="d-flex justify-content-center align-items-center text-neutral-600 py-1">
                       <Icon
-                        className="p-1 me-2"
-                        icon="iconamoon:arrow-up-2-bold"
+                        className={`p-1 me-2 arrow-down-icon ${expandedIds.includes(userSubscription.id) ? 'rotate' : ''}`}
+                        icon="iconamoon:arrow-down-2-bold"
                         width="32"
                         height="32"
                       />
@@ -1567,8 +1571,7 @@ function Subscription() {
               {/* 手風琴下拉內容 */}
               <div
                 id={`collapse-${userSubscription.id}`}
-                className="accordion-collapse collapse"
-                data-bs-parent="#accordion-subscription"
+                className={`accordion-collapse collapse ${expandedIds.includes(userSubscription.id) ? 'show' : ''}`}
               >
                 {/* 手風琴下拉 table */}
                 <div className="accordion-body p-0 d-none d-xl-block">
