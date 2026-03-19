@@ -444,6 +444,7 @@ function Subscription() {
                         media="(max-width: 1200px)"
                       />
                       <img
+                        className="rounded-6"
                         src={userSubscription.subscriptions[0].images.default}
                         alt="季節甜點主題圖片"
                       />
@@ -1189,10 +1190,10 @@ function Subscription() {
                       {/* 取消訂閱提醒 Modal button*/}
                       <button
                         type="button"
-                        className="btn p-3 border-0 mb-1"
+                        className="btn p-3 border-0 mb-1 w-100"
                         onClick={() => openModal('cancelReminderModal')}
                       >
-                        <small>取消目前訂閱方案</small>
+                        <span className="small">取消目前訂閱方案</span>
                       </button>
                       {/* 取消訂閱提醒 Modal */}
                       <div
