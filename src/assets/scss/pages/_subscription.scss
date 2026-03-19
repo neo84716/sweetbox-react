@@ -126,7 +126,7 @@
 }
 
 // 付款 modal
-.mastercard-logo {
+.credit-card-logo {
   width: 40px;
   height: 24px;
   padding: 4px 8px;
@@ -149,14 +149,7 @@
     border-radius: 16px;
     background: linear-gradient(#322D26, #48423B);
   }
-  &-number {
-    display: flex;
-    gap: 24px;
 
-    span {
-      letter-spacing: -0.3rem;
-    }
-  }
   &-list {
     max-height: 144px;
     overflow: auto;
@@ -166,13 +159,27 @@
   }
 }
 
+.credit-card-number {
+  display: flex;
+
+  .masked-number {
+    letter-spacing: -0.3rem;
+
+    &-compact {
+      letter-spacing: -0.66rem;
+    }
+  }
+}
+
 .payment-button-container {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
   padding: 24px;
   border-top-right-radius: 12px;
   border-top-left-radius: 12px;
-  background-color: $neutral-200;
+  background-color: $neutral-250;
   box-shadow: 0 -2px 4px 0 rgba($black, 0.06);
 }
 
@@ -186,8 +193,99 @@
   min-width: 0;
 }
 
-.subscription-modal-right-card {
+.modal-info-card {
   padding: 24px;
   border-radius: 16px;
   background-color: rgba($neutral-100, 0.4);
+}
+
+.notice-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  background-color: $neutral-700;
+  color: $neutral-100;
+  border-radius: 100px;
+}
+
+.cancel-modal {
+  height: 616px;
+}
+
+.cancel-modal-title {
+  font-size: 28px;
+
+  @media (min-width: 576px) {
+    font-size: 24px;
+  }
+
+  &.desktop-title {
+    display: none;
+
+    @media (min-width: 576px) {
+      display: block;
+    }
+  }
+  &.mobile-title {
+    display: block;
+
+    @media (min-width: 576px) {
+      display: none;
+    }
+  }
+}
+
+.cancel-modal-left {
+  flex: 1;
+
+  .cancel-modal-left-content {
+    padding: 24px;
+    @media (min-width: 576px) {
+      padding: 32px 48px;
+    }
+  }
+}
+
+.cancel-modal-right {
+  flex: 1.5;
+
+  .cancel-modal-reminder-content {
+    padding: 24px 24px 120px;
+  }
+
+  .cancel-modal-confirm-content {
+    padding: 12px 24px 120px;
+  }
+
+  .cancel-modal-reminder-content,
+  .cancel-modal-confirm-content {
+    @media (min-width: 576px) {
+      padding: 32px 32px 48px 48px;
+    }
+  }
+}
+
+.text-label {
+  font-size: 14px;
+  color: $neutral-600;
+}
+
+.subscription-summary {
+  padding: 16px;
+  border: 1px solid $neutral-400;
+  border-radius: 12px;
+  font-size: 14px;
+
+  &-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+}
+
+.arrow-down-icon {
+  transform: rotate(0deg);
+  transition: transform .5s ease;
+  &.rotate {
+    transform: rotate(180deg);
+  }
 }
