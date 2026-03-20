@@ -1,6 +1,7 @@
 import App from "../App";
 import Cart from "../pages/Cart";
 import CartCheckout from "../pages/CartCheckout";
+import CartFinish from "../pages/CartFinish";
 import CartEmpty from "../pages/CartEmpty";
 import Home from "../pages/Home";
 import Subscription from "../pages/Subscription";
@@ -23,6 +24,18 @@ const routes = [
         path: "cart",
         element: <Cart />
       },
+      { 
+        path: "cartCheckout", 
+        element: <CartCheckout /> 
+      },
+      { 
+        path: "cartFinish", 
+        element: <CartFinish /> 
+      },
+      {
+        path: "cartEmpty",
+        element: <CartEmpty />
+      },
       {
         path: "theme",
         element: <Theme />
@@ -30,10 +43,6 @@ const routes = [
       {
         path: "themeDetail/:id",
         element: <ThemeDetail />
-      },
-      {
-        path: "cartEmpty",
-        element: <CartEmpty />
       },
       {
         path: "subscription",
@@ -46,11 +55,8 @@ const routes = [
       {
         path: "admin/subscribeDetail/:id",
         element: <SubscribeDetail />
-      },
-      { 
-        path: "cartCheckout", 
-        element: <CartCheckout /> 
       }
+
     ]
   }
 ];
