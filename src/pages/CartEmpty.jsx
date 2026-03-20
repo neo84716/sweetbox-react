@@ -1,4 +1,4 @@
-function EmptyCart() {
+function CartEmpty() {
     return (
         <>
             <main className="bg-neutral-300">
@@ -25,4 +25,4 @@ function EmptyCart() {
     )
 }
 
-export default EmptyCart
+export default CartEmpty
