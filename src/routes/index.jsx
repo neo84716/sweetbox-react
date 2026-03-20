@@ -1,13 +1,14 @@
 import App from "../App";
 import Cart from "../pages/Cart";
 import CartCheckout from "../pages/CartCheckout";
-import EmptyCart from "../pages/EmptyCart";
+import CartEmpty from "../pages/CartEmpty";
 import Home from "../pages/Home";
 import Subscription from "../pages/Subscription";
 import Theme from "../pages/Theme";
 import ThemeDetail from "../pages/ThemeDetail";
 import Subscribe from "../pages/admin/Subscribe";
 import SubscribeDetail from "../pages/admin/SubscribeDetail";
+
 
 const routes = [
   {
@@ -31,8 +32,8 @@ const routes = [
         element: <ThemeDetail />
       },
       {
-        path: "emptyCart",
-        element: <EmptyCart />
+        path: "cartEmpty",
+        element: <CartEmpty />
       },
       {
         path: "subscription",
