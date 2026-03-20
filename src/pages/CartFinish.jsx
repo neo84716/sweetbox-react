@@ -1,11 +1,18 @@
-import { useEffect, useState } from "react";
-import { Icon } from "@iconify/react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import api from "../api";
+import { Link, useLocation, Navigate } from "react-router-dom";
 
 function CartFinish() {
-    const [cartData, setCartData] = useState([]);
-    const [themes, setThemes] = useState([]);
+    const location = useLocation();
+    const subscriptions = location.state?.subscriptions; //接上一步資料
+
+    //防呆：未結帳者，導回購物車
+    if (!subscriptions || subscriptions.length === 0) {
+        return <Navigate to="/cart" replace />;
+    }
+    //抓第一筆訂閱信用卡、時間
+    const representSub = subscriptions[0];
+    // 將 YYYY-MM-DD 轉換為 YYYY/MM/DD 的格式顯示
+    const startDate = representSub?.start_date?.replace(/-/g, '/') ||'' ;
+    const deductionDay = representSub?.start_date ? new Date(representSub.start_date).getDate() : '';
 
     return (
         <>
@@ -38,69 +45,57 @@ function CartFinish() {
                                     <img src="./images/Cart_Page/pic_finish.svg" alt="空的購物車圖片" />
                                 </div>
                                 <h2 className="empty-cart-title mb-2">感謝您的訂閱</h2>
-                                <p className="lh-base mb-3 mb-sm-2">您的一盒甜將於 <span className="text-primary-600">2025/9/28</span> 開始陸續配送。</p>
+                                <p className="lh-base mb-3 mb-sm-2">您的一盒甜將於 <span className="text-primary-600">{startDate}</span> 開始陸續配送。</p>
                             </section>
                             {/* 訂閱明細 */}
                             <section className="cart-wrapper mb-2 mb-lg-6 fs-8 fs-md-7">
                                 <h3 className="fs-8 fs-sm-7 pb-3 fw-bold border-bottom border-neutral-400">訂閱明細</h3>
                                 <table className="w-100">
                                     <tbody>
-                                        <tr className="align-top">
-                                            <td className="text-nowrap"># <span>SL12X9D2A1</span></td>
-                                            <td className="w-50">
-                                                <div className="fw-bold mb-1">精選甜點</div>
-                                                <div className="d-flex">
-                                                    <div className="badge text-bg-primary-200 text-primary-700 fw-medium rounded-pill me-1">
-                                                        3個月訂閱方案
+                                        {subscriptions.map((sub) => (
+                                            <tr key={sub.subscription_no} className="align-top">
+                                                <td className="text-nowrap py-2">
+                                                    # <span>{sub.subscription_no}</span>
+                                                </td>
+                                                <td className="w-50 py-2">
+                                                    <div className="fw-bold mb-1">{sub.theme_name}</div>
+                                                    <div className="d-flex">
+                                                        <div className="badge text-bg-primary-200 text-primary-700 fw-medium rounded-pill me-1">
+                                                            {sub.duration_months}個月訂閱方案
+                                                        </div>
+                                                        <div className="badge text-bg-neutral-400 text-neutral-700 fw-medium rounded-pill">
+                                                            {sub.quantity} 盒
+                                                        </div>
                                                     </div>
-                                                    <div className="badge text-bg-neutral-400 text-neutral-700 fw-medium rounded-pill">
-                                                        2盒
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="text-end">
-                                                <p className="fw-bold ">NT$560</p>
-                                                <p className="fs-8">/月</p>
-                                            </td>
-                                        </tr>
-                                        <tr className="align-top">
-                                            <td className="text-nowrap"># <span>SL12X9D2A1</span></td>
-                                            <td className="w-50">
-                                                <div className="fw-bold mb-1">精選甜點</div>
-                                                <div className="d-flex">
-                                                    <div className="badge text-bg-primary-200 text-primary-700 fw-medium rounded-pill me-1">
-                                                        3個月訂閱方案
-                                                    </div>
-                                                    <div className="badge text-bg-neutral-400 text-neutral-700 fw-medium  rounded-pill">
-                                                        2盒
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="text-end">
-                                                <p className="fw-bold ">NT$560</p>
-                                                <p className="fs-8">/月</p>
-                                            </td>
-                                        </tr>
+                                                </td>
+                                                <td className="text-end py-2">
+                                                    <p className="fw-bold ">NT${sub.discounted_price*sub.quantity.toLocaleString()}</p>
+                                                    <p className="fs-8">/月</p>
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </section>
                             {/* 配送資訊 */}
-                            <section className="cart-wrapper mb-9 mb-lg-6">
+                            <section className="cart-wrapper mb-9 mb-lg-6 fs-8">
                                 <h3 className="fs-8 fs-sm-7 pb-3 fw-bold border-bottom border-neutral-400">配送資訊</h3>
-                                <div className="d-flex justify-content-between fs-8 fs-sm-7 my-2">
-                                    <p className="fs-8 text-neutral-600">首次出貨日</p>
-                                    <p className="text-primary">2025/9/28</p>
+                                <div className="d-flex justify-content-between my-2">
+                                    <p className="text-neutral-600">首次出貨日</p>
+                                    <p className="text-primary">{startDate}</p>
                                 </div>
-                                <div className="d-flex justify-content-between fs-8 fs-sm-7 my-2">
-                                    <p className="fs-8 text-neutral-600">每月扣款日</p>
-                                    <p>每月 <span>28</span> 日</p>
+                                <div className="d-flex justify-content-between my-2">
+                                    <p className="text-neutral-600">每月扣款日</p>
+                                    <p>每月 {deductionDay} 日</p>
                                 </div>
-                                <div className="d-flex justify-content-between fs-8 fs-sm-7 my-2">
-                                    <p className="fs-8 text-neutral-600">付款方式</p>
-                                    <p>VISA ···· 4321</p>
+                                <div className="d-flex justify-content-between my-2">
+                                    <p className="text-neutral-600">付款方式</p>
+                                    <p>{representSub?.card_info?.type} ···· {representSub?.card_info?.last_four}</p>
                                 </div>
-                                <p className="my-2 fs-8"></p>
-                                <p className="my-2 fs-8"></p>
+                                <div className="d-flex justify-content-between my-2">
+                                    <p className="text-neutral-600 flex-shrink-0 me-4">訂閱備註</p>
+                                    <p className="text-end text-break">{representSub.note}</p>
+                                </div>
                             </section>
                             {/* 查看訂閱按鈕 */}
                             <section className="row gx-2 mb-18">
