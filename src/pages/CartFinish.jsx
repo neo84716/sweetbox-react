@@ -48,7 +48,7 @@ function CartFinish() {
                                 <p className="lh-base mb-3 mb-sm-2">您的一盒甜將於 <span className="text-primary-600">{startDate}</span> 開始陸續配送。</p>
                             </section>
                             {/* 訂閱明細 */}
-                            <section className="cart-wrapper mb-2 mb-lg-6 fs-8 fs-md-7">
+                            <section className="cart-wrapper mb-9 mb-lg-6 fs-8 fs-md-7">
                                 <h3 className="fs-8 fs-sm-7 pb-3 fw-bold border-bottom border-neutral-400">訂閱明細</h3>
                                 <table className="w-100">
                                     <tbody>
