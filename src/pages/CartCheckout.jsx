@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import api from "../api";
 import { message } from "antd";
@@ -13,11 +13,110 @@ import InvoiceSection from "../components/InvoiceSection";
 import FormError from "../components/FormError";
 
 function CartCheckout() {
+    const navigate = useNavigate();
+
     const { register, handleSubmit, watch, setValue, getValues, control, trigger, formState: { errors }
     } = useForm({ mode: 'onTouched' });
-    const onSubmit = (data) => {
-        console.log(data);
+
+    const generateSubNumber = (themeId, durationMonths) => {
+        const theme = themes.find(t => t.id.toString() === themeId.toString());
+        const abbr = theme ? theme.theme_title_abbr : "XX";
+        const durationStr = String(durationMonths).padStart(2, '0'); // 期數補齊兩碼
+        // 產生 6 碼隨機英文數字(大寫)
+        const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase().padEnd(6, '0');
+
+        return `${abbr}${durationStr}${randomStr}`;
+    };
+    const onSubmit = async (formData) => {
+        //取得當前購物車的商品與金額
+        const currentCart = cartData[0];
+        if (!currentCart || !currentCart.items || currentCart.items.length === 0) {
+            message.warning("您的購物車裡還沒有甜點呢！");
+            navigate('/cartEmpty');
+            return;
+        }
+        message.loading({ content: '安全連線中，正在處理訂閱...', key: 'checkout' });
+
+        try {
+            const createdSubscriptions = [];
+            const todayStr = new Date().toISOString().split('T')[0]; // 取得 YYYY-MM-DD
+            // 跑迴圈處理每筆購物車內的商品
+            for (const item of currentCart.items) {
+                const themeName = themes.find(t => t.id.toString() === item.theme_id.toString())?.theme_title;
+                const subNo = generateSubNumber(item.theme_id, item.duration_months);
+
+                // 產生第一期訂單編號 (母編號 + 01)
+                const firstOrderNo = `${subNo}01`;
+
+                // ==========================================
+                // 1.寫入 subscription
+                // ==========================================
+                const subscriptionPayload = {
+                    user_id: 1,
+                    theme_id: item.theme_id,
+                    theme_name: themeName,
+                    subscription_no: subNo,
+                    duration_months: item.duration_months,
+                    quantity: item.quantity,
+                    original_price: item.price,
+                    discounted_price: item.price,
+                    start_date: todayStr,
+                    status: "active",
+                    note: formData.subscription_note || "",
+                    card_info: {
+                        type: getCardType(formData['credit-card-number']),
+                        last_four: formData['credit-card-number'].slice(-4)
+                    },
+                    shipping_info: {
+                        name: formData.shipping_name,
+                        phone: formData.shipping_phone,
+                        city: formData.shipping_city,
+                        district: formData.shipping_district,
+                        street: formData.shipping_address
+                    }
+                };
+
+                // ==========================================
+                // 2. 寫入 subscription_orders (第一期訂單)
+                // ==========================================
+                const firstOrderPayload = {
+                    subscription_no: subNo,
+                    order_no: firstOrderNo,
+                    transaction_id: `TRANS-${Date.now()}-${Math.floor(Math.random() * 1000)}`, // 模擬金流交易序號
+                    amount: item.price * item.quantity,
+                    created_at: new Date().toISOString(),
+                    due_date: todayStr,            
+                    payment_status: 1,             // 模擬已付款
+                    payment_date: todayStr,
+                    shipping_status: 1,            // 未出貨
+                    shipping_date: null,
+                    invoice: {
+                        number: `AB-${Math.floor(Math.random() * 100000000)}`, // 模擬產生一張發票號碼
+                        date: new Date().toISOString()
+                    },
+                    is_archived: false
+                };
+
+                // 寫入：先寫入訂閱資料，再寫入第一期訂單
+                const res = await api.post('/subscriptions', subscriptionPayload);
+                await api.post('/subscription_orders', firstOrderPayload);
+
+                // 存訂閱資料，交給其他頁
+                createdSubscriptions.push(res.data);
+            }
+
+            // 結帳後，清空購物車 //開發階段先不清除
+            // await api.delete(`/carts/${currentCart.id}`);
+
+            message.success({ content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2 });
+            navigate('/cartFinish', { state: { subscriptions: createdSubscriptions } });
+
+        } catch (error) {
+            console.error("結帳失敗:", error);
+            message.error({ content: "處理失敗，請稍後再試。", key: 'checkout', duration: 3 });
+        }
     }
+
     const handleSyncMemberData = async (e) => {
         const isChecked = e.target.checked;
         if (isChecked) {
@@ -67,22 +166,22 @@ function CartCheckout() {
         setValue('credit-card-number', formattedValue, { shouldValidate: true });
     }
 
-    // 訂單備註字數
-    const currentNote = watch('order_note', '');
+    // 訂閱備註字數
+    const currentNote = watch('subscription_note', '');
 
-    //訂單備註快選
+    //訂閱備註快選
     const [selectedChips, setSelectedChips] = useState([]);
     const quickNoteChips = [
         '請在下午送達。', '請直接放門口。', '請放管理室。', '請提前來電。', '對堅果過敏。', '對花生過敏。'
     ]
     const toggleChip = (chip) => {
-        const currentText = getValues("order_note") || "";
+        const currentText = getValues("subscription_note") || "";
         if (selectedChips.includes(chip)) {
             setSelectedChips(selectedChips.filter(item => item !== chip));
-            setValue("order_note", currentText.replace(chip, ""), { shouldValidate: true });
+            setValue("subscription_note", currentText.replace(chip, ""), { shouldValidate: true });
         } else {
             setSelectedChips([...selectedChips, chip]);
-            setValue("order_note", currentText + chip, { shouldValidate: true });
+            setValue("subscription_note", currentText + chip, { shouldValidate: true });
         }
     };
 
@@ -322,7 +421,7 @@ function CartCheckout() {
                                                             control={control}
                                                             rules={{
                                                                 validate: (val) => {
-                                                                    if (!val) return '請選擇有效期限';
+                                                                    if (!val) return '請選擇效期';
 
                                                                     const currentYear =
                                                                         getValues('expired_year');
@@ -468,18 +567,18 @@ function CartCheckout() {
                                     />
                                 </section>
 
-                                {/* 訂單備註 */}
+                                {/* 訂閱備註 */}
                                 <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
-                                    <h2 className="cart-section-title mb-6">訂單備註</h2>
+                                    <h2 className="cart-section-title mb-6">訂閱備註</h2>
                                     <div className="mb-4 mb-lg-6">
                                         <div
-                                            className={`form-group-filled note-group ${errors.order_note ? 'border border-semantic-error' : ''}`}
+                                            className={`form-group-filled note-group ${errors.subscription_note ? 'border border-semantic-error' : ''}`}
                                         >
                                             <textarea
-                                                id="order_note"
+                                                id="subscription_note"
                                                 className="form-control mb-3"
                                                 placeholder="有什麼想告訴我們的嗎？"
-                                                {...register('order_note', {
+                                                {...register('subscription_note', {
                                                     maxLength: {
                                                         value: 200,
                                                         message: '備註內容過長，請精簡至 200 字以內。',
@@ -494,7 +593,7 @@ function CartCheckout() {
                                             </div>
                                         </div>
                                         {/*錯誤訊息 */}
-                                        {errors.order_note && (
+                                        {errors.subscription_note && (
                                             <div className="px-2 error-message text-semantic-error mt-2">
                                                 <Icon
                                                     className="me-2"
@@ -502,7 +601,7 @@ function CartCheckout() {
                                                     width="16"
                                                     height="16"
                                                 ></Icon>
-                                                {errors.order_note.message}
+                                                {errors.subscription_note.message}
                                             </div>
                                         )}
                                     </div>
