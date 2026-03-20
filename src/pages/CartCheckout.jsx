@@ -62,7 +62,7 @@ function CartCheckout() {
                     discounted_price: item.price,
                     start_date: todayStr,
                     status: "active",
-                    note: formData.subscription_note || "",
+                    subscription_note: formData.subscription_note || "",
                     card_info: {
                         type: getCardType(formData['credit-card-number']),
                         last_four: formData['credit-card-number'].slice(-4)
