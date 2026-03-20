@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import api from "../api";
 
 
@@ -131,7 +131,7 @@ function Cart() {
                         </li>
                         <li className="step-item d-flex flex-column align-items-center">
                             <div className="step mb-2">3</div>
-                            <span className="step-intro">訂單確認</span>
+                            <span className="step-intro">完成訂閱</span>
                         </li>
                     </ol>
                     <form className="container px-3 p-lg-0">
@@ -891,12 +891,12 @@ function Cart() {
                                         </p>
                                     </div>
 
-                                    <NavLink
+                                    <Link
                                         to="/cartCheckout"
                                         className="btn-primary-text w-100 d-none d-sm-block text-center"
                                     >
                                         前往結帳
-                                    </NavLink>
+                                    </Link>
                                 </section>
 
                                 <section className="py-4 px-3 p-lg-8 cart-notice">

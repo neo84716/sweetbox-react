@@ -456,3 +456,23 @@
     }
   }
 }
+
+.cart-wrapper {
+  border: 0;
+  background-color: transparent;
+  @media (min-width: 576px) {
+    padding: 28px;
+    background-color: rgba($neutral-200, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid $neutral-200;
+    border-radius: 40px;
+  }
+  td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    @media (min-width: 576px) {
+      padding-top: 16px;
+      padding-bottom: 16px;
+    }
+  }
+}
