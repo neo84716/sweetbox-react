@@ -410,7 +410,12 @@ function Cart() {
                         </div>
                     </form>
                     <div className="checkout-btn d-block d-sm-none">
-                        <button type="button" className="btn-primary-text w-100">前往結帳</button>
+                        <Link
+                            to="/cartCheckout"
+                            className="btn-primary-text w-100 text-center"
+                        >
+                            前往結帳
+                        </Link>
                     </div>
                 </div>
             </main>
