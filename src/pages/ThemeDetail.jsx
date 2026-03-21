@@ -1,5 +1,5 @@
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay } from 'swiper/modules'
+import { Thumbs, Autoplay, FreeMode } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 function ThemeDetail() {
   const { id } = useParams();
+  const [thumbsSwiper, setThumbsSwiper] = useState(null)
   const [themeData, setThemeData] = useState(null);
   const [activePlan, setActivePlan] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -164,9 +165,10 @@ function ThemeDetail() {
                     {/* 大圖 */}
                     <Swiper
                       className="swiperThemeDetail"
-                      modules={[Autoplay]}
+                      modules={[Autoplay, Thumbs]}
                       autoplay={{ delay: 2000 }}
                       loop
+                      thumbs={{ swiper: thumbsSwiper}}
                     >
                       <SwiperSlide>
                         <img src="./images/Theme_Detail/Feature/pic_card_large(1).jpg" />
@@ -184,11 +186,13 @@ function ThemeDetail() {
                     {/* 小圖 */}
                     <Swiper
                       className="swiperThemeDetail2"
+                      modules={[FreeMode, Thumbs]}
                       loop
                       spaceBetween={10}
                       slidesPerView={4}
                       freeMode={true}
                       watchSlidesProgress={true}
+                      onSwiper={setThumbsSwiper}
                     >
                       <SwiperSlide>
                         <img src="./images/Theme_Detail/Feature/pic_card_small(1).jpg" />
