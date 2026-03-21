@@ -27,8 +27,8 @@ function Cart() {
             ...cart,
             items: updatedItems,
             subtotal,
-            discount_total: discountApplied || 0,
-            final_total: subtotal - (discountApplied || 0),
+            discount_total: Math.round(discountApplied || 0),
+            final_total: Math.round(subtotal - (discountApplied || 0)),
             coupons: appliedCoupon
                 ? [
                     {
