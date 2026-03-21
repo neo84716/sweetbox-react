@@ -1,8 +1,11 @@
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Autoplay } from 'swiper/modules'
+import { Thumbs, FreeMode } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
+import 'swiper/css/free-mode' 
+import 'swiper/css/thumbs'
 import { useEffect, useState } from "react"
 import api from "../api";
 import SideMenuFloat from "../components/SideMenuFloat"
@@ -17,6 +20,7 @@ function ThemeDetail() {
   const [activePlan, setActivePlan] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
   const handleSubscribe = () => {
     if (!activePlan || !themeData) return;
@@ -195,9 +199,9 @@ function ThemeDetail() {
                     {/* 大圖 */}
                     <Swiper
                       className="swiperThemeDetail"
-                      modules={[Autoplay]}
-                      autoplay={{ delay: 2000 }}
-                      loop
+                      modules={[Thumbs, FreeMode]}
+                      thumbs={{swiper:thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null}}
+                      loop={true}
                     >
                       <SwiperSlide>
                         <img src="./images/Theme_Detail/Feature/pic_card_large(1).jpg" />
@@ -215,6 +219,8 @@ function ThemeDetail() {
                     {/* 小圖 */}
                     <Swiper
                       className="swiperThemeDetail2"
+                      onSwiper={setThumbsSwiper}
+                      modules={[FreeMode,Thumbs]}
                       loop
                       spaceBetween={10}
                       slidesPerView={4}
