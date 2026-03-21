@@ -141,7 +141,8 @@ function CartCheckout() {
                 const subRes = await api.post('/subscriptions', subscriptionPayload);
                 const createdSubscription = subRes.data;
                 const orderRes = await api.post('/subscription_orders', firstOrderPayload);
-                const createdOrderId = orderRes.data.id;
+                const createdOrder = orderRes.data;
+                const createdOrderId = createdOrder.id;
                 
                 // =============================================
                 // 3. payments 資料處理
@@ -158,7 +159,15 @@ function CartCheckout() {
                     error_message: null
                 };
 
-                await api.post('/payments', paymentPayload);
+                const paymentRes = await api.post('/payments', paymentPayload);
+                const createdPayment = paymentRes.data;
+
+                createdSubscription.subscription_orders = [
+                    {
+                        ...createdOrder, 
+                        payment: createdPayment, 
+                    }
+                ];
 
                 // 存訂閱資料，交給其他頁
                 createdSubscriptions.push(createdSubscription);
