@@ -412,7 +412,7 @@ function Cart() {
                     <div className="checkout-btn d-block d-sm-none">
                         <Link
                             to="/cartCheckout"
-                            className="btn-primary-text w-100 text-center"
+                            className="btn-primary-text w-100 text-center d-block"
                         >
                             前往結帳
                         </Link>
