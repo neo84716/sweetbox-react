@@ -43,6 +43,8 @@ function Subscribe() {
     const [mode, setMode] = useState(""); // 初始值可依需求
     const [dateRange, setDateRange] = useState([]); // 存開始、結束日期
     const [selectedIds, setSelectedIds] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
     const hasFilter =
         dateRange.length > 0 ||
@@ -81,7 +83,9 @@ function Subscribe() {
             })
             .catch(err => console.log("subscription_orders error:", err));
     }, []);
-
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = subData.slice(startIndex, endIndex);
     const updateSubscription = async (item) => {
         try {
             const res = await api.patch(`/subscriptions/${item.id}`, {
@@ -219,7 +223,7 @@ function Subscribe() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {subData
+                                {paginatedData
                                     .filter(item =>
                                         (filterTheme === "theme_all" || item.theme_name === filterTheme) &&
                                         (filterStatus === "status_all" || item.is_processed === filterStatus) &&
@@ -292,14 +296,19 @@ function Subscribe() {
                         </table>
                     </div>
                     <div className="d-flex justify-content-center mb-11">
-                        <Pagination />
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={subData.length} // db.json subscriptions 筆數
+                            itemsPerPage={itemsPerPage} // 每頁顯示幾筆
+                            onChangePage={setCurrentPage}
+                        />
                     </div>
                 </div>
             </main>
 
             {/* 手機板 */}
             <main className="bg-neutral-300 d-block d-lg-none pb-9">
-                <ul className="container nav px-3 py-2 mb-sm-6 mb-0 nav-subscription gap-2 gap-sm-0 mt-20">
+                <ul className="container nav px-3 py-2 mb-sm-6 mb-0 nav-subscription gap-2 gap-sm-0 pt-20">
                     {tabs.map((tab, index) => (
                         <li className="nav-item" key={index}>
                             <NavLink
@@ -423,7 +432,7 @@ function Subscribe() {
                     )}
 
                     <div className="d-flex flex-column gap-4">
-                        {subData
+                        {paginatedData
                             .filter(item =>
                                 (filterTheme === "theme_all" || item.theme_name === filterTheme) &&
                                 (filterStatus === "status_all" || item.is_processed === filterStatus) &&
@@ -526,7 +535,12 @@ function Subscribe() {
 
                 </div>
                 <div className="d-flex justify-content-center">
-                    <Pagination />
+                    <Pagination
+                        currentPage={currentPage}
+                        totalItems={subData.length} // db.json subscriptions 筆數
+                        itemsPerPage={itemsPerPage} // 每頁顯示幾筆
+                        onChangePage={setCurrentPage}
+                    />
                 </div>
             </main>
             {mode === "export_mode" && selectedCount > 0 && (
