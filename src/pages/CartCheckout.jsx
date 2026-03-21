@@ -148,13 +148,23 @@ function CartCheckout() {
 
     useEffect(() => {
         api.get("/carts")
-            .then(res => setCartData(res.data))
-            .catch(err => console.log(err));
+            .then(res => {
+                const fetchedCart = res.data;
+                
+                // 防呆：如果沒有購物車 or 購物車空的，導回 '/cart'
+                if (!fetchedCart || fetchedCart.length === 0 || !fetchedCart[0].items || fetchedCart[0].items.length === 0) {
+                    navigate('/cart');
+                } else {
+                    setCartData(fetchedCart);
+                }
+            })
+            .catch(err => console.log("取得購物車失敗:", err)); 
 
         api.get("/themes")
             .then(res => setThemes(res.data))
-            .catch(err => console.log(err));
-    }, []);
+            .catch(err => console.log("取得主題失敗:", err));
+
+    }, [navigate]);
 
     // 地址
     const currentCity = watch('shipping_city');

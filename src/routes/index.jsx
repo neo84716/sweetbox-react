@@ -2,7 +2,6 @@ import App from "../App";
 import Cart from "../pages/Cart";
 import CartCheckout from "../pages/CartCheckout";
 import CartFinish from "../pages/CartFinish";
-import CartEmpty from "../pages/CartEmpty";
 import Home from "../pages/Home";
 import Subscription from "../pages/Subscription";
 import Theme from "../pages/Theme";
@@ -31,10 +30,6 @@ const routes = [
       { 
         path: "cartFinish", 
         element: <CartFinish /> 
-      },
-      {
-        path: "cartEmpty",
-        element: <CartEmpty />
       },
       {
         path: "theme",
