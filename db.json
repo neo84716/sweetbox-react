@@ -215,7 +215,7 @@
       "subscription_note": "請直接放門口。",
       "card_info": {
         "token": "信用卡 token",
-        "type": "Visa",
+        "type": "visa",
         "last_four": "4242",
         "updated_at": "2025-10-03"
       },
@@ -256,7 +256,7 @@
       "subscription_note": "對堅果過敏。請放管理室。對花生過敏。請在下午送達。請提前來電。",
       "card_info": {
         "token": "信用卡 token",
-        "type": "Visa",
+        "type": "visa",
         "last_four": "4242",
         "updated_at": "2025-10-03"
       },
@@ -278,6 +278,31 @@
       },
       "created_at": "2025-10-03T10:00:00Z",
       "updated_at": "2026-03-15T09:28:18.619Z"
+    },
+    {
+      "id": "0e04",
+      "user_id": 1,
+      "theme_id": 1,
+      "theme_name": "精選甜點",
+      "subscription_no": "SL031TXOB1",
+      "duration_months": 3,
+      "quantity": 1,
+      "original_price": 710,
+      "discounted_price": 710,
+      "start_date": "2026-03-21",
+      "status": "active",
+      "subscription_note": "test",
+      "card_info": {
+        "type": "visa",
+        "last_four": "4569"
+      },
+      "shipping_info": {
+        "name": "Lucas Wang",
+        "phone": "0912345678",
+        "city": "新北市",
+        "district": "泰山區",
+        "street": "貴子路 66 號 5 樓"
+      }
     }
   ],
   "subscription_orders": [
@@ -356,6 +381,24 @@
         "file_url": "/invoices/SL12X9D2A102.pdf"
       },
       "is_archived": false
+    },
+    {
+      "id": "0ebf",
+      "subscription_no": "SL031TXOB1",
+      "order_no": "SL031TXOB101",
+      "transaction_id": "TRANS-1774102863747-229",
+      "amount": 710,
+      "created_at": "2026-03-21T14:21:03.747Z",
+      "due_date": "2026-03-21",
+      "payment_status": 1,
+      "payment_date": "2026-03-21",
+      "shipping_status": 1,
+      "shipping_date": null,
+      "invoice": {
+        "number": "AB-85444865",
+        "date": "2026-03-21T14:21:03.747Z"
+      },
+      "is_archived": false
     }
   ],
   "payments": [
@@ -412,9 +455,9 @@
     {
       "id": "1",
       "user_id": 1,
-      "subtotal": 2825,
-      "discount_total": 0,
-      "final_total": 2825,
+      "subtotal": 710,
+      "discount_total": 85.2,
+      "final_total": 624.8,
       "items": [
         {
           "id": 1,
@@ -422,25 +465,18 @@
           "duration_months": 3,
           "quantity": 1,
           "price": 710
-        },
-        {
-          "id": 2,
-          "theme_id": "3",
-          "duration_months": 6,
-          "quantity": 2,
-          "price": 720
-        },
-        {
-          "id": 3,
-          "theme_id": "1",
-          "duration_months": 12,
-          "quantity": 1,
-          "price": 675
         }
       ],
-      "coupons": [],
+      "coupons": [
+        {
+          "id": 1,
+          "coupon_id": "2",
+          "applied_at": "2026-03-21T15:53:44.145Z",
+          "discount_applied": 85.2
+        }
+      ],
       "created_at": "2026-02-14T10:00:00Z",
-      "updated_at": "2026-03-21T13:40:37.486Z"
+      "updated_at": "2026-03-21T15:53:44.146Z"
     }
   ],
   "coupons": [

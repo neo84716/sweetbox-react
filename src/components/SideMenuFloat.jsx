@@ -53,36 +53,67 @@ function SideMenuFloat() {
       </h5>
       <ul className="nav flex-lg-column side-menu gap-2 py-2 py-lg-0">
         <li className="nav-item">
-          <NavLink to={`/themeDetail/1`}>
-            <span className="nav-link d-flex align-items-center active">精選甜點</span>
+          <NavLink
+            to={`/themeDetail/1`}
+            className={({ isActive }) =>
+              "nav-link d-flex align-items-center" + (isActive ? " active" : "")
+            }
+          >
+            精選甜點
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to={`/themeDetail/2`}>
-            <span className="nav-link d-flex align-items-center">季節限定</span>
+          <NavLink
+            to={`/themeDetail/2`}
+            className={({ isActive }) =>
+              "nav-link d-flex align-items-center" + (isActive ? " active" : "")
+            }
+          >
+            季節限定
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to={`/themeDetail/3`}>
-            <span className="nav-link d-flex align-items-center">在地甜點</span>
+          <NavLink
+            to={`/themeDetail/3`}
+            className={({ isActive }) =>
+              "nav-link d-flex align-items-center" + (isActive ? " active" : "")
+            }
+          >
+            在地甜點
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to={`/themeDetail/4`}>
-            <span className="nav-link d-flex align-items-center">異國風味</span>
+          <NavLink
+            to={`/themeDetail/4`}
+            className={({ isActive }) =>
+              "nav-link d-flex align-items-center" + (isActive ? " active" : "")
+            }
+          >
+            異國風味
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to={`/themeDetail/5`}>
-            <span className="nav-link d-flex align-items-center">無負擔甜點</span>
+          <NavLink
+            to={`/themeDetail/5`}
+            className={({ isActive }) =>
+              "nav-link d-flex align-items-center" + (isActive ? " active" : "")
+            }
+          >
+            無負擔甜點
           </NavLink>
         </li>
         <li className="nav-item">
-          <NavLink to={`/themeDetail/6`}>
-            <span className="nav-link d-flex align-items-center">素食甜點</span>
+          <NavLink
+            to={`/themeDetail/6`}
+            className={({ isActive }) =>
+              "nav-link d-flex align-items-center" + (isActive ? " active" : "")
+            }
+          >
+            素食甜點
           </NavLink>
         </li>
       </ul>
+
     </nav>
   );
 }
