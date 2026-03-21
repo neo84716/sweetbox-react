@@ -5,12 +5,20 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import api from "../api";
 import { message } from "antd";
 import taiwanData from "../assets/utils/taiwanDistricts.json";
-import { creditCardYears, creditCardMonths, invoiceOpts } from "../assets/utils/formOptions";
 import Input from "../components/Input";
 import Select from "../components/Select";
-import { formatCardNumber, getCardType } from "../assets/utils/paymentUtils";
-import InvoiceSection from "../components/InvoiceSection";
 import FormError from "../components/FormError";
+import InvoiceSection from "../components/InvoiceSection";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { creditCardYears, creditCardMonths, invoiceOpts } from "../assets/utils/formOptions";
+import { formatCardNumber, getCardType } from "../assets/utils/paymentUtils";
+
+// 設定台灣時區
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Taipei");
 
 function CartCheckout() {
     const navigate = useNavigate();
@@ -39,7 +47,7 @@ function CartCheckout() {
 
         try {
             const createdSubscriptions = [];
-            const todayStr = new Date().toISOString().split('T')[0]; // 取得 YYYY-MM-DD
+            const todayStr = dayjs().format('YYYY-MM-DD');
             // 跑迴圈處理每筆購物車內的商品
             for (const item of currentCart.items) {
                 const matchedTheme = themes.find(t => t.id.toString() === item.theme_id.toString());
@@ -57,13 +65,11 @@ function CartCheckout() {
                 // 1.subscription 資料處理
                 // ==========================================
                 // 結束日期
-                const endObj = new Date(todayStr);
-                endObj.setMonth(endObj.getMonth() + item.duration_months - 1);
-                const endDateStr = endObj.toISOString().split('T')[0];
+                const endDateStr = dayjs().add(item.duration_months - 1, 'month').format('YYYY-MM-DD');
                 // 下次付款日
                 const nextPayObj = new Date(todayStr);
                 nextPayObj.setMonth(nextPayObj.getMonth() + 1);
-                const nextPaymentStr = nextPayObj.toISOString().split('T')[0];
+                const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
                 // 抓郵遞區號
                 const { shipping_city: city, shipping_district: district } = formData;
                 const postalCodeStr = taiwanData["台灣"]?.[city]?.[district]?.postalCode || "";
