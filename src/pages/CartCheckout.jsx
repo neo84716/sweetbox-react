@@ -42,48 +42,82 @@ function CartCheckout() {
             const todayStr = new Date().toISOString().split('T')[0]; // 取得 YYYY-MM-DD
             // 跑迴圈處理每筆購物車內的商品
             for (const item of currentCart.items) {
-                const themeName = themes.find(t => t.id.toString() === item.theme_id.toString())?.theme_title;
+                const matchedTheme = themes.find(t => t.id.toString() === item.theme_id.toString());
+                const themeName = matchedTheme?.theme_title;
+                const originalPrice = matchedTheme?.price || 0;
                 const subNo = generateSubNumber(item.theme_id, item.duration_months);
+                const matchedPlan = matchedTheme?.theme_plans?.find(p => p.duration_months === item.duration_months);
+                const discountedPrice = matchedPlan?.price || item.price;
 
                 // 產生第一期訂單編號 (母編號 + 01)
                 const firstOrderNo = `${subNo}01`;
+                const sharedTransactionId = `TRANS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
                 // ==========================================
-                // 1.寫入 subscription
+                // 1.subscription 資料處理
                 // ==========================================
+                // 結束日期
+                const endObj = new Date(todayStr);
+                endObj.setMonth(endObj.getMonth() + item.duration_months - 1);
+                const endDateStr = endObj.toISOString().split('T')[0];
+                // 下次付款日
+                const nextPayObj = new Date(todayStr);
+                nextPayObj.setMonth(nextPayObj.getMonth() + 1);
+                const nextPaymentStr = nextPayObj.toISOString().split('T')[0];
+                // 抓郵遞區號
+                const { shipping_city: city, shipping_district: district } = formData;
+                const postalCodeStr = taiwanData["台灣"]?.[city]?.[district]?.postalCode || "";
+
                 const subscriptionPayload = {
                     user_id: 1,
-                    theme_id: item.theme_id,
+                    theme_id: Number(item.theme_id),
                     theme_name: themeName,
                     subscription_no: subNo,
                     duration_months: item.duration_months,
                     quantity: item.quantity,
-                    original_price: item.price,
-                    discounted_price: item.price,
+                    original_price: originalPrice,
+                    discounted_price: discountedPrice,
                     start_date: todayStr,
+                    end_date:endDateStr,
+                    next_payment_date:nextPaymentStr,
                     status: "active",
+                    is_processed:false,
                     subscription_note: formData.subscription_note || "",
                     card_info: {
+                        token: `tok_${Math.random().toString(36).substring(2, 11)}`,
                         type: getCardType(formData['credit-card-number']),
-                        last_four: formData['credit-card-number'].slice(-4)
+                        last_four: formData['credit-card-number'].slice(-4),
+                        updated_at:todayStr,
+                        expired_month: formData.expired_month,
+                        expired_year:formData.expired_year
                     },
                     shipping_info: {
+                        postalCode: postalCodeStr,
                         name: formData.shipping_name,
                         phone: formData.shipping_phone,
-                        city: formData.shipping_city,
-                        district: formData.shipping_district,
-                        street: formData.shipping_address
+                        city:city,
+                        district: district,
+                        street: formData.shipping_address,
+                        email:`${ (formData.shipping_name).trim().replace(/\s+/g, '_').toLowerCase() }@example.com`
+                    },
+                    invoice_info: {
+                        type: formData.invoice_type,
+                        carrier: formData.invoice_carrier || "",
+                        tax_id: formData.invoice_tax_id || "",
+                        company_name: formData.invoice_company_name || "",
+                        company_email: formData.invoice_company_email || "",
+                        donate_code: formData.donate_code || ""
                     }
                 };
 
-                // ==========================================
-                // 2. 寫入 subscription_orders (第一期訂單)
-                // ==========================================
+                // =============================================
+                // 2. subscription_orders (第一期訂單) 資料處理
+                // =============================================
                 const firstOrderPayload = {
                     subscription_no: subNo,
                     order_no: firstOrderNo,
-                    transaction_id: `TRANS-${Date.now()}-${Math.floor(Math.random() * 1000)}`, // 模擬金流交易序號
-                    amount: item.price * item.quantity,
+                    transaction_id: sharedTransactionId, // 模擬金流交易序號
+                    amount: discountedPrice * item.quantity,
                     created_at: new Date().toISOString(),
                     due_date: todayStr,            
                     payment_status: 1,             // 模擬已付款
@@ -92,17 +126,36 @@ function CartCheckout() {
                     shipping_date: null,
                     invoice: {
                         number: `AB-${Math.floor(Math.random() * 100000000)}`, // 模擬產生一張發票號碼
-                        date: new Date().toISOString()
+                        date: new Date().toISOString(),
+                        file_url:null
                     },
                     is_archived: false
                 };
+                // 先產生訂閱訂單ID
+                const subRes = await api.post('/subscriptions', subscriptionPayload);
+                const createdSubscription = subRes.data;
+                const orderRes = await api.post('/subscription_orders', firstOrderPayload);
+                const createdOrderId = orderRes.data.id;
+                
+                // =============================================
+                // 3. payments 資料處理
+                // =============================================
+                const paymentPayload = {
+                    subscription_order_id: createdOrderId, 
+                    transaction_id: sharedTransactionId,   
+                    amount: discountedPrice * item.quantity,
+                    status: "success",
+                    card_type: getCardType(formData['credit-card-number']),
+                    created_at: new Date().toISOString(),
+                    gateway_status: null,
+                    error_code: null,
+                    error_message: null
+                };
 
-                // 寫入：先寫入訂閱資料，再寫入第一期訂單
-                const res = await api.post('/subscriptions', subscriptionPayload);
-                await api.post('/subscription_orders', firstOrderPayload);
+                await api.post('/payments', paymentPayload);
 
                 // 存訂閱資料，交給其他頁
-                createdSubscriptions.push(res.data);
+                createdSubscriptions.push(createdSubscription);
             }
 
             // 結帳後，清空購物車 //開發階段先不清除
