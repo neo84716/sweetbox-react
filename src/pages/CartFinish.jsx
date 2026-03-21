@@ -11,7 +11,7 @@ function CartFinish() {
     //抓第一筆訂閱信用卡、時間
     const representSub = subscriptions[0];
     // 將 YYYY-MM-DD 轉換為 YYYY/MM/DD 的格式顯示
-    const startDate = representSub?.start_date?.replace(/-/g, '/') ||'' ;
+    const startDate = representSub?.start_date?.replace(/-/g, '/') || '';
     const deductionDay = representSub?.start_date ? new Date(representSub.start_date).getDate() : '';
 
     return (
@@ -69,7 +69,7 @@ function CartFinish() {
                                                     </div>
                                                 </td>
                                                 <td className="text-end py-2">
-                                                    <p className="fw-bold ">NT${sub.discounted_price*sub.quantity.toLocaleString()}</p>
+                                                    <p className="fw-bold ">NT${sub.discounted_price * sub.quantity.toLocaleString()}</p>
                                                     <p className="fs-8">/月</p>
                                                 </td>
                                             </tr>
@@ -92,10 +92,12 @@ function CartFinish() {
                                     <p className="text-neutral-600">付款方式</p>
                                     <p>{representSub?.card_info?.type} ···· {representSub?.card_info?.last_four}</p>
                                 </div>
-                                <div className="d-flex justify-content-between my-2">
-                                    <p className="text-neutral-600 flex-shrink-0 me-4">訂閱備註</p>
-                                    <p className="text-end text-break">{representSub.subscription_note}</p>
-                                </div>
+                                {representSub?.subscription_note && (
+                                    <div className="d-flex justify-content-between fs-8 fs-sm-7 my-2">
+                                        <p className="fs-8 text-neutral-600 flex-shrink-0 me-4">訂閱備註</p>
+                                        <p className="text-end text-break">{representSub.subscription_note}</p>
+                                    </div>
+                                )}
                             </section>
                             {/* 查看訂閱按鈕 */}
                             <section className="row gx-2 mb-18">
