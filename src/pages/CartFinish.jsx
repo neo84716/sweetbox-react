@@ -94,7 +94,7 @@ function CartFinish() {
                                 </div>
                                 <div className="d-flex justify-content-between my-2">
                                     <p className="text-neutral-600 flex-shrink-0 me-4">訂閱備註</p>
-                                    <p className="text-end text-break">{representSub.note}</p>
+                                    <p className="text-end text-break">{representSub.subscription_note}</p>
                                 </div>
                             </section>
                             {/* 查看訂閱按鈕 */}
