@@ -213,15 +213,17 @@
       "status": "active",
       "is_processed": true,
       "subscription_note": "請直接放門口。",
-      "card_info": [{
-        "token": "信用卡 token",
-        "type": "visa",
-        "last_four": "4242",
-        "updated_at": "2025-10-03",
-        "expired_month": 2,
-        "expired_year":2027,
-        "isDefault":true
-      }],
+      "card_info": [
+        {
+          "token": "信用卡 token",
+          "type": "visa",
+          "last_four": "4242",
+          "updated_at": "2025-10-03",
+          "expired_month": 2,
+          "expired_year": 2027,
+          "isDefault": true
+        }
+      ],
       "shipping_info": {
         "zip_code": "243",
         "city": "新北市",
@@ -257,15 +259,17 @@
       "status": "active",
       "is_processed": true,
       "subscription_note": "對堅果過敏。請放管理室。對花生過敏。請在下午送達。請提前來電。",
-      "card_info": [{
-        "token": "信用卡 token",
-        "type": "visa",
-        "last_four": "4242",
-        "updated_at": "2025-10-03",
-        "expired_month": 5,
-        "expired_year":2028,
-        "isDefault":true
-      }],
+      "card_info": [
+        {
+          "token": "信用卡 token",
+          "type": "visa",
+          "last_four": "4242",
+          "updated_at": "2025-10-03",
+          "expired_month": 5,
+          "expired_year": 2028,
+          "isDefault": true
+        }
+      ],
       "shipping_info": {
         "zip_code": "243",
         "city": "新北市",
@@ -301,14 +305,16 @@
       "status": "active",
       "is_processed": true,
       "subscription_note": "請提前來電。",
-      "card_info": {
-        "token": "tok_0hgxq2ev5",
-        "type": "visa",
-        "last_four": "3214",
-        "updated_at": "2026-03-22",
-        "expired_month": 1,
-        "expired_year": 2028
-      },
+      "card_info": [
+        {
+          "token": "tok_0hgxq2ev5",
+          "type": "visa",
+          "last_four": "3214",
+          "updated_at": "2026-03-22",
+          "expired_month": 1,
+          "expired_year": 2028
+        }
+      ],
       "shipping_info": {
         "postalCode": "243",
         "name": "alan chen",
