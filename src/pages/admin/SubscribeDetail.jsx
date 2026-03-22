@@ -28,6 +28,13 @@ function SubscribeDetail() {
   // 已出貨筆數
   const shippedCount = editedOrders.filter(item => item.shipping_status === 2).length
   const shippedProgress = (shippedCount / subscriptionData?.duration_months)*100
+  const defaultCard = subscriptionData.card_info?.filter(card => {
+    return card.isDefault === true
+  })
+  console.log("defaultCard:",defaultCard)
+  const unArchivedCount = allOrders.filter((order) => {
+    return order.is_archived !== true
+  }).length
   // 抓取訂單資料 subscription_orders
   const getOrderData = async () => {
     try {
@@ -262,7 +269,7 @@ function SubscribeDetail() {
               </div>
               <div className="order-status">
                 <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
-                未處理
+                {unArchivedCount === 0 ? "已處理" : "未處理"}
               </button>
               </div>
             </div>
@@ -284,7 +291,7 @@ function SubscribeDetail() {
               <div className="d-flex gap-3 align-items-center">
                 <p className="fs-2 fw-bold me-3 orderID">{id}</p>
                 <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
-                  未處理
+                  {unArchivedCount === 0 ? "已處理" : "未處理"}
                 </button>
               </div>
               <div className="d-flex gap-3">
@@ -321,7 +328,7 @@ function SubscribeDetail() {
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">支付方式</p>
-                    <p className="text-neutral-800">信用卡 ****-{subscriptionData?.card_info?.last_four}</p>
+                    <p className="text-neutral-800">信用卡 ****-{defaultCard?.map(card=>card.last_four)}</p>
                   </div>
                 </div>
               </div>
