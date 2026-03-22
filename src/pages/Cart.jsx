@@ -82,18 +82,21 @@ function Cart() {
             const coupon = coupons.find(c => c.code === couponCode.trim());
             if (!coupon) {
                 setError("此優惠代碼無效。");
+                updateCart(cart.items, null, 0);
                 setSuccess("");
                 return;
             }
 
             if (new Date(coupon.expires_at) < new Date()) {
                 setError("此優惠代碼已過期。");
+                updateCart(cart.items, null, 0);
                 setSuccess("");
                 return;
             }
 
             if (subtotal < coupon.min_amount) {
                 setError(`需滿 ${coupon.min_amount} 元才能使用此代碼。`);
+                updateCart(cart.items, null, 0);
                 setSuccess("");
                 return;
             }
@@ -110,6 +113,7 @@ function Cart() {
             updateCart(cart.items, coupon, discountApplied);
         } catch (err) {
             console.log(err);
+            updateCart(cart.items, null, 0);
             setError("套用優惠代碼時發生錯誤。");
             setSuccess("");
         }
