@@ -89,14 +89,15 @@ function CartCheckout() {
                     status: "active",
                     is_processed:false,
                     subscription_note: formData.subscription_note || "",
-                    card_info: {
+                    card_info: [{
                         token: `tok_${Math.random().toString(36).substring(2, 11)}`,
                         type: getCardType(formData['credit-card-number']),
                         last_four: formData['credit-card-number'].slice(-4),
                         updated_at:todayStr,
                         expired_month: formData.expired_month,
-                        expired_year:formData.expired_year
-                    },
+                        expired_year:formData.expired_year,
+                        isDefault:true
+                    }],
                     shipping_info: {
                         postalCode: postalCodeStr,
                         name: formData.shipping_name,
