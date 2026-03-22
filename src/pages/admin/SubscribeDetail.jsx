@@ -300,7 +300,13 @@ function SubscribeDetail() {
               </div>
               <div className="d-flex gap-3">
                 <button type="button" className="cancelButton px-6 py-3 text-neutral-800" onClick={()=>cancelChange()}>取消</button>
-                <button type="button" className="saveButton fw-bold text-neutral-100" onClick={()=>saveChange()}>儲存變更</button>
+                <button type="button" className="saveButton fw-bold text-neutral-100" onClick={()=>{
+                  const isConfirm = window.confirm("確定儲存嗎?")
+                  if(isConfirm) {
+                    saveChange()
+                    alert("已儲存變更")
+                  }
+                }}>儲存變更</button>
               </div>
             </div>
           </section>
