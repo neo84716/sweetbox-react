@@ -10,14 +10,36 @@ import Pagination from "../components/Pagination";
 import { useParams } from "react-router-dom"
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { Icon } from "@iconify/react";
+
 
 function ThemeDetail() {
   const { id } = useParams();
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
+  const outline = "mdi:thumbs-up-outline"
+  const solid = "mdi:thumbs-up"
   const [themeData, setThemeData] = useState(null);
   const [activePlan, setActivePlan] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
+  const [likes, setLikes] = useState({
+    1: { count: 3, liked: false },
+    2: { count: 0, liked: false },
+    3: { count: 0, liked: false }
+  })
+
+  const handleLikes = (id) => {
+    setLikes((prev) => {
+      const item = prev[id]
+      return {
+        ...prev,
+        [id]: {
+          count: item.liked?item.count+1:item.count-1,
+          liked: !item.liked 
+        }
+      }
+    })
+  }
 
   const handleSubscribe = () => {
     if (!activePlan || !themeData) return;
@@ -1056,11 +1078,10 @@ function ThemeDetail() {
                   </div>
                 </div>
                 <div className="align-self-lg-start align-self-end flex-grow-1" style={{ width: '200px' }}>
-                  <div className="d-flex justify-content-end align-items-center p-3 me-lg-5 me-0 vote-box">
-                    <iconify-icon className="icon-swap me-1" icon="heroicons-outline:thumb-up"
-                      data-solid="heroicons-solid:thumb-up" width="20" height="20">
-                    </iconify-icon>
-                    <p className="fs-8 text-nowrap noto_sans" data-count="3">3 人認為此評論有幫助</p>
+                  <div className="d-flex justify-content-end align-items-center p-3 me-lg-5 me-0 vote-box" onClick={() => handleLikes(1)}>
+                    <Icon className="icon-swap me-1" icon={`${likes[1]?.liked ? solid : outline}`} width="20" height="20">
+                    </Icon>
+                    <p className="fs-8 text-nowrap noto_sans" data-count="3">{likes[1]?.count === 3 ? "3 人認為此評論有幫助" : "4 人認為此評論有幫助"}</p>
                   </div>
                 </div>
               </div>
@@ -1180,11 +1201,10 @@ function ThemeDetail() {
                   </div>
                 </div>
                 <div className="align-self-lg-start align-self-end flex-grow-1" style={{ width: '200px' }}>
-                  <div className="d-flex justify-content-end align-items-center p-3 me-lg-5 me-0 vote-box">
-                    <iconify-icon className="icon-swap me-1" icon="heroicons-outline:thumb-up"
-                      data-solid="heroicons-solid:thumb-up" width="20" height="20">
-                    </iconify-icon>
-                    <p className="fs-8 text-nowrap noto_sans" data-count="0">此評論有幫助</p>
+                  <div className="d-flex justify-content-end align-items-center p-3 me-lg-5 me-0 vote-box" onClick={() => handleLikes(2)}>
+                    <Icon className="icon-swap me-1" icon={`${likes[2]?.liked ? solid : outline}`}width="20" height="20">
+                    </Icon>
+                    <p className="fs-8 text-nowrap noto_sans" data-count="0">{likes[2]?.count === 0 ? "此評論有幫助" : "1 人認為此評論有幫助"}</p>
                   </div>
 
                 </div>
@@ -1305,11 +1325,10 @@ function ThemeDetail() {
                   </div>
                 </div>
                 <div className="align-self-lg-start align-self-end flex-grow-1" style={{ width: '200px' }}>
-                  <div className="d-flex justify-content-end align-items-center p-3 me-lg-5 me-0 vote-box">
-                    <iconify-icon className="icon-swap me-1" icon="heroicons-outline:thumb-up"
-                      data-solid="heroicons-solid:thumb-up" width="20" height="20">
-                    </iconify-icon>
-                    <p className="fs-8 text-nowrap noto_sans" data-count="0">此評論有幫助</p>
+                  <div className="d-flex justify-content-end align-items-center p-3 me-lg-5 me-0 vote-box" onClick={() => handleLikes(3)}>
+                    <Icon className="icon-swap me-1" icon={`${likes[3]?.liked ? solid : outline}`} width="20" height="20">
+                    </Icon>
+                    <p className="fs-8 text-nowrap noto_sans" data-count="0">{likes[3]?.count === 0 ? "此評論有幫助" : "1 人認為此評論有幫助"}</p>
                   </div>
                 </div>
               </div>
