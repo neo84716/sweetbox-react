@@ -480,7 +480,11 @@ function Subscribe() {
                                             )}
                                             <div className="flex-fill">
                                                 <h3 className="text-neutral-600 fw-bold fs-9 mb-1">訂閱編號</h3>
-                                                <p className="text-neutral-800 fw-bold fs-5 ls-1">{item.subscription_no}</p>
+                                                <td className="text-start text-semantic-link">
+                                                    <NavLink to={`/admin/subscribeDetail/${item.subscription_no}`}>
+                                                        <span className="text-neutral-800 fw-bold fs-5 ls-1">{item.subscription_no}</span>
+                                                    </NavLink>
+                                                </td>
                                             </div>
                                             <StatusButton
                                                 status={item.is_processed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
