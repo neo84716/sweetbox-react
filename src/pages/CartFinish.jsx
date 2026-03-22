@@ -13,6 +13,7 @@ function CartFinish() {
     // 將 YYYY-MM-DD 轉換為 YYYY/MM/DD 的格式顯示
     const startDate = representSub?.start_date?.replace(/-/g, '/') || '';
     const deductionDay = representSub?.start_date ? new Date(representSub.start_date).getDate() : '';
+    const defaultCard = representSub?.card_info?.find(card => card.isDefault) || representSub?.card_info?.[0];
 
     return (
         <>
@@ -90,7 +91,7 @@ function CartFinish() {
                                 </div>
                                 <div className="d-flex justify-content-between my-2">
                                     <p className="text-neutral-600">付款方式</p>
-                                    <p>{representSub?.card_info?.type} ···· {representSub?.card_info?.last_four}</p>
+                                    <p>{defaultCard?.type} ···· {defaultCard?.last_four}</p>
                                 </div>
                                 {representSub?.subscription_note && (
                                     <div className="d-flex justify-content-between fs-8 fs-sm-7 my-2">
