@@ -3,7 +3,7 @@ import { Thumbs, Autoplay, FreeMode } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import 'swiper/css/free-mode' 
+import 'swiper/css/free-mode'
 import 'swiper/css/thumbs'
 import { useEffect, useState } from "react"
 import api from "../api";
@@ -36,18 +36,35 @@ function ThemeDetail() {
       return {
         ...prev,
         [id]: {
-          count: item.liked?item.count+1:item.count-1,
-          liked: !item.liked 
+          count: item.liked ? item.count + 1 : item.count - 1,
+          liked: !item.liked
         }
       }
     })
   }
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     if (!activePlan || !themeData) return;
 
-    api.get("/carts/1").then(res => {
-      const cart = res.data;
+    try {
+      const res = await api.get("/carts");
+      let cart = res.data[0]; // 永遠只有一筆
+
+      // 如果沒有購物車，先建立一筆新的
+      if (!cart) {
+        cart = {
+          id: "1", // 注意是字串
+          user_id: 1,
+          items: [],
+          subtotal: 0,
+          discount_total: 0,
+          final_total: 0,
+          coupons: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        await api.post("/carts", cart);
+      }
 
       // 找出目前 items 的最大 id
       const maxId = cart.items.length > 0
@@ -55,11 +72,11 @@ function ThemeDetail() {
         : 0;
 
       const newItem = {
-        id: maxId + 1, // 遞增 id
+        id: maxId + 1,
         theme_id: themeData.id,
         duration_months: activePlan.duration_months,
-        quantity: quantity,
-        price: activePlan.price
+        quantity,
+        price: activePlan.price,
       };
 
       const updatedCart = {
@@ -67,17 +84,18 @@ function ThemeDetail() {
         items: [...cart.items, newItem],
         subtotal: cart.subtotal + newItem.price * newItem.quantity,
         final_total: cart.final_total + newItem.price * newItem.quantity,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
-      api.put("/carts/1", updatedCart)
-        .then(() => {
-          console.log("已加入購物車");
-          navigate("/cart");
-        })
-        .catch(err => console.log(err));
-    });
+      await api.put(`/carts/${cart.id}`, updatedCart);
+      console.log("已加入購物車");
+      navigate("/cart");
+    } catch (err) {
+      console.log(err);
+    }
   };
+
+
 
   useEffect(() => {
     api.get("/themes")
@@ -224,7 +242,7 @@ function ThemeDetail() {
                       // autoplay={{ delay: 2000 }}
                       // thumbs={{ swiper: thumbsSwiper}}
                       modules={[Thumbs, FreeMode]}
-                      thumbs={{swiper:thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null}}
+                      thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
                       loop={true}
                     >
                       <SwiperSlide>
@@ -244,13 +262,13 @@ function ThemeDetail() {
                     <Swiper
                       className="swiperThemeDetail2"
                       onSwiper={setThumbsSwiper}
-                      modules={[FreeMode,Thumbs]}
+                      modules={[FreeMode, Thumbs]}
                       loop
                       spaceBetween={10}
                       slidesPerView={4}
                       freeMode={true}
                       watchSlidesProgress={true}
-                      // onSwiper={setThumbsSwiper}
+                    // onSwiper={setThumbsSwiper}
                     >
                       <SwiperSlide>
                         <img src="./images/Theme_Detail/Feature/pic_card_small(1).jpg" />
@@ -1238,7 +1256,7 @@ function ThemeDetail() {
                 </div>
                 <div className="align-self-lg-start align-self-end flex-grow-1" style={{ width: '200px' }}>
                   <div className="d-flex justify-content-end align-items-center p-3 me-lg-5 me-0 vote-box" onClick={() => handleLikes(2)}>
-                    <Icon className="icon-swap me-1" icon={`${likes[2]?.liked ? solid : outline}`}width="20" height="20">
+                    <Icon className="icon-swap me-1" icon={`${likes[2]?.liked ? solid : outline}`} width="20" height="20">
                     </Icon>
                     <p className="fs-8 text-nowrap noto_sans" data-count="0">{likes[2]?.count === 0 ? "此評論有幫助" : "1 人認為此評論有幫助"}</p>
                   </div>
