@@ -213,12 +213,16 @@
       "status": "active",
       "is_processed": true,
       "subscription_note": "請直接放門口。",
-      "card_info": {
+      "card_info": [{
         "token": "信用卡 token",
         "type": "visa",
         "last_four": "4242",
-        "updated_at": "2025-10-03"
-      },
+        "updated_at": "2025-10-03",
+"expired_month": 2,
+"expired_year":2027,
+"isDefault":true
+
+      }],
       "shipping_info": {
         "zip_code": "243",
         "city": "新北市",
