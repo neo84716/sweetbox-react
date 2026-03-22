@@ -312,7 +312,8 @@
           "last_four": "3214",
           "updated_at": "2026-03-22",
           "expired_month": 1,
-          "expired_year": 2028
+          "expired_year": 2028,
+          "isDefault": true
         }
       ],
       "shipping_info": {
@@ -404,7 +405,7 @@
       "payment_status": 3,
       "payment_date": "2025-12-03",
       "shipping_status": 2,
-      "shipping_date": "2026-03-11",
+      "shipping_date": "2026-03-18",
       "invoice": {
         "number": "AB-12345679",
         "date": "2025-11-03T22:00:00Z",
@@ -447,7 +448,7 @@
         "date": "2026-03-21T18:33:00.459Z",
         "file_url": null
       },
-      "is_archived": false
+      "is_archived": true
     }
   ],
   "payments": [
