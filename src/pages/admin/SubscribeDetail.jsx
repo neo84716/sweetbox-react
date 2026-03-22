@@ -226,21 +226,25 @@ function SubscribeDetail() {
   }
   // 儲存變更
   const saveChange = async () => {
-    // 遍歷可編輯的資料
+    // 
+    console.log('all:', allOrders)
+    console.log('edit:', editedOrders)
     const updates = editedOrders.filter(editedO => {
       // 根據該輪的訂單找出對應的原始資料
-      const origin = allOrders.find(originO => originO.id === editedO.id)
+      const origin = allOrders.find(originO => String(originO.id) === String(editedO.id))
       return (
         // 比對可編輯的資料跟原始資料是否有差異，有差異就回傳true，filter就會放到updates
         editedO.shipping_status !== origin.shipping_status ||
-        editedO.shipping_date !== origin.shipping_date
+        editedO.shipping_date !== origin.shipping_date || editedO.is_archived !== origin.is_archived
       )
     })
+    console.log('update:', updates)
     // 遍歷需要更新的資料，一筆一筆做patch
     for (const order of updates) {
       await api.patch(`/subscription_orders/${order.id}`, {
         shipping_status: order.shipping_status,
-        shipping_date: order.shipping_date
+        shipping_date: order.shipping_date,
+        is_archived: order.is_archived
       })
     }
     // 把原始資料變更成更新後的資料
@@ -268,7 +272,7 @@ function SubscribeDetail() {
                 <p className="fs-5 fw-bold me-3 text-neutral-800 subscription-id">{id}</p>
               </div>
               <div className="order-status">
-                <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
+                <button type="button" className={`btn orderStatusBtn ${unArchivedCount === 0 ? "allDone" : ""}`}>
                 {unArchivedCount === 0 ? "已處理" : "未處理"}
               </button>
               </div>
@@ -290,7 +294,7 @@ function SubscribeDetail() {
             <div className="d-flex justify-content-between align-items-center">
               <div className="d-flex gap-3 align-items-center">
                 <p className="fs-2 fw-bold me-3 orderID">{id}</p>
-                <button type="button" className="btn orderStatusBtn bg-primary-200 text-primary-600">
+                <button type="button" className={`btn orderStatusBtn ${unArchivedCount === 0 ? "allDone" : ""}`}>
                   {unArchivedCount === 0 ? "已處理" : "未處理"}
                 </button>
               </div>
