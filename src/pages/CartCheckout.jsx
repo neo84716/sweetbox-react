@@ -89,14 +89,15 @@ function CartCheckout() {
                     status: "active",
                     is_processed:false,
                     subscription_note: formData.subscription_note || "",
-                    card_info: {
+                    card_info: [{
                         token: `tok_${Math.random().toString(36).substring(2, 11)}`,
                         type: getCardType(formData['credit-card-number']),
                         last_four: formData['credit-card-number'].slice(-4),
                         updated_at:todayStr,
                         expired_month: formData.expired_month,
-                        expired_year:formData.expired_year
-                    },
+                        expired_year:formData.expired_year,
+                        isDefault:true
+                    }],
                     shipping_info: {
                         postalCode: postalCodeStr,
                         name: formData.shipping_name,
@@ -173,8 +174,8 @@ function CartCheckout() {
                 createdSubscriptions.push(createdSubscription);
             }
 
-            // 結帳後，清空購物車 //開發階段先不清除
-            // await api.delete(`/carts/${currentCart.id}`);
+            // 結帳後，清空購物車 
+            await api.delete(`/carts/${currentCart.id}`);
 
             message.success({ content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2 });
             navigate('/cartFinish', { state: { subscriptions: createdSubscriptions } });
