@@ -278,6 +278,49 @@
       },
       "created_at": "2025-10-03T10:00:00Z",
       "updated_at": "2026-03-15T09:28:18.619Z"
+    },
+    {
+      "id": "a089",
+      "user_id": 1,
+      "theme_id": 1,
+      "theme_name": "精選甜點",
+      "subscription_no": "SL0333XH5U",
+      "duration_months": 3,
+      "quantity": 4,
+      "original_price": 911,
+      "discounted_price": 710,
+      "start_date": "2026-03-22",
+      "end_date": "2026-05-22",
+      "next_payment_date": "2026-04-22",
+      "status": "active",
+      "is_processed": true,
+      "subscription_note": "請提前來電。",
+      "card_info": {
+        "token": "tok_0hgxq2ev5",
+        "type": "visa",
+        "last_four": "3214",
+        "updated_at": "2026-03-22",
+        "expired_month": 1,
+        "expired_year": 2028
+      },
+      "shipping_info": {
+        "postalCode": "243",
+        "name": "alan chen",
+        "phone": "0912345678",
+        "city": "新北市",
+        "district": "泰山區",
+        "street": "貴子路 66 號 5 樓",
+        "email": "alan_chen@example.com"
+      },
+      "invoice_info": {
+        "type": "na",
+        "carrier": "",
+        "tax_id": "",
+        "company_name": "",
+        "company_email": "",
+        "donate_code": ""
+      },
+      "updated_at": "2026-03-21T18:33:34.663Z"
     }
   ],
   "subscription_orders": [
@@ -374,6 +417,25 @@
         "date": "2026-03-21T14:21:03.747Z"
       },
       "is_archived": false
+    },
+    {
+      "id": "a632",
+      "subscription_no": "SL0333XH5U",
+      "order_no": "SL0333XH5U01",
+      "transaction_id": "TRANS-1774117980459-168",
+      "amount": 2840,
+      "created_at": "2026-03-21T18:33:00.459Z",
+      "due_date": "2026-03-22",
+      "payment_status": 1,
+      "payment_date": "2026-03-22",
+      "shipping_status": 1,
+      "shipping_date": null,
+      "invoice": {
+        "number": "AB-2734408",
+        "date": "2026-03-21T18:33:00.459Z",
+        "file_url": null
+      },
+      "is_archived": false
     }
   ],
   "payments": [
@@ -424,15 +486,27 @@
       "gateway_status": null,
       "error_code": null,
       "error_message": null
+    },
+    {
+      "id": "19c0",
+      "subscription_order_id": "a632",
+      "transaction_id": "TRANS-1774117980459-168",
+      "amount": 2840,
+      "status": "success",
+      "card_type": "visa",
+      "created_at": "2026-03-21T18:33:00.487Z",
+      "gateway_status": null,
+      "error_code": null,
+      "error_message": null
     }
   ],
   "carts": [
     {
       "id": "1",
       "user_id": 1,
-      "subtotal": 2840,
-      "discount_total": 341,
-      "final_total": 2499,
+      "subtotal": 4300,
+      "discount_total": 0,
+      "final_total": 4300,
       "items": [
         {
           "id": 1,
@@ -440,18 +514,25 @@
           "duration_months": 3,
           "quantity": 4,
           "price": 710
-        }
-      ],
-      "coupons": [
+        },
         {
-          "id": 1,
-          "coupon_id": "2",
-          "applied_at": "2026-03-21T18:32:17.417Z",
-          "discount_applied": 340.8
+          "id": 2,
+          "theme_id": "2",
+          "duration_months": 6,
+          "quantity": 1,
+          "price": 720
+        },
+        {
+          "id": 3,
+          "theme_id": "3",
+          "duration_months": 3,
+          "quantity": 1,
+          "price": 740
         }
       ],
+      "coupons": [],
       "created_at": "2026-02-14T10:00:00Z",
-      "updated_at": "2026-03-21T18:32:17.417Z"
+      "updated_at": "2026-03-22T02:08:43.650Z"
     }
   ],
   "coupons": [
