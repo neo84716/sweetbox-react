@@ -334,6 +334,51 @@
         "donate_code": ""
       },
       "updated_at": "2026-03-21T18:33:34.663Z"
+    },
+    {
+      "id": "9398",
+      "user_id": 1,
+      "theme_id": 1,
+      "theme_name": "精選甜點",
+      "subscription_no": "SL06IKYQD5",
+      "duration_months": 6,
+      "quantity": 1,
+      "original_price": 911,
+      "discounted_price": 700,
+      "start_date": "2026-03-22",
+      "end_date": "2026-08-22",
+      "next_payment_date": "2026-04-22",
+      "status": "active",
+      "is_processed": false,
+      "subscription_note": "對堅果過敏。",
+      "card_info": [
+        {
+          "token": "tok_gd16orvpf",
+          "type": "visa",
+          "last_four": "6124",
+          "updated_at": "2026-03-22",
+          "expired_month": 1,
+          "expired_year": 2028,
+          "isDefault": true
+        }
+      ],
+      "shipping_info": {
+        "postalCode": "243",
+        "name": "Lucas Wang",
+        "phone": "0912345678",
+        "city": "新北市",
+        "district": "泰山區",
+        "street": "貴子路 66 號 5 樓",
+        "email": "lucas_wang@example.com"
+      },
+      "invoice_info": {
+        "type": "na",
+        "carrier": "",
+        "tax_id": "",
+        "company_name": "",
+        "company_email": "",
+        "donate_code": ""
+      }
     }
   ],
   "subscription_orders": [
@@ -449,6 +494,25 @@
         "file_url": null
       },
       "is_archived": true
+    },
+    {
+      "id": "beb1",
+      "subscription_no": "SL06IKYQD5",
+      "order_no": "SL06IKYQD501",
+      "transaction_id": "TRANS-1774151082267-560",
+      "amount": 700,
+      "created_at": "2026-03-22T03:44:42.267Z",
+      "due_date": "2026-03-22",
+      "payment_status": 1,
+      "payment_date": "2026-03-22",
+      "shipping_status": 2,
+      "shipping_date": "2026-03-01",
+      "invoice": {
+        "number": "AB-93719792",
+        "date": "2026-03-22T03:44:42.267Z",
+        "file_url": null
+      },
+      "is_archived": false
     }
   ],
   "payments": [
@@ -511,36 +575,21 @@
       "gateway_status": null,
       "error_code": null,
       "error_message": null
-    }
-  ],
-  "carts": [
+    },
     {
-      "id": "1",
-      "user_id": 1,
-      "subtotal": 2120,
-      "discount_total": 0,
-      "final_total": 2120,
-      "items": [
-        {
-          "id": 1,
-          "theme_id": "1",
-          "duration_months": 3,
-          "quantity": 2,
-          "price": 710
-        },
-        {
-          "id": 2,
-          "theme_id": "4",
-          "duration_months": 12,
-          "quantity": 1,
-          "price": 700
-        }
-      ],
-      "coupons": [],
-      "created_at": "2026-02-14T10:00:00Z",
-      "updated_at": "2026-03-22T03:16:15.070Z"
+      "id": "f9a6",
+      "subscription_order_id": "beb1",
+      "transaction_id": "TRANS-1774151082267-560",
+      "amount": 700,
+      "status": "success",
+      "card_type": "visa",
+      "created_at": "2026-03-22T03:44:42.311Z",
+      "gateway_status": null,
+      "error_code": null,
+      "error_message": null
     }
   ],
+  "carts": [],
   "coupons": [
     {
       "id": "1",
