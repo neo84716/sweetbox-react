@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 
 function Header() {
+
     return (
         <nav className="navbar pt-3 px-3 pt-lg-5 px-lg-0">
             <div className="container header py-1 px-4 py-lg-2 px-lg-9">
@@ -86,22 +87,22 @@ function Header() {
                     </button>
                     <ul className="dropdown-menu fs-6 dropdown-menu-burger d-lg-none">
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item active" href="index.html">首頁</a>
+                            <NavLink className="dropdown-item" to="/">首頁</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="theme.html">主題一覽</a>
+                            <NavLink className="dropdown-item" to="/theme">主題一覽</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="#">客服諮詢</a>
+                            <NavLink className="dropdown-item" to="/service">客服諮詢</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="cart.html">購物車</a>
+                            <NavLink className="dropdown-item" to="/cart">購物車</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="#">會員中心</a>
+                            <NavLink className="dropdown-item" to="/member">會員中心</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="#">登出</a>
+                            <NavLink className="dropdown-item" to="/logout">登出</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
                             <button

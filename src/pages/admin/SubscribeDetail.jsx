@@ -36,7 +36,7 @@ function SubscribeDetail() {
       // console.log('payments:', resPayments.data)
       const res = resOrders.data.map(resOrder => ({
         ...resOrder,
-        payment: resPayments.data.find(resPayment => resPayment.subscription_order_id === Number(resOrder.id))
+        payment: resPayments.data.find(resPayment => String(resPayment.subscription_order_id) === String(resOrder.id))
       }))
       setAllOrders(res)
       setEditedOrders(res)
