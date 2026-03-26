@@ -25,7 +25,7 @@ function Login() {
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-    //信箱密碼字元過濾
+    //欄位字元過濾
     const handleEmailInput = (e) => {
         e.target.value = e.target.value.replace(/\s+/g, '').replace(/[^A-Za-z0-9._%+-@]/g, '');
     };
@@ -109,14 +109,14 @@ function Login() {
                                             }}
                                             onInput={handlePasswordInput}
                                             labelRight={
-                                                <button type="button" className="btn-icon-leading"
+                                                <button type="button" className="btn-simple-icon mb-2 me-2"
                                                     style={{ zIndex: 5, cursor: 'pointer' }}
                                                     onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                                                 >
                                                     {isPasswordVisible ? (
-                                                        <Icon icon="mdi:eye" width="20" height="20" />
+                                                        <Icon icon="mdi:eye" width="16" height="16" />
                                                     ) : (
-                                                        <Icon icon="mdi:hide" width="20" height="20" />
+                                                        <Icon icon="mdi:hide" width="16" height="16" />
                                                     )}
                                                 </button>
 
@@ -125,6 +125,25 @@ function Login() {
                                     </>
                                 ) : (
                                     <>
+                                        <Input
+                                            id='registerName'
+                                            register={register}
+                                            errors={errors}
+                                            labelText='姓名'
+                                            type='text'
+                                            placeholderText='請輸入姓名'
+                                            ariaLabel='姓名'
+                                            iconName='material-symbols:person-outline-rounded'
+                                            rules={{
+                                                required: {
+                                                    value: true,
+                                                    message: '請輸入真實姓名。'
+                                                }, pattern: {
+                                                    value: /^[\u4e00-\u9fa5a-zA-Z\s.-]+$/,
+                                                    message: '姓名僅限中英文、空格與點號'
+                                                },setValueAs: v => v.trim()
+                                            }}
+                                        />
                                         <Input
                                             id='registerEmail'
                                             register={register}
@@ -169,17 +188,15 @@ function Login() {
                                             }}
                                             onInput={handlePasswordInput}
                                             labelRight={
-                                                <button type="button" className="btn-icon-leading"
+                                                <button type="button" className="btn-simple-icon mb-2 me-2"
                                                     style={{ zIndex: 5, cursor: 'pointer' }}
                                                     onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                                                 >
                                                     {isPasswordVisible ? (
-                                                        <Icon icon="mdi:eye" width="20" height="20" />
+                                                        <Icon icon="mdi:eye" width="16" height="16" />
                                                     ) : (
-                                                        <Icon icon="mdi:hide" width="20" height="20" />
+                                                        <Icon icon="mdi:hide" width="16" height="16" />
                                                     )}
-
-
                                                 </button>
 
                                             }
@@ -204,14 +221,14 @@ function Login() {
                                             }}
                                             onInput={handlePasswordInput}
                                             labelRight={
-                                                <button type="button" className="btn-icon-leading"
+                                                <button type="button" className="btn-simple-icon mb-2 me-2"
                                                     style={{ zIndex: 5, cursor: 'pointer' }}
                                                     onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                                                 >
                                                     {isPasswordVisible ? (
-                                                        <Icon icon="mdi:eye" width="20" height="20" />
+                                                        <Icon icon="mdi:eye" width="16" height="16" />
                                                     ) : (
-                                                        <Icon icon="mdi:hide" width="20" height="20" />
+                                                        <Icon icon="mdi:hide" width="16" height="16" />
                                                     )}
 
 
