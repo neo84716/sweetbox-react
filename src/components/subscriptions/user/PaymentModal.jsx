@@ -1,6 +1,6 @@
 // 外部工具
 import { Icon } from '@iconify/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 
 // 元件區
@@ -91,22 +91,6 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
   const defaultCard = cards?.find((card) => card?.isDefault) || cards?.[0];
   const activeCards = cards?.filter((card) => !card?.isDeleted);
 
-  useEffect(() => {
-    const paymentModalEle = modalRef.current;
-
-    const handleHide = () => {
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    };
-
-    paymentModalEle.addEventListener('hide.bs.modal', handleHide);
-
-    return () => {
-      paymentModalEle?.removeEventListener('hide.bs.modal', handleHide);
-    };
-  });
-
   const handleAddCard = () => {
     onToggleAddCard(true);
     reset();
@@ -186,8 +170,8 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
       role="dialog"
       ref={modalRef}
     >
-      <div className="modal-dialog modal-wide">
-        <div className="modal-content bg-neutral-200 border-0 h-100 p-lg-8">
+      <div className="modal-dialog modal-fullscreen-lg-down modal-wide">
+        <div className="modal-content bg-neutral-200 border-0 p-lg-8 pb-13">
           {/* Modal header */}
           <div className="modal-header p-0 justify-content-center justify-content-lg-between mb-0 mb-lg-6">
             <div className="text-start">
