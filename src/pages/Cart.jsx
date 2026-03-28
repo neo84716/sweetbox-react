@@ -134,7 +134,7 @@ function Cart() {
                             <h1 className="empty-cart-title mb-2">購物車裡還沒有甜點呢</h1>
                             <p className="lh-base mb-6 mb-sm-8">快來挑選一盒，讓生活多一點甜</p>
                             {/* 💡 順手把原本的 button 換成 Link，讓它可以真正導向商品頁 */}
-                            <Link to="/theme" className="btn-primary-icon fw-bold px-lg-8">
+                            <Link to="/themedetail/1" className="btn-primary-icon fw-bold px-lg-8">
                                 帶我去挑甜點
                                 <svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     <path fill="currentColor" d="M15 7.586L22.414 15H2v-2h15.586l-4-4z" />

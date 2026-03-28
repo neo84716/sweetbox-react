@@ -54,8 +54,8 @@ function Header() {
                                 <span className="user-name">歐拉</span>
                             </button>
                             <ul className="dropdown-menu dropdown-menu-avatar">
-                                <li><a className="dropdown-item d-block" href="/#/subscription">訂閱管理</a></li>
-                                <li><a className="dropdown-item d-block" href="#">登出</a></li>
+                                <li><NavLink className="dropdown-item d-block" to="/subscription">訂閱管理</NavLink></li>
+                                <li><NavLink className="dropdown-item d-block" to="/login">登出</NavLink></li>
                             </ul>
                         </div>
                     </li>
@@ -102,7 +102,7 @@ function Header() {
                             <NavLink className="dropdown-item" to="/member">會員中心</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
-                            <NavLink className="dropdown-item" to="/logout">登出</NavLink>
+                            <NavLink className="dropdown-item" to="/login">登出</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
                             <button

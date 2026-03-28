@@ -9,6 +9,7 @@ import ThemeDetail from "../pages/ThemeDetail";
 import Subscribe from "../pages/admin/Subscribe";
 import SubscribeDetail from "../pages/admin/SubscribeDetail";
 import Login from "../pages/Login";
+import NotFound from "../pages/NotFound";
 
 
 const routes = [
@@ -21,20 +22,20 @@ const routes = [
         element: <Home />
       },
       {
-        path:"login",
-        element:<Login/>
+        path: "login",
+        element: <Login />
       },
       {
         path: "cart",
         element: <Cart />
       },
-      { 
-        path: "cartCheckout", 
-        element: <CartCheckout /> 
+      {
+        path: "cartCheckout",
+        element: <CartCheckout />
       },
-      { 
-        path: "cartFinish", 
-        element: <CartFinish /> 
+      {
+        path: "cartFinish",
+        element: <CartFinish />
       },
       {
         path: "theme",
@@ -55,6 +56,10 @@ const routes = [
       {
         path: "admin/subscribeDetail/:id",
         element: <SubscribeDetail />
+      },
+      {
+        path: "*",
+        element: <NotFound />
       }
 
     ]
