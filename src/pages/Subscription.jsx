@@ -17,11 +17,11 @@ import { creditCardYears, creditCardMonths } from "../assets/utils/formOptions";
 
 
 const tabs = [
-  { label: '會員資料', to: '/' },
+  { label: '會員資料', to: '/profile' },
   { label: '訂閱管理', to: '/subscription' },
-  { label: '我的優惠', to: '/' },
-  { label: '我的評論', to: '/' },
-  { label: '推薦獎勵', to: '/' },
+  { label: '我的優惠', to: '/coupons' },
+  { label: '我的評論', to: '/reviews' },
+  { label: '推薦獎勵', to: '/rewards' },
 ];
 
 const themeOptions = [

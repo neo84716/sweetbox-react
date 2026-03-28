@@ -5,6 +5,7 @@ import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { NavLink } from "react-router-dom";
 
 function Home() {
   return (
@@ -29,7 +30,7 @@ function Home() {
                 <span className="text-primary-600">一盒甜</span> 幫你安排一場好吃又不膩的甜點旅程
               </p>
             </div>
-            <a href="theme.html" className="btn-primary-icon">
+            <NavLink to='/themedetail/1' className='btn-primary-icon'>
               立刻訂閱
               <svg
                 className="ms-2"
@@ -43,7 +44,7 @@ function Home() {
                   d="M15 7.586L22.414 15H2v-2h15.586l-4-4z"
                 />
               </svg>
-            </a>
+            </NavLink>
           </div>
         </section>
         <section className="position-relative">
@@ -211,10 +212,7 @@ function Home() {
                               通通不錯過。喜歡嚐鮮的你一定會愛上。
                             </p>
                           </div>
-                          <a
-                            href="theme_detail.html"
-                            className="btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center"
-                          >
+                          <NavLink to='/themedetail/1' className='btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center'>
                             了解更多
                             <svg
                               className="ms-2"
@@ -228,7 +226,7 @@ function Home() {
                                 d="M15 7.586L22.414 15H2v-2h15.586l-4-4z"
                               />
                             </svg>
-                          </a>
+                          </NavLink>
                         </div>
                       </div>
                     </div>
@@ -266,10 +264,7 @@ function Home() {
                               就要再等一年。
                             </p>
                           </div>
-                          <a
-                            href="theme_detail.html"
-                            className="btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center"
-                          >
+                          <NavLink to='/themedetail/2' className='btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center'>
                             了解更多
                             <svg
                               className="ms-2"
@@ -283,7 +278,7 @@ function Home() {
                                 d="M15 7.586L22.414 15H2v-2h15.586l-4-4z"
                               />
                             </svg>
-                          </a>
+                          </NavLink>
                         </div>
                       </div>
                     </div>
@@ -323,10 +318,7 @@ function Home() {
                               簡單卻令人回味無窮。
                             </p>
                           </div>
-                          <a
-                            href="theme_detail.html"
-                            className="btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center"
-                          >
+                          <NavLink to='/themedetail/3' className='btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center'>
                             了解更多
                             <svg
                               className="ms-2"
@@ -340,7 +332,7 @@ function Home() {
                                 d="M15 7.586L22.414 15H2v-2h15.586l-4-4z"
                               />
                             </svg>
-                          </a>
+                          </NavLink>
                         </div>
                       </div>
                     </div>
@@ -408,10 +400,7 @@ function Home() {
                     不論是人氣爆款還是話題聯名,
                     通通不錯過。喜歡嚐鮮的你一定會愛上。
                   </p>
-                  <a
-                    href="theme_detail.html"
-                    className="d-inline-flex d-lg-flex btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center mx-auto"
-                  >
+                  <NavLink to='/themedetail/4' className='btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center'>
                     了解更多
                     <svg
                       className="ms-2"
@@ -425,7 +414,7 @@ function Home() {
                         d="M15 7.586L22.414 15H2v-2h15.586l-4-4z"
                       />
                     </svg>
-                  </a>
+                  </NavLink>
                 </div>
               </li>
               {/* 季節限定card */}
@@ -455,10 +444,7 @@ function Home() {
                   <p className="card-text mb-6">
                     當月份限定的口味與質地, 只在這時登場。錯過了, 就要再等一年。
                   </p>
-                  <a
-                    href="theme_detail.html"
-                    className="d-inline-flex d-lg-flex btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center mx-auto"
-                  >
+                  <NavLink to='/themedetail/5' className='btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center'>
                     了解更多
                     <svg
                       className="ms-2"
@@ -472,7 +458,7 @@ function Home() {
                         d="M15 7.586L22.414 15H2v-2h15.586l-4-4z"
                       />
                     </svg>
-                  </a>
+                  </NavLink>
                 </div>
               </li>
               {/* 在地甜點card */}
@@ -502,10 +488,7 @@ function Home() {
                   <p className="card-text mb-6">
                     精選以台灣食材與職人手藝製作的特色甜點, 簡單卻令人回味無窮。
                   </p>
-                  <a
-                    href="theme_detail.html"
-                    className="d-inline-flex d-lg-flex btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center mx-auto"
-                  >
+                  <NavLink to='/themedetail/6' className='btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center'>
                     了解更多
                     <svg
                       className="ms-2"
@@ -519,7 +502,7 @@ function Home() {
                         d="M15 7.586L22.414 15H2v-2h15.586l-4-4z"
                       />
                     </svg>
-                  </a>
+                  </NavLink>
                 </div>
               </li>
             </ul>
@@ -627,10 +610,7 @@ function Home() {
               </li>
             </ul>
             <div className="d-lg-flex d-none justify-content-center">
-              <a
-                href="theme.html"
-                className="btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center"
-              >
+              <NavLink to='/themedetail/1' className='btn-primary-icon ls-1 lh-sm fs-6 fw-bold d-flex align-items-center'>
                 立刻訂閱
                 <svg
                   className="ms-2"
@@ -644,7 +624,7 @@ function Home() {
                     d="M15 7.586L22.414 15H2v-2h15.586l-4-4z"
                   />
                 </svg>
-              </a>
+              </NavLink>
             </div>
           </div>
         </section>
