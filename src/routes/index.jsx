@@ -8,6 +8,7 @@ import Theme from "../pages/Theme";
 import ThemeDetail from "../pages/ThemeDetail";
 import Subscribe from "../pages/admin/Subscribe";
 import SubscribeDetail from "../pages/admin/SubscribeDetail";
+import Login from "../pages/Login";
 
 
 const routes = [
@@ -18,6 +19,10 @@ const routes = [
       {
         index: true,   // 這樣就代表 "/" 對應 Home
         element: <Home />
+      },
+      {
+        path:"login",
+        element:<Login/>
       },
       {
         path: "cart",
