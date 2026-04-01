@@ -289,3 +289,12 @@
     transform: rotate(180deg);
   }
 }
+
+.plan-image {
+  width: 90px;
+  border-radius: 9px;
+  @media (min-width: 1200px) {
+    width: 264px;
+    border-radius: 20px;
+  }
+}
