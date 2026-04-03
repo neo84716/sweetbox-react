@@ -152,6 +152,25 @@
         "city": "",
         "district": "",
         "street": ""
+<<<<<<< HEAD
+=======
+      }
+    },
+    {
+      "id": "u8f3k2d1",
+      "name": "Leo Wang",
+      "email": "Leo@example.com",
+      "password": "123456",
+      "isAdmin": false,
+      "phone": "0912345678",
+      "avatar": "./images/Home_Page/avatar.jpg",
+      "carrier": "/ABC1234",
+      "address": {
+        "zipCode": "243",
+        "city": "彰化市",
+        "district": "泰山區",
+        "street": "貴子路66號5樓"
+>>>>>>> f67a5c173398b9d754431c3fde6c0deb025b4f2d
       }
     }
   ],
@@ -287,21 +306,30 @@
     {
       "id": "k3p9x2la",
       "userId": "u8f3k2d1",
+<<<<<<< HEAD
       "subTotal": 4280,
       "discountTotal": 0,
       "finalTotal": 4280,
+=======
+      "subTotal": 3700,
+      "discountTotal": 0,
+      "finalTotal": 3700,
+>>>>>>> f67a5c173398b9d754431c3fde6c0deb025b4f2d
       "appliedCouponId": null,
       "createdAt": "2026-02-14T10:00:00Z"
     }
   ],
   "cart_items": [
     {
+<<<<<<< HEAD
       "id": "m2x7k5qa",
       "cartId": "k3p9x2la",
       "planId": "f3m8z1qp",
       "quantity": 1
     },
     {
+=======
+>>>>>>> f67a5c173398b9d754431c3fde6c0deb025b4f2d
       "id": "q8t3a6wr",
       "cartId": "k3p9x2la",
       "planId": "r7c2w9xs",
@@ -310,7 +338,11 @@
     {
       "id": "f3m1r9ec",
       "cartId": "k3p9x2la",
+<<<<<<< HEAD
       "planId": "q8t3a6dw",
+=======
+      "planId": "n2x7k5la",
+>>>>>>> f67a5c173398b9d754431c3fde6c0deb025b4f2d
       "quantity": 3
     }
   ],
@@ -781,13 +813,13 @@
       "paymentStatus": "paid",
       "paymentDate": "2026-03-01",
       "shippingStatus": "shipped",
-      "shippingDate": "2026-03-02",
+      "shippingDate": "2026-03-25",
       "invoice": {
         "number": "AB-12345678",
         "date": "2026-03-01T22:00:00Z",
         "fileUrl": "/invoices/SL12X9D2A101.pdf"
       },
-      "isArchived": false
+      "isArchived": true
     },
     {
       "id": "o2si1k3p7la2",

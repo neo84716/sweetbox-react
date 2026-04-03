@@ -140,34 +140,34 @@ import zhTW from 'antd/locale/zh_TW';
 const isMobile = window.innerWidth < 992;
 
 function ShippedDate({record, isOpen, onToggle, onChange}) {
-  const {payment, shipping_date, is_archived} = record
-  console.log('payment_status:', record.id, payment.status)
-  const currentPayment = payment.status
-  const hasData = !(shipping_date === null)
+  const {paymentStatus, shippingDate, isArchived} = record
+  console.log('payment_status:', record.id, paymentStatus)
+  const currentPayment = paymentStatus
+  const hasData = !(shippingDate === null)
   // 付款失敗或是未付款
-  if(currentPayment !== "success") {
+  if(currentPayment !== "paid") {
     return (
       <div className="shipDate-disabled">-</div>
     )
   }
   // 已付款已歸檔
-  if(currentPayment === "success" && is_archived) {
+  if(currentPayment === "paid" && isArchived) {
     return (
       <div className="shipDate archived text-neutral-800">
-        {shipping_date}
+        {shippingDate}
       </div>
     )
   }
   // 已付款未歸檔
-  console.log(shipping_date)
+  console.log(shippingDate)
   return (
     <div className="shipDate-wrapper position-relative">
       {/* 按鈕 */}
       <div className={`shipDate-btn d-flex align-items-center px-4 py-2 ${isOpen ? "open" : ""}`} onClick={onToggle}>
         <div className="flex-grow-1 text-neutral-800 shipDate-value">
-          {hasData ? shipping_date : "選擇日期"}
+          {hasData ? shippingDate : "選擇日期"}
         </div>
-        {!is_archived && <div className="icon-box text-neutral-600">
+        {!isArchived && <div className="icon-box text-neutral-600">
           <Icon icon="mdi:calendar-month-outline" className="icon" />
         </div>}
       </div>
@@ -180,7 +180,7 @@ function ShippedDate({record, isOpen, onToggle, onChange}) {
             }
           }}
         >
-          <DatePicker className="shipDate-picker" value={hasData ? dayjs(shipping_date) : null} 
+          <DatePicker className="shipDate-picker" value={hasData ? dayjs(shippingDate) : null} 
             onChange={(date)=>{
               if(!date){
                 onChange(null)
