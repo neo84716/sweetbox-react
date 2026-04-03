@@ -75,7 +75,7 @@
   ],
   "users": [
     {
-      "id": "a9k3x2pz",
+      "id": "u8f3k2d1",
       "name": "Lucas Wang",
       "email": "lucas@example.com",
       "password": "123456",
@@ -91,19 +91,34 @@
       }
     },
     {
-      "id": "u1k3p7la",
-      "name": "奶油抹太厚",
-      "email": "user1@example.com",
-      "password": "abc321",
+      "id": "u7m9x2qa",
+      "name": "Annna Chen",
+      "password": "8qjoij029",
       "isAdmin": false,
-      "phone": "0900000001",
+      "phone": "0922333444",
       "avatar": "",
-      "carrier": "/XY1234",
+      "carrier": "/XYZ5678",
       "address": {
         "zipCode": "100",
         "city": "台北市",
-        "district": "大安區",
-        "street": "和平東路12巷5號"
+        "district": "中正區",
+        "street": "忠孝東路100號3樓"
+      }
+    },
+    {
+      "id": "u4kp82zm",
+      "name": "奶油抹太厚",
+      "email": "kevin@example.com",
+      "password": "abc321",
+      "isAdmin": false,
+      "phone": "0933444555",
+      "avatar": "",
+      "carrier": "/XY1234",
+      "address": {
+        "zipCode": "300",
+        "city": "桃園市",
+        "district": "中壢區",
+        "street": "文化路50號2樓"
       }
     },
     {
@@ -152,25 +167,6 @@
         "city": "",
         "district": "",
         "street": ""
-<<<<<<< HEAD
-=======
-      }
-    },
-    {
-      "id": "u8f3k2d1",
-      "name": "Leo Wang",
-      "email": "Leo@example.com",
-      "password": "123456",
-      "isAdmin": false,
-      "phone": "0912345678",
-      "avatar": "./images/Home_Page/avatar.jpg",
-      "carrier": "/ABC1234",
-      "address": {
-        "zipCode": "243",
-        "city": "彰化市",
-        "district": "泰山區",
-        "street": "貴子路66號5樓"
->>>>>>> f67a5c173398b9d754431c3fde6c0deb025b4f2d
       }
     }
   ],
@@ -306,9 +302,9 @@
     {
       "id": "k3p9x2la",
       "userId": "u8f3k2d1",
-      "subTotal": 4280,
+      "subTotal": 3700,
       "discountTotal": 0,
-      "finalTotal": 4280,
+      "finalTotal": 3700,
       "appliedCouponId": null,
       "createdAt": "2026-02-14T10:00:00Z"
     }
@@ -318,7 +314,7 @@
       "id": "m2x7k5qa",
       "cartId": "k3p9x2la",
       "planId": "f3m8z1qp",
-      "quantity": 1
+      "quantity": "1"
     },
     {
       "id": "q8t3a6wr",
@@ -358,8 +354,8 @@
         "zipCode": "243",
         "city": "新北市",
         "district": "泰山區",
-        "street": "貴子路 66 號 5 樓",
-        "email": "lucas@example.com",
+        "street": "貴子路66號5樓",
+        "name": "王祿",
         "phone": "0912345678"
       },
       "invoiceInfo": {
@@ -395,8 +391,8 @@
         "zipCode": "243",
         "city": "新北市",
         "district": "泰山區",
-        "street": "貴子路 66 號 5 樓",
-        "email": "lucas@example.com",
+        "street": "貴子路66號5樓",
+        "name": "王祿",
         "phone": "0912345678"
       },
       "invoiceInfo": {
@@ -432,8 +428,8 @@
         "zipCode": "243",
         "city": "新北市",
         "district": "泰山區",
-        "street": "貴子路 66 號 5 樓",
-        "email": "lucas@example.com",
+        "street": "貴子路66號5樓",
+        "name": "王祿",
         "phone": "0912345678"
       },
       "invoiceInfo": {
@@ -469,8 +465,8 @@
         "zipCode": "100",
         "city": "台北市",
         "district": "中正區",
-        "street": "忠孝東路 100 號 3 樓",
-        "email": "anna@example.com",
+        "street": "忠孝東路100號3樓",
+        "name": "陳維潔",
         "phone": "0922333444"
       },
       "invoiceInfo": {
@@ -506,8 +502,8 @@
         "zipCode": "100",
         "city": "台北市",
         "district": "中正區",
-        "street": "忠孝東路 100 號 3 樓",
-        "email": "anna@example.com",
+        "street": "忠孝東路100號3樓",
+        "name": "陳維潔",
         "phone": "0922333444"
       },
       "invoiceInfo": {
@@ -543,8 +539,8 @@
         "zipCode": "300",
         "city": "桃園市",
         "district": "中壢區",
-        "street": "文化路 50 號 2 樓",
-        "email": "kevin@example.com",
+        "street": "文化路50號2樓",
+        "name": "林志祥",
         "phone": "0933444555"
       },
       "invoiceInfo": {
@@ -580,8 +576,8 @@
         "zipCode": "300",
         "city": "桃園市",
         "district": "中壢區",
-        "street": "文化路 50 號 2 樓",
-        "email": "kevin@example.com",
+        "street": "文化路50號2樓",
+        "name": "林志祥",
         "phone": "0933444555"
       },
       "invoiceInfo": {
@@ -617,8 +613,8 @@
         "zipCode": "243",
         "city": "新北市",
         "district": "泰山區",
-        "street": "貴子路 66 號 5 樓",
-        "email": "lucas@example.com",
+        "street": "貴子路66號5樓",
+        "name": "王祿",
         "phone": "0912345678"
       },
       "invoiceInfo": {
@@ -654,8 +650,8 @@
         "zipCode": "100",
         "city": "台北市",
         "district": "中正區",
-        "street": "忠孝東路 100 號 3 樓",
-        "email": "anna@example.com",
+        "street": "忠孝東路100號3樓",
+        "name": "陳維潔",
         "phone": "0922333444"
       },
       "invoiceInfo": {
@@ -691,8 +687,8 @@
         "zipCode": "300",
         "city": "桃園市",
         "district": "中壢區",
-        "street": "文化路 50 號 2 樓",
-        "email": "kevin@example.com",
+        "street": "文化路50號2樓",
+        "name": "林志祥",
         "phone": "0933444555"
       },
       "invoiceInfo": {
@@ -709,10 +705,10 @@
     {
       "id": "si1k3p7la",
       "subscriptionId": "s1k3p7la",
-      "planId": "p9x3k2a1",
+      "planId": "t6n4v8ka",
       "quantity": 3,
-      "unitPrice": 710,
-      "durationMonths": 3
+      "unitPrice": 675,
+      "durationMonths": 12
     },
     {
       "id": "si2m8x9qa",
@@ -800,13 +796,13 @@
       "paymentStatus": "paid",
       "paymentDate": "2026-03-01",
       "shippingStatus": "shipped",
-      "shippingDate": "2026-03-25",
+      "shippingDate": "2026-03-02",
       "invoice": {
         "number": "AB-12345678",
         "date": "2026-03-01T22:00:00Z",
         "fileUrl": "/invoices/SL12X9D2A101.pdf"
       },
-      "isArchived": true
+      "isArchived": false
     },
     {
       "id": "o2si1k3p7la2",
@@ -1424,8 +1420,8 @@
     {
       "id": "r2m8x9qa",
       "rating": 5,
-      "title": "奶油抹太厚",
-      "comment": "我媽一開始說浪費錢，現在都比我還期待開箱。本來是我自己訂的，結果有次甜點分享給家人吃後，我媽居然主動問我「這個月什麼時候送來？」！甜點的品質很好，而且會搭配保存方式與建議食用方式，真的很貼心。",
+      "title": "我媽一開始說浪費錢，現在都比我還期待開箱",
+      "comment": "本來是我自己訂的，結果有次甜點分享給家人吃後，我媽居然主動問我「這個月什麼時候送來？」！甜點的品質很好，而且會搭配保存方式與建議食用方式，真的很貼心。",
       "likeCount": 1,
       "userId": "u2m8x9qa",
       "subscriptionId": "s4x8p2qa",
@@ -1435,8 +1431,8 @@
     {
       "id": "r3v4k2zm",
       "rating": 4,
-      "title": "愛吃甜點也很省腦",
-      "comment": "一盒甜是我的快樂密碼，不是我在誇，一盒甜都懂甜點控在想什麼。不只每次內容都有驚喜，還能吃到那種限時聯名，有種 VIP 搶先嚐的爽感，連同事看到我午茶的甜點都問哪裡買！",
+      "title": "愛吃甜點也很省腦，一盒甜是我的快樂密碼",
+      "comment": "不是我在誇，一盒甜都懂甜點控在想什麼。不只每次內容都有驚喜，還能吃到那種限時聯名，有種 VIP 搶先嚐的爽感，連同事看到我午茶的甜點都問哪裡買！",
       "likeCount": 1,
       "userId": "u3v4k2zm",
       "subscriptionId": "s2m8x9qa",
