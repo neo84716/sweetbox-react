@@ -287,9 +287,9 @@
     {
       "id": "k3p9x2la",
       "userId": "u8f3k2d1",
-      "subTotal": 3700,
+      "subTotal": 4280,
       "discountTotal": 0,
-      "finalTotal": 3700,
+      "finalTotal": 4280,
       "appliedCouponId": null,
       "createdAt": "2026-02-14T10:00:00Z"
     }
@@ -299,7 +299,7 @@
       "id": "m2x7k5qa",
       "cartId": "k3p9x2la",
       "planId": "f3m8z1qp",
-      "quantity": "1"
+      "quantity": 1
     },
     {
       "id": "q8t3a6wr",
