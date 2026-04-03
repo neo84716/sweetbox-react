@@ -26,19 +26,15 @@ function CartCheckout() {
     const { register, handleSubmit, watch, setValue, getValues, control, trigger, formState: { errors }
     } = useForm({ mode: 'onTouched' });
 
-    const generateSubNumber = (themeId, durationMonths) => {
-        const theme = themes.find(t => t.id.toString() === themeId.toString());
-        const abbr = theme ? theme.theme_title_abbr : "XX";
+    const generateSubNumber = (abbr, durationMonths) => {
         const durationStr = String(durationMonths).padStart(2, '0'); // 期數補齊兩碼
         // 產生 6 碼隨機英文數字(大寫)
         const randomStr = Math.random().toString(36).substring(2, 8).toUpperCase().padEnd(6, '0');
-
-        return `${abbr}${durationStr}${randomStr}`;
+        return `${abbr || "XX"}${durationStr}${randomStr}`;
     };
     const onSubmit = async (formData) => {
-        //取得當前購物車的商品與金額
-        const currentCart = cartData[0];
-        if (!currentCart || !currentCart.items || currentCart.items.length === 0) {
+        
+        if (!cartItems || cartItems.length === 0) {
             message.warning("您的購物車裡還沒有甜點呢！");
             navigate('/cartEmpty');
             return;
@@ -48,134 +44,110 @@ function CartCheckout() {
         try {
             const createdSubscriptions = [];
             const todayStr = dayjs().format('YYYY-MM-DD');
+
+            // 抓取郵遞區號
+            const { city: city, district: district } = formData;
+            const zipCodeStr = taiwanData["台灣"]?.[city]?.[district]?.postalCode || "";
+
             // 跑迴圈處理每筆購物車內的商品
-            for (const item of currentCart.items) {
-                const matchedTheme = themes.find(t => t.id.toString() === item.theme_id.toString());
-                const themeName = matchedTheme?.theme_title;
-                const originalPrice = matchedTheme?.price || 0;
-                const subNo = generateSubNumber(item.theme_id, item.duration_months);
-                const matchedPlan = matchedTheme?.theme_plans?.find(p => p.duration_months === item.duration_months);
-                const discountedPrice = matchedPlan?.price || item.price;
+            for (const item of cartItems) {
 
-                // 產生第一期訂單編號 (母編號 + 01)
+                const subId = crypto.randomUUID();
+                const subNo = generateSubNumber(item.theme?.titleAbbr, item.plan?.durationMonths);
+                const endDateStr = dayjs().add(item.plan?.durationMonths - 1, 'month').format('YYYY-MM-DD');
+                const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
                 const firstOrderNo = `${subNo}01`;
-                const sharedTransactionId = `TRANS-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
+                const itemTotal = (item.plan?.discountPrice || 0) * item.quantity;
+                
                 // ==========================================
                 // 1.subscription 資料處理
                 // ==========================================
-                // 結束日期
-                const endDateStr = dayjs().add(item.duration_months - 1, 'month').format('YYYY-MM-DD');
-                // 下次付款日
-                const nextPayObj = new Date(todayStr);
-                nextPayObj.setMonth(nextPayObj.getMonth() + 1);
-                const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
-                // 抓郵遞區號
-                const { shipping_city: city, shipping_district: district } = formData;
-                const postalCodeStr = taiwanData["台灣"]?.[city]?.[district]?.postalCode || "";
 
                 const subscriptionPayload = {
-                    user_id: 1,
-                    theme_id: Number(item.theme_id),
-                    theme_name: themeName,
-                    subscription_no: subNo,
-                    duration_months: item.duration_months,
-                    quantity: item.quantity,
-                    original_price: originalPrice,
-                    discounted_price: discountedPrice,
-                    start_date: todayStr,
-                    end_date:endDateStr,
-                    next_payment_date:nextPaymentStr,
+                    id: subId,
+                    userId: currentUserId,
+                    subscriptionNumber: subNo,
+                    durationMonths: item.plan?.durationMonths,
+                    startDate: todayStr,
+                    endDate: endDateStr,
+                    nextPaymentDate: nextPaymentStr,
                     status: "active",
-                    is_processed:false,
-                    subscription_note: formData.subscription_note || "",
-                    card_info: [{
-                        token: `tok_${Math.random().toString(36).substring(2, 11)}`,
-                        type: getCardType(formData['credit-card-number']),
-                        last_four: formData['credit-card-number'].slice(-4),
-                        updated_at:todayStr,
-                        expired_month: formData.expired_month,
-                        expired_year:formData.expired_year,
-                        isDefault:true
+                    isProcessed: false,
+                    note: formData.note || "",
+                    paymentMethod: [{
+                        cardBrand: getCardType(formData['credit-card-number']),
+                        lastFour: formData['credit-card-number'].slice(-4),
+                        expiryMonth: Number(formData.expiryMonth),
+                        expiryYear: Number(formData.expiryYear),
+                        isDefault: true
                     }],
-                    shipping_info: {
-                        postalCode: postalCodeStr,
-                        name: formData.shipping_name,
-                        phone: formData.shipping_phone,
-                        city:city,
+                    shippingInfo: {
+                        zipCode: zipCodeStr,
+                        city: city,
                         district: district,
-                        street: formData.shipping_address,
-                        email:`${ (formData.shipping_name).trim().replace(/\s+/g, '_').toLowerCase() }@example.com`
+                        street: formData.street,
+                        name: formData.name,
+                        phone: formData.phone
                     },
-                    invoice_info: {
-                        type: formData.invoice_type,
-                        carrier: formData.invoice_carrier || "",
-                        tax_id: formData.invoice_tax_id || "",
-                        company_name: formData.invoice_company_name || "",
-                        company_email: formData.invoice_company_email || "",
-                        donate_code: formData.donate_code || ""
+                    invoiceInfo: {
+                        type: formData.type,
+                        carrier: formData.carrier || "",
+                        tax_id: formData.taxId || "",
+                        company_name: formData.companyName || "",
+                        company_email: formData.companyEmail || "",
+                        donate_code: formData.donateCode || ""
                     }
                 };
 
+                // ==========================================
+                // 2.subscription_items 資料處理
+                // ==========================================
+                const subscriptionItemPayload = {
+                    id: crypto.randomUUID(),
+                    subscriptionId: subId,
+                    planId: item.planId,
+                    quantity: item.quantity,
+                    unitPrice: item.plan?.discountPrice || 0,
+                    durationMonths: item.plan?.durationMonths
+                };
                 // =============================================
-                // 2. subscription_orders (第一期訂單) 資料處理
+                // 3. orders (第一期訂單) 資料處理
                 // =============================================
-                const firstOrderPayload = {
-                    subscription_no: subNo,
-                    order_no: firstOrderNo,
-                    transaction_id: sharedTransactionId, // 模擬金流交易序號
-                    amount: discountedPrice * item.quantity,
-                    created_at: new Date().toISOString(),
-                    due_date: todayStr,            
-                    payment_status: 1,             // 模擬已付款
-                    payment_date: todayStr,
-                    shipping_status: 1,            // 未出貨
-                    shipping_date: null,
+                const orderPayload = {
+                    id: crypto.randomUUID(),
+                    subscriptionId: subId,
+                    orderNo: firstOrderNo,
+                    amount: itemTotal,
+                    createdAt: new Date().toISOString(),
+                    paymentDueDate: todayStr,
+                    paymentStatus: "paid",             // 模擬已付款
+                    paymentDate: todayStr,
+                    shippingStatus: "pending",         // 未出貨
+                    shippingDate: null,
                     invoice: {
                         number: `AB-${Math.floor(Math.random() * 100000000)}`, // 模擬產生一張發票號碼
                         date: new Date().toISOString(),
-                        file_url:null
+                        fileUrl: null
                     },
-                    is_archived: false
-                };
-                // 先產生訂閱訂單ID
-                const subRes = await api.post('/subscriptions', subscriptionPayload);
-                const createdSubscription = subRes.data;
-                const orderRes = await api.post('/subscription_orders', firstOrderPayload);
-                const createdOrder = orderRes.data;
-                const createdOrderId = createdOrder.id;
-                
-                // =============================================
-                // 3. payments 資料處理
-                // =============================================
-                const paymentPayload = {
-                    subscription_order_id: createdOrderId, 
-                    transaction_id: sharedTransactionId,   
-                    amount: discountedPrice * item.quantity,
-                    status: "success",
-                    card_type: getCardType(formData['credit-card-number']),
-                    created_at: new Date().toISOString(),
-                    gateway_status: null,
-                    error_code: null,
-                    error_message: null
+                    isArchived: false
                 };
 
-                const paymentRes = await api.post('/payments', paymentPayload);
-                const createdPayment = paymentRes.data;
-
-                createdSubscription.subscription_orders = [
-                    {
-                        ...createdOrder, 
-                        payment: createdPayment, 
-                    }
-                ];
+                // 寫入資料庫
+                await api.post('/subscriptions',subscriptionPayload);
+                await api.post('/subscription_items',subscriptionItemPayload);
+                await api.post('/orders', orderPayload);
 
                 // 存訂閱資料，交給其他頁
-                createdSubscriptions.push(createdSubscription);
+                createdSubscriptions.push(subscriptionPayload);
             }
 
-            // 結帳後，清空購物車 
-            await api.delete(`/carts/${currentCart.id}`);
+            // 結帳後，清空購物車
+            for(const item of cartItems){
+                await api.delete(`/cart_items/${item.id}`)
+            }
+            if(cartMain?.id){
+                await api.delete(`/carts/${cartMain.id}`);
+            }
 
             message.success({ content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2 });
             navigate('/cartFinish', { state: { subscriptions: createdSubscriptions } });
@@ -190,53 +162,83 @@ function CartCheckout() {
         const isChecked = e.target.checked;
         if (isChecked) {
             try {
-                const res = await api.get("/users/1");
+                const res = await api.get(`/users/${currentUserId}`);
                 const userData = res.data;
-
-                setValue("shipping_name", userData.name, { shouldValidate: true });
-                setValue("shipping_phone", userData.phone, { shouldValidate: true });
-                setValue("shipping_city", userData.address.city, { shouldValidate: true });
-                setValue("shipping_district", userData.address.district, { shouldValidate: true });
-                setValue("shipping_address", userData.address.street, { shouldValidate: true });
+                setValue("name", userData.name, { shouldValidate: true });
+                setValue("phone", userData.phone, { shouldValidate: true });
+                setValue("city", userData.address.city, { shouldValidate: true });
+                setValue("district", userData.address.district, { shouldValidate: true });
+                setValue("street", userData.address.street, { shouldValidate: true });
             } catch (error) {
                 console.error("取得會員資料失敗：", error);
                 message.error("無法帶入會員資料，請稍後再試。");
             }
         } else {
             // 取消勾選，清空欄位
-            setValue("shipping_name", "");
-            setValue("shipping_phone", "");
-            setValue("shipping_city", "");
-            setValue("shipping_district", "");
-            setValue("shipping_address", "");
+            setValue("name", "");
+            setValue("phone", "");
+            setValue("city", "");
+            setValue("district", "");
+            setValue("street", "");
         }
     }
 
-    const [cartData, setCartData] = useState([]);
+    const currentUserId = "u8f3k2d1";
+    const [cartMain, setCartMain] = useState(null);
+    const [cartItems, setCartItems] = useState([]);
     const [themes, setThemes] = useState([]);
+    const [plans, setPlans] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        api.get("/carts")
-            .then(res => {
-                const fetchedCart = res.data;
-                
+        const fetchData = async () => {
+            try {
+                const cartRes = await api.get(`/carts?userId=${currentUserId}&_embed=cart_items`);
+                const userCart = cartRes.data[0];
+
                 // 防呆：如果沒有購物車 or 購物車空的，導回 '/cart'
-                if (!fetchedCart || fetchedCart.length === 0 || !fetchedCart[0].items || fetchedCart[0].items.length === 0) {
+                if (!userCart || !userCart.cart_items || userCart.cart_items.length === 0) {
                     navigate('/cart');
-                } else {
-                    setCartData(fetchedCart);
+                    return;
                 }
-            })
-            .catch(err => console.log("取得購物車失敗:", err)); 
+                setCartMain(userCart);
 
-        api.get("/themes")
-            .then(res => setThemes(res.data))
-            .catch(err => console.log("取得主題失敗:", err));
+                const [themesRes, plansRes] = await Promise.all([
+                    api.get("/themes"),
+                    api.get("/plans")
+                ])
+                const plansData = plansRes.data;
+                const themesData = themesRes.data;
 
+                setPlans(plansData);
+                setThemes(themesData);
+
+                //資料組合
+                const enrichedItems = userCart.cart_items.map(item => {
+                    const planDetail = plansData.find(p => p.id === item.planId);
+                    const themeDeatail = themesData.find(t => t.id === planDetail?.themeId);
+                    return {
+                        ...item,
+                        plan: planDetail || null,
+                        theme: themeDeatail || null
+                    }
+                })
+                console.log("enrichedItems", enrichedItems)
+
+                setCartItems(enrichedItems);
+
+            } catch {
+                console.error("資料讀取失敗", err);
+                message.error("無法取得訂單資訊");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
     }, [navigate]);
 
     // 地址
-    const currentCity = watch('shipping_city');
+    const currentCity = watch('city');
     const cities = Object.keys(taiwanData["台灣"]);
     const districts = currentCity ? Object.keys(taiwanData["台灣"][currentCity]) : [];
 
@@ -246,7 +248,7 @@ function CartCheckout() {
     }
 
     // 訂閱備註字數
-    const currentNote = watch('subscription_note', '');
+    const currentNote = watch('note', '');
 
     //訂閱備註快選
     const [selectedChips, setSelectedChips] = useState([]);
@@ -254,13 +256,13 @@ function CartCheckout() {
         '請在下午送達。', '請直接放門口。', '請放管理室。', '請提前來電。', '對堅果過敏。', '對花生過敏。'
     ]
     const toggleChip = (chip) => {
-        const currentText = getValues("subscription_note") || "";
+        const currentText = getValues("note") || "";
         if (selectedChips.includes(chip)) {
             setSelectedChips(selectedChips.filter(item => item !== chip));
-            setValue("subscription_note", currentText.replace(chip, ""), { shouldValidate: true });
+            setValue("note", currentText.replace(chip, ""), { shouldValidate: true });
         } else {
             setSelectedChips([...selectedChips, chip]);
-            setValue("subscription_note", currentText + chip, { shouldValidate: true });
+            setValue("note", currentText + chip, { shouldValidate: true });
         }
     };
 
@@ -277,7 +279,7 @@ function CartCheckout() {
                             <div className="step mb-2">2</div>
                             <span className="step-intro">填寫資料</span>
                         </li>
-                        <li className="step-item d-flex flex-column align-items-center active">
+                        <li className="step-item d-flex flex-column align-items-center">
                             <div className="step mb-2">3</div>
                             <span className="step-intro">完成訂閱</span>
                         </li>
@@ -295,7 +297,7 @@ function CartCheckout() {
                                 <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
                                     <h2 className="cart-section-title mb-6">收件資料</h2>
                                     <Input
-                                        id='shipping_name'
+                                        id='name'
                                         register={register}
                                         errors={errors}
                                         labelText='姓名'
@@ -314,19 +316,19 @@ function CartCheckout() {
                                                 <input
                                                     className="form-check-input rounded-5"
                                                     type="checkbox"
-                                                    id='sync_member_data'
-                                                    {...register('sync_member_data', {
+                                                    id='syncMemberData'
+                                                    {...register('syncMemberData', {
                                                         onChange: handleSyncMemberData
                                                     })}
                                                 />
-                                                <label className="form-check-label s-text" htmlFor='sync_member_data'>
+                                                <label className="form-check-label s-text" htmlFor='syncMemberData'>
                                                     帶入會員資料
                                                 </label>
                                             </div>
                                         }
                                     />
                                     <Input
-                                        id='shipping_phone'
+                                        id='phone'
                                         register={register}
                                         errors={errors}
                                         labelText='電話'
@@ -351,46 +353,46 @@ function CartCheckout() {
                                         }}
                                     />
                                     <div>
-                                        <label htmlFor="shipping_city" className="form-label px-2">地址</label>
+                                        <label htmlFor="city" className="form-label px-2">地址</label>
                                         <div className="row g-3 mb-3">
                                             <div className="col-6">
                                                 <Controller
-                                                    name="shipping_city"
+                                                    name="city"
                                                     control={control}
                                                     rules={{ required: '請選擇城市' }}
                                                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                                                         <Select
-                                                            id='shipping_city'
+                                                            id='city'
                                                             placeholderText='城市'
                                                             options={cities}
                                                             value={value}
                                                             onChange={(val) => {
                                                                 onChange(val); // 告訴 RHF 城市換了
                                                                 //清空值時，觸發鄉鎮市區「必填」提醒
-                                                                setValue('shipping_district', '', { shouldValidate: true }); // 💡 連動防呆：城市切換時，清空鄉鎮市區的值
+                                                                setValue('district', '', { shouldValidate: true }); // 💡 連動防呆：城市切換時，清空鄉鎮市區的值
                                                             }}
                                                             errorMsg={error?.message}
                                                         />
                                                     )}
                                                 />
                                                 <FormError
-                                                    message={errors?.shipping_city?.message}
+                                                    message={errors?.city?.message}
                                                 />
                                             </div>
                                             <div className="col-6">
                                                 <Controller
-                                                    name="shipping_district"
+                                                    name="district"
                                                     control={control}
                                                     rules={{ required: '請選擇鄉鎮市區' }}
                                                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                                                         <Select
-                                                            id='shipping_district'
+                                                            id='district'
                                                             placeholderText='鄉鎮市區'
                                                             options={districts}
                                                             value={value}
                                                             onChange={(val) => {
                                                                 onChange(val);
-                                                                trigger(['shipping_city', 'shipping_district']);
+                                                                trigger(['city', 'district']);
                                                             }}
                                                             disabled={!currentCity} // 防呆：沒選城市，不給選
                                                             errorMsg={error?.message}
@@ -398,12 +400,12 @@ function CartCheckout() {
                                                     )}
                                                 />
                                                 <FormError
-                                                    message={errors?.shipping_district?.message}
+                                                    message={errors?.district?.message}
                                                 />
                                             </div>
                                         </div>
                                         <Input
-                                            id='shipping_address'
+                                            id='street'
                                             register={register}
                                             errors={errors}
                                             wrapperClass='mb-0'
@@ -496,14 +498,14 @@ function CartCheckout() {
                                                 <div className="row g-3">
                                                     <div className="col-6">
                                                         <Controller
-                                                            name="expired_month"
+                                                            name="expiryMonth"
                                                             control={control}
                                                             rules={{
                                                                 validate: (val) => {
                                                                     if (!val) return '請選擇效期';
 
                                                                     const currentYear =
-                                                                        getValues('expired_year');
+                                                                        getValues('expiryYear');
                                                                     if (!currentYear) return true;
 
                                                                     const now = new Date();
@@ -525,15 +527,15 @@ function CartCheckout() {
                                                                 fieldState: { error },
                                                             }) => (
                                                                 <Select
-                                                                    id="expired_month"
+                                                                    id="expiryMonth"
                                                                     placeholderText="月份"
                                                                     options={creditCardMonths}
                                                                     value={value}
                                                                     onChange={(val) => {
                                                                         onChange(val);
                                                                         trigger([
-                                                                            'expired_month',
-                                                                            'expired_year',
+                                                                            'expiryMonth',
+                                                                            'expiryYear',
                                                                         ]); // 💡 觸發年份與月份的連動驗證
                                                                     }}
                                                                     errorMsg={error?.message}
@@ -542,12 +544,12 @@ function CartCheckout() {
                                                             )}
                                                         />
                                                         <FormError
-                                                            message={errors?.expired_month?.message}
+                                                            message={errors?.expiryMonth?.message}
                                                         />
                                                     </div>
                                                     <div className="col-6">
                                                         <Controller
-                                                            name="expired_year"
+                                                            name="expiryYear"
                                                             control={control}
                                                             rules={{
                                                                 validate: (val) => {
@@ -560,15 +562,15 @@ function CartCheckout() {
                                                                 fieldState: { error },
                                                             }) => (
                                                                 <Select
-                                                                    id="expired_year"
+                                                                    id="expiryYear"
                                                                     placeholderText="年份"
                                                                     options={creditCardYears}
                                                                     value={value}
                                                                     onChange={(val) => {
                                                                         onChange(val);
                                                                         trigger([
-                                                                            'expired_month',
-                                                                            'expired_year',
+                                                                            'expiryMonth',
+                                                                            'expiryYear',
                                                                         ]);
                                                                     }}
                                                                     errorMsg={error?.message}
@@ -577,7 +579,7 @@ function CartCheckout() {
                                                             )}
                                                         />
                                                         <FormError
-                                                            message={errors?.expired_year?.message}
+                                                            message={errors?.expiryYear?.message}
                                                         />
                                                     </div>
                                                 </div>
@@ -651,13 +653,13 @@ function CartCheckout() {
                                     <h2 className="cart-section-title mb-6">訂閱備註</h2>
                                     <div className="mb-4 mb-lg-6">
                                         <div
-                                            className={`form-group-filled note-group ${errors.subscription_note ? 'border border-semantic-error' : ''}`}
+                                            className={`form-group-filled note-group ${errors.note ? 'border border-semantic-error' : ''}`}
                                         >
                                             <textarea
-                                                id="subscription_note"
+                                                id="note"
                                                 className="form-control mb-3"
                                                 placeholder="有什麼想告訴我們的嗎？"
-                                                {...register('subscription_note', {
+                                                {...register('note', {
                                                     maxLength: {
                                                         value: 200,
                                                         message: '備註內容過長，請精簡至 200 字以內。',
@@ -672,7 +674,7 @@ function CartCheckout() {
                                             </div>
                                         </div>
                                         {/*錯誤訊息 */}
-                                        {errors.subscription_note && (
+                                        {errors.note && (
                                             <div className="px-2 error-message text-semantic-error mt-2">
                                                 <Icon
                                                     className="me-2"
@@ -680,7 +682,7 @@ function CartCheckout() {
                                                     width="16"
                                                     height="16"
                                                 ></Icon>
-                                                {errors.subscription_note.message}
+                                                {errors.note.message}
                                             </div>
                                         )}
                                     </div>
@@ -712,70 +714,65 @@ function CartCheckout() {
                                     </h2>
                                     <div className="px-2 px-lg-0 mb-0 mb-sm-6">
                                         <ul className="fs-8 order-list mb-6">
-                                            {cartData[0]?.items.map((item) => {
-                                                const theme = themes.find(
-                                                    (t) => t.id.toString() === item.theme_id.toString(),
-                                                );
-                                                return (
-                                                    <li
-                                                        key={item.id}
-                                                        className="py-2 mb-3 d-flex text-neutral-800"
-                                                    >
-                                                        <div className="flex-shrink-0 me-1 me-lg-2 align-self-lg-center">
-                                                            <img
-                                                                className="order-img rounded-2 bg-secondary d-inline-block"
-                                                                src={theme?.square_image_url}
-                                                                alt={theme?.theme_title}
-                                                            />
+                                            {cartItems.map((item) => (
+                                                <li
+                                                    key={item.id}
+                                                    className="py-2 mb-3 d-flex text-neutral-800"
+                                                >
+                                                    <div className="flex-shrink-0 me-1 me-lg-2 align-self-lg-center">
+                                                        <img
+                                                            className="order-img rounded-2 bg-secondary d-inline-block"
+                                                            src={item.theme?.images?.square}
+                                                            alt={item.theme?.title}
+                                                        />
+                                                    </div>
+                                                    <div className="px-2 flex-grow-1 d-flex flex-column justify-content-center">
+                                                        <div className="fw-bold mb-1 text-neutral-800">
+                                                            {item.theme?.title}甜點盒
                                                         </div>
-                                                        <div className="px-2 flex-grow-1 d-flex flex-column justify-content-center">
-                                                            <div className="fw-bold mb-1 text-neutral-800">
-                                                                {theme?.theme_title}甜點盒
-                                                            </div>
-                                                            <div>
-                                                                <span>
-                                                                    {item.duration_months}個月訂閱方案
-                                                                </span>
-                                                                <span className="d-none d-lg-inline">
-                                                                    {' '}
-                                                                    ·{' '}
-                                                                </span>
-                                                                <span className="d-block d-lg-inline">
-                                                                    NT${item.price} / 盒
-                                                                </span>
-                                                            </div>
+                                                        <div>
+                                                            <span>
+                                                                {item.plan?.durationMonths}個月訂閱方案
+                                                            </span>
+                                                            <span className="d-none d-lg-inline">
+                                                                {' '}·{' '}
+                                                            </span>
+                                                            <span className="d-block d-lg-inline">
+                                                                NT${item.plan?.discountPrice} / 盒
+                                                            </span>
                                                         </div>
-                                                        <div className="flex-shrink-0 text-end px-2 ms-2 align-self-end">
-                                                            <div className="mb-lg-1">x {item.quantity}</div>
-                                                            <div className="fw-bold text-neutral-800">
-                                                                NT$
-                                                                {(
-                                                                    item.price * item.quantity
-                                                                ).toLocaleString()}
-                                                            </div>
+                                                    </div>
+                                                    <div className="flex-shrink-0 text-end px-2 ms-2 align-self-end">
+                                                        <div className="mb-lg-1">x {item.quantity}</div>
+                                                        <div className="fw-bold text-neutral-800">
+                                                            NT$
+                                                            {(
+                                                                (item.plan?.discountPrice || 0) * item.quantity
+                                                            ).toLocaleString()}
                                                         </div>
-                                                    </li>
-                                                );
-                                            })}
+                                                    </div>
+                                                </li>
+
+                                            ))}
                                         </ul>
 
                                         {/* 小計、折扣、合計 */}
                                         <div className="lh-base pb-6 mb-6 border-bottom border-neutral-400">
                                             <p className="d-flex justify-content-between align-items-center mb-2">
                                                 <span>小計</span>
-                                                <span>NT${cartData[0]?.subtotal}</span>
+                                                <span>NT${cartMain?.subTotal?.toLocaleString() || 0}</span>
                                             </p>
                                             <p className="d-flex justify-content-between align-items-center">
                                                 <span>折扣</span>
                                                 <span className="text-cta-200">
-                                                    - NT${cartData[0]?.discount_total}
+                                                    - NT${cartMain?.discountTotal?.toLocaleString() || 0}
                                                 </span>
                                             </p>
                                         </div>
                                         <p className="d-flex justify-content-between align-items-center lh-sm ls-1 fw-bold">
                                             <span>合計</span>
                                             <span className="fs-5 lh-base ls-1">
-                                                NT${cartData[0]?.final_total}
+                                                NT${cartMain?.finalTotal?.toLocaleString() || 0}
                                             </span>
                                         </p>
                                     </div>
