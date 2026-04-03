@@ -78,60 +78,96 @@
       "id": "a9k3x2pz",
       "name": "Lucas Wang",
       "email": "lucas@example.com",
-      "password": "hashed_password_123456",
+      "password": "123456",
+      "isAdmin": false,
       "phone": "0912345678",
       "avatar": "./images/Home_Page/avatar.jpg",
       "carrier": "/ABC1234",
       "address": {
-        "zip_code": "243",
+        "zipCode": "243",
         "city": "新北市",
         "district": "泰山區",
-        "street": "貴子路 66 號 5 樓"
+        "street": "貴子路66號5樓"
       }
     },
     {
       "id": "u1k3p7la",
       "name": "奶油抹太厚",
       "email": "user1@example.com",
-      "password": "hashed_password_984321",
+      "password": "abc321",
+      "isAdmin": false,
       "phone": "0900000001",
       "avatar": "",
       "carrier": "/XY1234",
       "address": {
-        "zip_code": "100",
+        "zipCode": "100",
         "city": "台北市",
         "district": "大安區",
-        "street": "和平東路 12 巷 5 號"
+        "street": "和平東路12巷5號"
       }
     },
     {
       "id": "u2m8x9qa",
       "name": "焦糖人生好焦慮",
       "email": "user2@example.com",
-      "password": "hashed_password_762549",
+      "password": "666666",
+      "isAdmin": false,
       "phone": "0900000002",
       "avatar": "",
       "carrier": "/JK5678",
       "address": {
-        "zip_code": "300",
+        "zipCode": "300",
         "city": "新竹市",
         "district": "東區",
-        "street": "光復路 88 巷 10 號"
+        "street": "光復路88巷10號"
       }
     },
     {
       "id": "u3v4k2zm",
       "name": "胖到掉渣女神",
       "email": "user3@example.com",
-      "password": "hashed_password_385720",
+      "password": "298aoij",
+      "isAdmin": false,
       "phone": "0900000003",
       "avatar": "",
       "carrier": "/MN9012",
       "address": {
-        "zip_code": "406",
+        "zipCode": "406",
         "city": "台中市",
         "district": "北屯區",
-        "street": "文心路 200 號 3 樓"
+        "street": "文心路200號3樓"
+      }
+    },
+    {
+      "id": "px3vkz1i",
+      "name": "管理員",
+      "email": "admin@example.com",
+      "password": "admin",
+      "isAdmin": true,
+      "phone": "",
+      "avatar": "",
+      "carrier": "",
+      "address": {
+        "zipCode": "",
+        "city": "",
+        "district": "",
+        "street": ""
+      }
+    },
+    {
+      "id": "u8f3k2d1",
+      "name": "Leo Wang",
+      "email": "Leo@example.com",
+      "password": "123456",
+      "isAdmin": false,
+      "phone": "0912345678",
+      "avatar": "./images/Home_Page/avatar.jpg",
+      "carrier": "/ABC1234",
+      "address": {
+        "zipCode": "243",
+        "city": "彰化市",
+        "district": "泰山區",
+        "street": "貴子路66號5樓"
       }
     }
   ],
@@ -157,7 +193,6 @@
       "discountPrice": 675,
       "durationMonths": 12
     },
-
     {
       "id": "r7c2w9xs",
       "themeId": "b7m9x2qa",
@@ -179,7 +214,6 @@
       "discountPrice": 700,
       "durationMonths": 12
     },
-
     {
       "id": "n2x7k5la",
       "themeId": "c4kp82zm",
@@ -201,7 +235,6 @@
       "discountPrice": 700,
       "durationMonths": 12
     },
-
     {
       "id": "z4l2p7sa",
       "themeId": "d9as21kl",
@@ -223,7 +256,6 @@
       "discountPrice": 700,
       "durationMonths": 12
     },
-
     {
       "id": "m3e9k2zs",
       "themeId": "e3ks91qp",
@@ -245,7 +277,6 @@
       "discountPrice": 690,
       "durationMonths": 12
     },
-
     {
       "id": "s2k9w3pz",
       "themeId": "f2mx8pza",
@@ -272,31 +303,25 @@
     {
       "id": "k3p9x2la",
       "userId": "u8f3k2d1",
-      "subTotal": 2170,
+      "subTotal": 3700,
       "discountTotal": 0,
-      "finalTotal": 2170,
+      "finalTotal": 3700,
       "appliedCouponId": null,
       "createdAt": "2026-02-14T10:00:00Z"
     }
   ],
   "cart_items": [
     {
-      "id": "m2x7k5qa",
-      "cartId": "k3p9x2la",
-      "planId": "p9x3k2a1",
-      "quantity": 1
-    },
-    {
       "id": "q8t3a6wr",
       "cartId": "k3p9x2la",
       "planId": "r7c2w9xs",
-      "quantity": 1
+      "quantity": 2
     },
     {
       "id": "f3m1r9ec",
       "cartId": "k3p9x2la",
       "planId": "n2x7k5la",
-      "quantity": 1
+      "quantity": 3
     }
   ],
   "subscriptions": [
@@ -311,13 +336,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "請直接放門口。",
-      "paymentMethod": {
-        "cardBrand": "visa",
-        "lastFour": "4242",
-        "expiryMonth": 2,
-        "expiryYear": 2027,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "visa",
+          "lastFour": "4242",
+          "expiryMonth": 2,
+          "expiryYear": 2027,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "243",
         "city": "新北市",
@@ -346,13 +373,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "visa",
-        "lastFour": "4242",
-        "expiryMonth": 2,
-        "expiryYear": 2027,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "visa",
+          "lastFour": "4242",
+          "expiryMonth": 2,
+          "expiryYear": 2027,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "243",
         "city": "新北市",
@@ -381,13 +410,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "visa",
-        "lastFour": "4242",
-        "expiryMonth": 2,
-        "expiryYear": 2027,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "visa",
+          "lastFour": "4242",
+          "expiryMonth": 2,
+          "expiryYear": 2027,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "243",
         "city": "新北市",
@@ -416,13 +447,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "mastercard",
-        "lastFour": "1234",
-        "expiryMonth": 5,
-        "expiryYear": 2026,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "mastercard",
+          "lastFour": "1234",
+          "expiryMonth": 5,
+          "expiryYear": 2026,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "100",
         "city": "台北市",
@@ -451,13 +484,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "mastercard",
-        "lastFour": "1234",
-        "expiryMonth": 5,
-        "expiryYear": 2026,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "mastercard",
+          "lastFour": "1234",
+          "expiryMonth": 5,
+          "expiryYear": 2026,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "100",
         "city": "台北市",
@@ -486,13 +521,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "visa",
-        "lastFour": "5678",
-        "expiryMonth": 8,
-        "expiryYear": 2026,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "visa",
+          "lastFour": "5678",
+          "expiryMonth": 8,
+          "expiryYear": 2026,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "300",
         "city": "桃園市",
@@ -521,13 +558,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "visa",
-        "lastFour": "5678",
-        "expiryMonth": 8,
-        "expiryYear": 2026,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "visa",
+          "lastFour": "5678",
+          "expiryMonth": 8,
+          "expiryYear": 2026,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "300",
         "city": "桃園市",
@@ -556,13 +595,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "請放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "visa",
-        "lastFour": "4242",
-        "expiryMonth": 2,
-        "expiryYear": 2027,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "visa",
+          "lastFour": "4242",
+          "expiryMonth": 2,
+          "expiryYear": 2027,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "243",
         "city": "新北市",
@@ -591,13 +632,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "請放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "mastercard",
-        "lastFour": "1234",
-        "expiryMonth": 5,
-        "expiryYear": 2026,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "mastercard",
+          "lastFour": "1234",
+          "expiryMonth": 5,
+          "expiryYear": 2026,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "100",
         "city": "台北市",
@@ -626,13 +669,15 @@
       "status": "active",
       "isProcessed": true,
       "note": "請放門口即可。",
-      "paymentMethod": {
-        "cardBrand": "visa",
-        "lastFour": "5678",
-        "expiryMonth": 8,
-        "expiryYear": 2026,
-        "isDefault": true
-      },
+      "paymentMethod": [
+        {
+          "cardBrand": "visa",
+          "lastFour": "5678",
+          "expiryMonth": 8,
+          "expiryYear": 2026,
+          "isDefault": true
+        }
+      ],
       "shippingInfo": {
         "zipCode": "300",
         "city": "桃園市",
@@ -746,13 +791,13 @@
       "paymentStatus": "paid",
       "paymentDate": "2026-03-01",
       "shippingStatus": "shipped",
-      "shippingDate": "2026-03-02",
+      "shippingDate": "2026-03-25",
       "invoice": {
         "number": "AB-12345678",
         "date": "2026-03-01T22:00:00Z",
         "fileUrl": "/invoices/SL12X9D2A101.pdf"
       },
-      "isArchived": false
+      "isArchived": true
     },
     {
       "id": "o2si1k3p7la2",
