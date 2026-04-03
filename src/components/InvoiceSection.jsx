@@ -7,7 +7,7 @@ import FormError from "./FormError";
 
 const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
 
-    const currentInvoiceType = watch("invoice_type", "default");
+    const currentInvoiceType = watch("type", "default");
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -21,7 +21,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
 
     return (<>
         <Controller
-                    name="invoice_type"
+                    name="type"
                     control={control}
                     defaultValue="default"
                     rules={{ validate: (val) => val !== 'default' || '請選擇發票類型' }}
@@ -53,11 +53,11 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
                                                         setIsOpen(false);
 
                                                         // 防呆：切換發票類型時，強制清空其他不相關的欄位
-                                                        setValue('invoice_carrier', '', { shouldValidate: false });
-                                                        setValue('donate_code', '', { shouldValidate: false });
-                                                        setValue('invoice_company_name', '', { shouldValidate: false });
-                                                        setValue('invoice_tax_id', '', { shouldValidate: false });
-                                                        setValue('invoice_company_email', '', { shouldValidate: false });
+                                                        setValue('carrier', '', { shouldValidate: false });
+                                                        setValue('donateCode', '', { shouldValidate: false });
+                                                        setValue('companyName', '', { shouldValidate: false });
+                                                        setValue('taxId', '', { shouldValidate: false });
+                                                        setValue('companyEmail', '', { shouldValidate: false });
                                                     }}
                                                 >
                                                     {opt.label}
@@ -81,7 +81,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
             {currentInvoiceType === 'mobile' && (
                 <div className="mt-4">
                     <Input
-                        id="invoice_carrier"
+                        id="carrier"
                         register={register}
                         errors={errors}
                         wrapperClass="mb-0"
@@ -110,7 +110,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
             {currentInvoiceType === 'donation' && (
                 <div className="mt-4">
                     <Input
-                        id="donate_code"
+                        id="donateCode"
                         register={register}
                         errors={errors}
                         wrapperClass="mb-0"
@@ -143,7 +143,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
             {currentInvoiceType === 'business' && (
                 <div className="mt-4 d-flex flex-column gap-4">
                     <Input
-                        id="invoice_company_name"
+                        id="companyName"
                         register={register}
                         errors={errors}
                         wrapperClass="mb-0"
@@ -154,7 +154,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
                         rules={{ required: '請輸入公司名稱' }}
                     />
                     <Input
-                        id="invoice_tax_id"
+                        id="taxId"
                         register={register}
                         errors={errors}
                         wrapperClass="mb-0"
@@ -176,7 +176,7 @@ const InvoiceSection = ({ register, control, errors, watch, setValue }) => {
                         }}
                     />
                     <Input
-                        id="invoice_company_email"
+                        id="companyEmail"
                         register={register}
                         errors={errors}
                         wrapperClass="mb-0"
