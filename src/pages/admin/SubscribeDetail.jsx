@@ -11,7 +11,8 @@ import { NavLink, useParams } from "react-router-dom";
 
 function SubscribeDetail() {
   const { id } = useParams();
-  console.log("subscription id:", id);
+  // console.log("subscription id:", id);
+  // const id = "s1k3p7la";
   // 未歸檔資料，必須管理狀態，才能修改
   // const [orderData, setOrderData] = useState([])
   // const [archievedData, setArchievedData] = useState([])
@@ -22,37 +23,84 @@ function SubscribeDetail() {
   const [userData, setUserData] = useState([])
   const [subscriptionData, setSubscriptionData] = useState({})
   // 未歸檔
-  const orderData = editedOrders.filter(item => !item.is_archived)
+  const orderData = editedOrders.filter(item => !item.isArchived)
   // 已歸檔
-  const archivedData = editedOrders.filter(item => item.is_archived)
+  const archivedData = editedOrders.filter(item => item.isArchived)
   // 已出貨筆數
-  const shippedCount = editedOrders.filter(item => item.shipping_status === 2).length
-  const shippedProgress = (shippedCount / subscriptionData?.duration_months)*100
-  const defaultCard = subscriptionData.card_info?.filter(card => {
-    return card.isDefault === true
-  })
+  const shippedCount = editedOrders.filter(item => item.shippingStatus === "shipped").length
+  const shippedProgress = (shippedCount / subscriptionData?.durationMonths)*100
+  // paymentMethod 式陣列
+  // const defaultCard = subscriptionData.paymentMethod?.filter(card => {
+  //   return card.isDefault === true
+  // })
+  // paymentMethod 不是陣列
+  const defaultCard = subscriptionData?.paymentMethod?.[0]
+  console.log("subscriptionData:", subscriptionData)
   console.log("defaultCard:",defaultCard)
+  // 計算未歸檔數量
   const unArchivedCount = allOrders.filter((order) => {
-    return order.is_archived !== true
+    return order.isArchived !== true
   }).length
   // 抓取訂單資料 subscription_orders
   const getOrderData = async () => {
     try {
-      const resOrders = await api.get(`/subscription_orders?subscription_no=${id}`)
-      const resPayments = await api.get(`/payments`)
+      const resOrders = await api.get(`/orders?subscriptionId=${id}`)
+      // const resPayments = await api.get(`/payments`)
+      // 手動關聯orders&payments
       // console.log('payments:', resPayments.data)
-      const res = resOrders.data.map(resOrder => ({
-        ...resOrder,
-        payment: resPayments.data.find(resPayment => String(resPayment.subscription_order_id) === String(resOrder.id))
-      }))
-      setAllOrders(res)
-      setEditedOrders(res)
-      console.log('res.data: ', res)
+      // const res = resOrders.data.map(resOrder => ({
+      //   ...resOrder,
+      //   payment: resPayments.data.find(resPayment => String(resPayment.subscription_order_id) === String(resOrder.id))
+      // }))
+      setAllOrders(resOrders.data)
+      setEditedOrders(resOrders.data)
+      console.log('resOrders.data: ', resOrders.data)
       // setOrderData(unarchived)
       // setArchievedData(archived)
     } catch (err) {
       console.log('getOrderData err: ', err)
     }
+  }
+  const getSubscriptionWithInfo = async (id) => {
+    const subscriptionsRes = await api.get(`/subscriptions/${id}?_embed=subscription_items`)
+    const subWithItem = subscriptionsRes.data
+    console.log("subWithItem", subWithItem)
+    // 同時發送三個API並等待
+    const [plansRes, themesRes, usersRes] = await Promise.all([
+      api.get(`/plans`),
+      api.get(`/themes`),
+      api.get(`/users`)
+    ])
+
+    // 將陣列轉換成物件，並以id作為key，陣列作為value
+    const plansMap = new Map(plansRes.data.map(p => [p.id, p]))
+    const themeMap = new Map(themesRes.data.map(t => [t.id, t]))
+    const userMap = new Map(usersRes.data.map(u => [u.id, u]))
+
+    // get直接取資料，不用像find從頭開始，優化效能
+    const plan = plansMap.get(subWithItem?.subscription_items[0]?.planId)
+    const theme = themeMap.get(plan?.themeId)
+    const user = userMap.get(subWithItem?.userId)
+    return (
+      {
+        ...subWithItem,
+        user,  // user: user 簡寫
+        plan,
+        theme
+      }
+      // subWithItem.map(subItem => {
+      //   const plan = plansMap.get(subItem?.subscription_items[0]?.planId)
+      //   const theme = themeMap.get(plan?.themeId)
+      //   return (
+      //     {
+      //       ...subItem,
+      //       plan,
+      //       theme
+      //     }
+      //   )
+      // })
+    )
+    
   }
   useEffect(() => {
     getOrderData()    
@@ -65,14 +113,19 @@ function SubscribeDetail() {
         console.log('user: ', res.data)
         setUserData(res.data)
       })
-    api.get(`/subscriptions?subscription_no=${id}`)
-      .then(res => {
-        setSubscriptionData(res.data[0])
-        console.log('subscriptions:', res.data)
-      })
+    // api.get(`/subscriptions?id=s1k3p7la`)
+    //   .then(res => {
+    //     setSubscriptionData(res.data[0])
+    //     console.log('subscriptions Dataq:', res.data)
+    //   })
+    const fetchData = async () => {
+      const result = await getSubscriptionWithInfo(id)
+      console.log("result:", result)
+      setSubscriptionData(result)
+    }
+    fetchData()
   }, [id])
-  
-
+  const userInfo = subscriptionData.user
   
   /*
   // 管理訂閱編號是否置頂
@@ -142,13 +195,13 @@ function SubscribeDetail() {
           return (
             // 找到被按的那筆，展開後覆寫新的狀態，不是該筆就回傳原本的資料
             order.id === id
-            ? {...order, shipping_status: newStatus}
+            ? {...order, shippingStatus: newStatus}
             : order
           )
         })
       })
       // await api.patch(`/subscription_orders/${id}`, {
-      //   shipping_status : newStatus
+      //   shippingStatus : newStatus
       // })
       // getOrderData()
     } catch (err) {
@@ -159,7 +212,7 @@ function SubscribeDetail() {
     // setOrderData((prev)=>{
     //   return prev.map((order)=>{
     //     return (
-    //       order.order_no === id ? {...order, shipping_status: newStatus} : order
+    //       order.orderNo === id ? {...order, shippingStatus: newStatus} : order
     //     )
     //   })
     // })
@@ -174,7 +227,7 @@ function SubscribeDetail() {
         return prev.map(order => {
           return (
             order.id === id 
-            ? {...order, shipping_date: newDate}
+            ? {...order, shippingDate: newDate}
             : order
           )
         })
@@ -190,7 +243,7 @@ function SubscribeDetail() {
     // 只修改顯示不改後端資料
     // setOrderData((prev)=>{
     //   return prev.map((order)=> {
-    //     return order.order_no === id ? {
+    //     return order.orderNo === id ? {
     //       ...order, shipping_date: newDate
     //     } : order
     //   })
@@ -199,21 +252,21 @@ function SubscribeDetail() {
   // 更新歸檔
   const updateArchived = async (item)=>{
     try {
-      if ((item.payment.status === "success")&&(item.shipping_status===2)&&(item.shipping_date !== null)) {
+      if ((item.paymentStatus === "paid")&&(item.shippingStatus==="shipped")&&(item.shippingDate !== null)) {
         setEditedOrders(prev => {
           return prev.map(order => {
             return (
               order.id === item.id
-              ? {...order, is_archived: !item.is_archived}
+              ? {...order, isArchived: !item.isArchived}
               : order 
             )
           })
         })
         // const res = await api.patch(`/subscription_orders/${item.id}`, {
-        //   is_archived : !item.is_archived
+        //   isArchived : !item.isArchived
         // })
         // getOrderData()
-        // console.log('update:', res.data.is_archived)
+        // console.log('update:', res.data.isArchived)
       }
       
     } catch (err) {
@@ -234,17 +287,17 @@ function SubscribeDetail() {
       const origin = allOrders.find(originO => String(originO.id) === String(editedO.id))
       return (
         // 比對可編輯的資料跟原始資料是否有差異，有差異就回傳true，filter就會放到updates
-        editedO.shipping_status !== origin.shipping_status ||
-        editedO.shipping_date !== origin.shipping_date || editedO.is_archived !== origin.is_archived
+        editedO.shippingStatus !== origin.shippingStatus ||
+        editedO.shippingDate !== origin.shippingDate || editedO.isArchived !== origin.isArchived
       )
     })
     console.log('update:', updates)
     // 遍歷需要更新的資料，一筆一筆做patch
     for (const order of updates) {
-      await api.patch(`/subscription_orders/${order.id}`, {
-        shipping_status: order.shipping_status,
-        shipping_date: order.shipping_date,
-        is_archived: order.is_archived
+      await api.patch(`/orders/${order.id}`, {
+        shippingStatus: order.shippingStatus,
+        shippingDate: order.shippingDate,
+        isArchived: order.isArchived
       })
     }
     // 把原始資料變更成更新後的資料
@@ -322,23 +375,23 @@ function SubscribeDetail() {
                 <div className="caseContent px-3">
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">方案名稱</p>
-                    <p className="text-neutral-800">{subscriptionData?.theme_name}</p>
+                    <p className="text-neutral-800">{subscriptionData?.theme?.title}</p>
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">方案時長</p>
-                    <p className="text-neutral-800">{subscriptionData?.duration_months}個月</p>
+                    <p className="text-neutral-800">{subscriptionData?.plan?.durationMonths}個月</p>
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">訂閱數量</p>
-                    <p className="text-neutral-800">{subscriptionData?.quantity}盒</p>
+                    <p className="text-neutral-800">{subscriptionData?.subscription_items?.[0]?.quantity}盒</p>
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">訂閱價格</p>
-                    <p className="text-neutral-800">NT${subscriptionData?.discounted_price} / 月</p>
+                    <p className="text-neutral-800">NT${subscriptionData?.subscription_items?.[0]?.unitPrice} / 月</p>
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">支付方式</p>
-                    <p className="text-neutral-800">信用卡 ****-{defaultCard?.map(card=>card.last_four)}</p>
+                    <p className="text-neutral-800">信用卡 ****-{defaultCard?.lastFour || defaultCard?.map(card=>card.last_four)}</p>
                   </div>
                 </div>
               </div>
@@ -349,11 +402,11 @@ function SubscribeDetail() {
                 </div>
                 <div className="d-flex justify-content-center">
                   <CircleProgress progress={shippedProgress}>
-                    <p className="metric mb-2 fs-5 fw-bold text-neutral-800">{shippedCount}/{subscriptionData?.duration_months}</p>
+                    <p className="metric mb-2 fs-5 fw-bold text-neutral-800">{shippedCount}/{subscriptionData?.durationMonths}</p>
                     <p className="fs-9 text-neutral-600">
                       已配送{shippedCount}期
                       <br />
-                      共{subscriptionData?.duration_months}期
+                      共{subscriptionData?.durationMonths}期
                     </p>
                   </CircleProgress>
                 </div>
@@ -361,11 +414,11 @@ function SubscribeDetail() {
               {/* 會員資訊 */}
               <div className="orderCard memberInfo order-3 subscribeDetail-underline">
                 <div className="caseTitle pt-1 pb-1 pb-lg-4 mb-6 fw-bold fs-8 fs-lg-7">
-                  會員資訊
+                  收件人資訊
                 </div>
                 <div className="d-flex gap-8 text-neutral-600 px-4  fs-8">
                   <div className="title">
-                    <p className="mb-2">會員姓名 </p>
+                    <p className="mb-2">收件人姓名 </p>
                     <p className="mb-2">Email
 </p>
                     <p className="mb-2">電子載具 </p>
@@ -373,11 +426,11 @@ function SubscribeDetail() {
                     <p className="mb-2">配送地址 </p>
                   </div>
                   <div className="content text-neutral-800">
-                    <p className="mb-2">{userData[0]?.name}</p>
-                    <p className="mb-2">{userData[0]?.email}</p>
-                    <p className="mb-2">{userData[0]?.default_carrier}</p>
+                    <p className="mb-2">{userInfo?.name}</p>
+                    <p className="mb-2">{userInfo?.email}</p>
+                    <p className="mb-2">{userInfo?.carrier}</p>
                     <p className="mb-2">無</p>
-                    <p className="mb-2">{Object.values(userData[0]?.address || {}).join(" ")}</p>
+                    <p className="mb-2">{Object.values(userInfo?.address || {}).join(" ")}</p>
                   </div>
                 </div>
               </div>
@@ -408,28 +461,28 @@ function SubscribeDetail() {
                   {
                     orderData.slice().reverse().map((item) => {
                       return (
-                        <tr key={item.order_no}>
-                          <th scope="row" className="ps-4 fw-normal text-semantic-link">{item.order_no}</th>
-                          <td className="text-center fw-normal">{parseInt(item.order_no.slice(-2))}{/* 取訂單編號的後兩碼轉換成數字，這樣如果是01就會變1 */}</td>  
+                        <tr key={item.orderNo}>
+                          <th scope="row" className="ps-4 fw-normal text-semantic-link">{item.orderNo}</th>
+                          <td className="text-center fw-normal">{parseInt(item.orderNo.slice(-2))}{/* 取訂單編號的後兩碼轉換成數字，這樣如果是01就會變1 */}</td>  
                           <td className="text-center fw-normal">{item.amount}</td>
-                          <td className="text-center fw-normal">{item.payment_date}</td>
+                          <td className="text-center fw-normal">{item.paymentDate}</td>
                           <td className="text-center fw-normal">
-                            <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === 2} onChange={(status)=>updatePayStatusChange(item.id, status)}/>
+                            <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"} onChange={(status)=>updatePayStatusChange(item.id, status)}/>
                           </td>
                           <td className="text-center fw-normal">
-                            <ShippingStatus record={item} isOpen={openId === item.order_no} onToggle={()=> setOpenId(openId === item.order_no ? null : item.order_no)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>  
+                            <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={()=> setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>  
                           </td>
                           <td className="text-center fw-normal">
                             {/* <ShipDate record={item} isDatePickerOpen={openDatePicker[item.orderID] || false} onToggleDatePicker={toggleDatePicker}/> */}
-                            <ShippedDate record={item} isOpen={openDateId === item.order_no} onToggle={()=>{setOpenDateId(openDateId === item.order_no ? null : item.order_no)}} onChange={(date)=>updateShipDateChange(item.id, date)} />
+                            <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={()=>{setOpenDateId(openDateId === item.orderNo ? null : item.orderNo)}} onChange={(date)=>updateShipDateChange(item.id, date)} />
                           </td>
                           <td className="text-center fw-normal">
-                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shipping_status === 3 ? "shipped-failed" : item.shipping_status === 2 ? "pointer" : ""}`} onClick={() => {
-                              if (item.payment.status !=="failed") {
+                            <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shippingStatus === "failed" ? "shipped-failed" : item.shippingStatus === "shipped" ? "pointer" : ""}`} onClick={() => {
+                              if (item.paymentStatus !=="failed") {
                                 updateArchived(item)
                               }
                             }}>
-                              {item.is_archived ? "" : "歸檔"}
+                              {item.isArchived ? "" : "歸檔"}
                             </span>
                           </td>
                         </tr>
@@ -449,7 +502,7 @@ function SubscribeDetail() {
               {
                 orderData.slice().reverse().map((item)=>{
                   return (
-                    <div className="order-card px-4 py-6 bg-neutral-200 rounded-6" key={item.order_no}>
+                    <div className="order-card px-4 py-6 bg-neutral-200 rounded-6" key={item.orderNo}>
                       <div className="order-content mb-17">
                         <div className="order-header d-flex justify-content-between align-items-end mb-6">
                           <div className="order-title">
@@ -457,10 +510,10 @@ function SubscribeDetail() {
                               訂單編號
                             </div>
                             <div className="order-id fs-5 fw-bold text-neutral-800">
-                              {item.order_no}
+                              {item.orderNo}
                             </div>
                           </div>
-                          <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
+                          <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"}/>
                         </div>
                         <div className="order-mobile-divider"></div>
                         
@@ -473,11 +526,11 @@ function SubscribeDetail() {
                             </div>
                             <div className="col-4">
                               <div className="price-text text-neutral-600">期數</div>
-                              <div className="price text-neutral-800">{parseInt(item.order_no.slice(-2))}</div>
+                              <div className="price text-neutral-800">{parseInt(item.orderNo.slice(-2))}</div>
                             </div>
                             <div className="col-4">
                               <div className="price-text text-neutral-600">付款日期</div>
-                              <div className="price text-neutral-800">{item.payment_date}</div>
+                              <div className="price text-neutral-800">{item.paymentDate}</div>
                             </div>
                           </div>
                         </div>
@@ -488,13 +541,13 @@ function SubscribeDetail() {
                           <div className="ship-status d-flex justify-content-between align-items-center mb-3">
                             <div className="ship-text fs-8 text-neutral-600">出貨狀態</div>
                             <div className="ship-button">
-                              <ShippingStatus record={item} isOpen={openId === item.order_no} onToggle={()=> setOpenId(openId === item.order_no ? null : item.order_no)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>
+                              <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={()=> setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>
                             </div>
                           </div>
                           <div className="ship-status d-flex justify-content-between align-items-center">
                             <div className="ship-text fs-8 text-neutral-600">預計出貨日</div>
                             <div className="ship-button">
-                              <ShippedDate record={item} isOpen={openDateId === item.order_no} onToggle={()=>setOpenDateId(openDateId === item.order_no ? null : item.order_no)} onChange={(date)=>updateShipDateChange(item.id, date)} />
+                              <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={()=>setOpenDateId(openDateId === item.orderNo ? null : item.orderNo)} onChange={(date)=>updateShipDateChange(item.id, date)} />
                             </div>
                           </div>
                         </div>
@@ -531,11 +584,11 @@ function SubscribeDetail() {
                   {
                     archivedData.map((item) => {
                       return (
-                        <tr key={item.order_no}>
-                          <th scope="row" className="ps-4 fw-normal order-id text-semantic-link">{item.order_no}</th>
-                          <td className="text-center fw-normal">{parseInt(item.order_no.slice(-2))}</td>
+                        <tr key={item.orderNo}>
+                          <th scope="row" className="ps-4 fw-normal order-id text-semantic-link">{item.orderNo}</th>
+                          <td className="text-center fw-normal">{parseInt(item.orderNo.slice(-2))}</td>
                           <td className="text-center fw-normal">{item.amount}</td>
-                          <td className="text-center fw-normal">{item.payment_date}</td>
+                          <td className="text-center fw-normal">{item.paymentDate}</td>
                           <td className="text-center fw-normal">
                             <span className={`badge rounded-pill payBadge ${item.payment_status} fs-9`}>
                               已付款
@@ -562,7 +615,7 @@ function SubscribeDetail() {
                                 </div>
                               )
                             } */}
-                            <ShippedDate record={item} isOpen={openDateId === item.order_no} onToggle={()=>setOpenDateId(openDateId === item.order_no ? null : item.order_no)} onChange={(date)=>updateShipDateChange(item.id, date)} />
+                            <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={()=>setOpenDateId(openDateId === item.orderNo ? null : item.orderNo)} onChange={(date)=>updateShipDateChange(item.id, date)} />
                           </td>
                         </tr>
                       )
@@ -581,19 +634,19 @@ function SubscribeDetail() {
               {
                 archivedData.map((item)=>{
                   return (
-                    <div className="archived-order-card p-6 bg-neutral-200 rounded-5" key={item.order_no}>
+                    <div className="archived-order-card p-6 bg-neutral-200 rounded-5" key={item.orderNo}>
                       <div className="order-header mb-6">
                         <div className="order-title mb-3">
                           <div className="text mb-1 fs-9 fw-bold text-neutral-600">
                             訂單編號
                           </div>
                           <div className="order-id fs-5 fw-bold text-neutral-800">
-                            {item.order_no}
+                            {item.orderNo}
                           </div>
                         </div>
                         <div className="order-status d-flex justify-content-start gap-3 mb-3">
-                          <PayStatusBadge currentStatus={item.payment?.status} isArchived={item.is_archived} isFailed={item.payment_status === "failed"}/>
-                          <ShippingStatus record={item} isOpen={openId === item.order_no} onToggle={()=> setOpenId(openId === item.order_no ? null : item.order_no)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>
+                          <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"}/>
+                          <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={()=> setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>
                         </div>
                         <div className="order-mobile-divider"></div>
                       </div>
@@ -605,13 +658,13 @@ function SubscribeDetail() {
                           </div>
                           <div className="flex-fill">
                             <div className="fs-8 text-neutral-600 mb-1">期數</div>
-                            <div className="fs-8 text-neutral-800">{parseInt(item.order_no.slice(-2))}</div>
+                            <div className="fs-8 text-neutral-800">{parseInt(item.orderNo.slice(-2))}</div>
                           </div>
                         </div>
                         <div className="payDate-shipDate d-flex ">
                           <div className="flex-fill">
                             <div className="text fs-8 text-neutral-600 mb-1">付款日期</div>
-                            <div className="pay-date fs-8 text-neutral-800">{item.payment_date}</div>
+                            <div className="pay-date fs-8 text-neutral-800">{item.paymentDate}</div>
                           </div>
                           <div className="flex-fill">
                             <div className="text fs-8 text-neutral-600 mb-1">付款日期</div>

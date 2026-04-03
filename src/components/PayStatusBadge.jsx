@@ -1,7 +1,7 @@
 // import { useState } from "react";
 
 const PAYSTATUS = {
-  "success": "已付款",
+  "paid": "已付款",
   "failed": "付款失敗",
   "pending": "即將付款",
 };
