@@ -174,18 +174,26 @@ function CartCheckout() {
 
             }
 
-            // 結帳後，清空購物車
-            for (const item of cartItems) {
-                await api.delete(`/cart_items/${item.id}`)
-            }
-            if (cartMain?.id) {
-                await api.delete(`/carts/${cartMain.id}`);
-            }
-
-            message.success({ content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2 });
             const subIds = createdSubscriptions.map(sub => sub.id).join(',');
-            navigate(`/cartFinish?sub_ids=${subIds}`);
+            message.success({ 
+                content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2,
+                onClose: () => {
+                    navigate(`/cartFinish?sub_ids=${subIds}`, { replace: true });
+                }
+             });
 
+            // 結帳後，清空購物車
+            try {
+                const deletePromises = cartItems.map(item => api.delete(`/cart_items/${item.id}`));
+                await Promise.allSettled(deletePromises); // 使用 allSettled 容忍 404
+                if (cartMain?.id) {
+                    await api.delete(`/carts/${cartMain.id}`);
+                }
+            } catch (cleanupError) {
+                console.warn("背景清理失敗，不影響訂單:", cleanupError);
+            }
+
+            
         } catch (error) {
             console.error("結帳失敗:", error);
             message.error({ content: "處理失敗，請稍後再試。", key: 'checkout', duration: 3 });
