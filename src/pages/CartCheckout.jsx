@@ -64,7 +64,6 @@ function CartCheckout() {
                 // ==========================================
 
                 const subscriptionPayload = {
-                    id: subId,
                     userId: currentUserId,
                     subscriptionNumber: subNo,
                     durationMonths: item.plan?.durationMonths,
@@ -99,12 +98,15 @@ function CartCheckout() {
                     }
                 };
 
+                //等 json-server 自動產生 subscription ID
+                const subRes = await api.post('/subscriptions',subscriptionPayload);
+                const generateSubId = subRes.data.id; 
+
                 // ==========================================
                 // 2.subscription_items 資料處理
                 // ==========================================
                 const subscriptionItemPayload = {
-                    id: crypto.randomUUID(),
-                    subscriptionId: subId,
+                    subscriptionId: generateSubId,
                     planId: item.planId,
                     quantity: item.quantity,
                     unitPrice: item.plan?.discountPrice || 0,
@@ -114,8 +116,7 @@ function CartCheckout() {
                 // 3. orders (第一期訂單) 資料處理
                 // =============================================
                 const orderPayload = {
-                    id: crypto.randomUUID(),
-                    subscriptionId: subId,
+                    subscriptionId: generateSubId,
                     orderNo: firstOrderNo,
                     amount: itemTotal,
                     createdAt: new Date().toISOString(),
@@ -132,13 +133,12 @@ function CartCheckout() {
                     isArchived: false
                 };
 
-                // 寫入資料庫
-                await api.post('/subscriptions',subscriptionPayload);
+                // 寫入剩下資料庫
                 await api.post('/subscription_items',subscriptionItemPayload);
                 await api.post('/orders', orderPayload);
 
                 // 存訂閱資料，交給其他頁
-                createdSubscriptions.push(subscriptionPayload);
+                createdSubscriptions.push(subRes.data);
             }
 
             // 結帳後，清空購物車
@@ -150,7 +150,8 @@ function CartCheckout() {
             }
 
             message.success({ content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2 });
-            navigate('/cartFinish', { state: { subscriptions: createdSubscriptions } });
+            const subIds = createdSubscriptions.map(sub => sub.id).join(',');
+            navigate(`/cartFinish?sub_ids=${subIds}`);
 
         } catch (error) {
             console.error("結帳失敗:", error);
@@ -223,7 +224,6 @@ function CartCheckout() {
                         theme: themeDeatail || null
                     }
                 })
-                console.log("enrichedItems", enrichedItems)
 
                 setCartItems(enrichedItems);
 
