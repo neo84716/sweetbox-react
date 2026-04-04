@@ -1,126 +1,203 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import api from "../api";
+import { Icon } from "@iconify/react";
 
 
 function Cart() {
-    const [cartData, setCartData] = useState([]);
-    const [themes, setThemes] = useState([]);
+    const navigate = useNavigate();
+
+    const [cartMain, setCartMain] = useState(null);
+    const [cartItems, setCartItems] = useState([]);
+    const [plans, setPlans] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [couponCode, setCouponCode] = useState("");
+    const [discountTotal, setDiscountTotal] = useState(0);
+    const [appliedCouponId, setAppliedCouponId] = useState(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+    const [openDropdownId, setOpenDropdownId] = useState(null);
+
+    const currentUserId = "u8f3k2d1";
 
     useEffect(() => {
-        api.get("/carts")
-            .then(res => setCartData(res.data))
-            .catch(err => console.log(err));
+        const fetchData = async () => {
+            try {
+                const cartRes = await api.get(`/carts?userId=${currentUserId}&_embed=cart_items`);
+                const userCart = cartRes.data[0];
+                setCartMain(userCart);
 
-        api.get("/themes")
-            .then(res => setThemes(res.data))
-            .catch(err => console.log(err));
-    }, []);
-    const updateCart = (updatedItems, appliedCoupon = null, discountApplied = 0) => {
-        const cart = cartData[0];
-        const subtotal = updatedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+                if (userCart) {
 
-        const updatedCart = {
-            ...cart,
-            items: updatedItems,
-            subtotal,
-            discount_total: Math.round(discountApplied || 0),
-            final_total: Math.round(subtotal - (discountApplied || 0)),
-            coupons: appliedCoupon
-                ? [
-                    {
-                        id: 1, // 永遠只有一筆，固定 id 或重新生成
-                        coupon_id: appliedCoupon.id,
-                        applied_at: new Date().toISOString(),
-                        discount_applied: discountApplied
-                    }
-                ]
-                : [],
-            updated_at: new Date().toISOString()
+                    setCartMain(userCart);
+                    setDiscountTotal(userCart.discountTotal || 0);
+                    setAppliedCouponId(userCart.appliedCouponId || null);
+
+                    const [themesRes, plansRes] = await Promise.all([
+                        api.get("/themes"),
+                        api.get("/plans")
+                    ])
+                    const plansData = plansRes.data;
+                    const themesData = themesRes.data;
+                    setPlans(plansData);
+
+                    // 資料組合 (Cart > cart_items > plan + theme)
+                    const enrichedItems = userCart.cart_items.map(item => {
+                        const planDetail = plansData.find(p => p.id === item.planId);
+                        const themeDetail = themesData.find(t => t.id === planDetail?.themeId);
+                        return {
+                            ...item,
+                            plan: planDetail || null,
+                            theme: themeDetail || null
+                        };
+                    });
+                    setCartItems(enrichedItems);
+                }
+            } catch (err) {
+                console.error("資料讀取失敗", err);
+            } finally {
+                setIsLoading(false);
+            }
         };
+        fetchData();
+    }, []);
 
-        api.put(`/carts/${cart.id}`, updatedCart)
-            .then(() => setCartData([updatedCart]))
-            .catch(err => console.log(err));
-    };
+    // 計算及時金額
+    const subTotal = cartItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
+    const finalTotal = Math.max(0, subTotal - discountTotal);
+
     // 移除商品
-    const handleRemove = (itemId) => {
-        const updatedItems = cartData[0].items.filter(item => item.id !== itemId);
-        updateCart(updatedItems);
+    const handleRemove = async (itemId) => {
+        try {
+            await api.delete(`/cart_items/${itemId}`);
+            setCartItems(prev => prev.filter(item => item.id !== itemId));
+        } catch (err) {
+            console.error("刪除失敗", err);
+        }
     };
 
     // 編輯數量
-    const handleQuantityChange = (itemId, delta) => {
-        const updatedItems = cartData[0].items.map(item =>
-            item.id === itemId
-                ? { ...item, quantity: Math.max(item.quantity + delta, 1) }
-                : item
-        );
-        updateCart(updatedItems);
+    const handleQuantityChange = async (itemId, delta) => {
+        try {
+            const target = cartItems.find(item => item.id === itemId);
+            const newQty = target.quantity + delta;
+
+            if (newQty === 0) {
+                await handleRemove(itemId);
+                return;
+            };
+            if (target.quantity === newQty) return;
+
+            await api.patch(`/cart_items/${itemId}`, { quantity: newQty });
+            setCartItems(prev => prev.map(item =>
+                item.id === itemId
+                    ? { ...item, quantity: newQty } : item
+            ))
+        } catch (err) {
+            console.error("更新數量失敗", err);
+        }
     };
 
     // 編輯方案
-    const handlePlanChange = (itemId, duration, price) => {
-        const updatedItems = cartData[0].items.map(item =>
-            item.id === itemId
-                ? { ...item, duration_months: duration, price }
-                : item
-        );
-        updateCart(updatedItems);
+    const handlePlanChange = async (itemId, newPlanId) => {
+        try {
+            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId })
+            const newPlanDetail = plans.find(p => p.id === newPlanId);
+
+            setCartItems(prev => prev.map(item =>
+                item.id === itemId
+                    ? { ...item, planId: newPlanId, plan: newPlanDetail } : item
+            ))
+        } catch (err) {
+            console.error("更新方案失敗", err)
+        }
     };
+
     // 套用優惠代碼
     const handleApplyCoupon = async () => {
         try {
             const res = await api.get("/coupons");
             const coupons = res.data;
-            const cart = cartData[0];
-            const subtotal = cart.subtotal;
-
             const coupon = coupons.find(c => c.code === couponCode.trim());
-            if (!coupon) {
+
+
+            if (!coupon || !coupon.isActive) {
                 setError("此優惠代碼無效。");
-                updateCart(cart.items, null, 0);
-                setSuccess("");
+                setSuccess(false);
+                setDiscountTotal(0);
+                setAppliedCouponId(null);
                 return;
             }
 
             if (new Date(coupon.expires_at) < new Date()) {
                 setError("此優惠代碼已過期。");
-                updateCart(cart.items, null, 0);
-                setSuccess("");
+                setSuccess(false);
+                setDiscountTotal(0);
+                setAppliedCouponId(null);
                 return;
             }
 
-            if (subtotal < coupon.min_amount) {
+            if (subTotal < coupon.min_amount) {
                 setError(`需滿 ${coupon.min_amount} 元才能使用此代碼。`);
-                updateCart(cart.items, null, 0);
-                setSuccess("");
+                setSuccess(false);
+                setDiscountTotal(0);
+                setAppliedCouponId(null);
                 return;
             }
 
-            let discountApplied = 0;
-            if (coupon.discount_type === "fixed") {
-                discountApplied = coupon.discount_value;
-            } else if (coupon.discount_type === "percentage") {
-                discountApplied = subtotal * (1 - coupon.discount_value);
+            let discount = 0;
+            if (coupon.type === "fixed") {
+                discount = coupon.discountValue;
+            } else if (coupon.type === "percentage") {
+                discount = subTotal * (1 - coupon.discountValue);
             }
 
-            setError("");
+            setDiscountTotal(Math.round(discount));
+            setAppliedCouponId(coupon.id);
             setSuccess(true);
-            updateCart(cart.items, coupon, discountApplied);
+            setError("");
         } catch (err) {
-            console.log(err);
-            updateCart(cart.items, null, 0);
-            setError("套用優惠代碼時發生錯誤。");
-            setSuccess("");
+            console.error("優惠代碼驗證失敗。", err);
+            setError("驗證過程發生錯誤。");
         }
     };
 
-    const isEmptyCart = !cartData || cartData.length === 0 || !cartData[0].items || cartData[0].items.length === 0;
-    // 空購物車
+    // 前往結帳(更新carts資料表+導航)
+    const handleGoToCheckout = async () => {
+        if (!cartMain) return;
+        try {
+            await api.patch(`/carts/${cartMain.id}`, {
+                subTotal, discountTotal, finalTotal, appliedCouponId
+            });
+            navigate("/cartCheckout");
+        } catch (err) {
+            console.error("更新購物車總金額失敗", err);
+        }
+    }
+    // 切換下拉選單顯示/隱藏
+    useEffect(() => {
+        const handleClickOutside = () => setOpenDropdownId(null);
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, [])
+
+    const toggleDropdown = (itemId) => {
+        setOpenDropdownId(prevId => prevId === itemId ? null : itemId);
+    }
+
+    if (isLoading) {
+        return (
+            <main className="bg-neutral-300 d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                {/*  Bootstrap 內建的 Spinner 載入動畫 */}
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">載入中...</span>
+                </div>
+            </main>
+        );
+    }
+    const isEmptyCart = cartItems.length === 0;
+
+    //空購物車
     if (isEmptyCart) {
         return (
             <main className="bg-neutral-300">
@@ -133,7 +210,7 @@ function Cart() {
                             </div>
                             <h1 className="empty-cart-title mb-2">購物車裡還沒有甜點呢</h1>
                             <p className="lh-base mb-6 mb-sm-8">快來挑選一盒，讓生活多一點甜</p>
-                            {/* 💡 順手把原本的 button 換成 Link，讓它可以真正導向商品頁 */}
+
                             <Link to="/themedetail/1" className="btn-primary-icon fw-bold px-lg-8">
                                 帶我去挑甜點
                                 <svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -175,120 +252,88 @@ function Cart() {
                             <NavLink to='/themedetail/1' className='btn py-3 px-4 px-lg-8 border-0 btn-shopping'>
                                 繼續購物
                             </NavLink>
-                            {/* <a href="#" className="btn py-3 px-4 px-lg-8 border-0 btn-shopping">繼續購物</a> */}
+
                         </div>
                         <div className="row mx-0 mx-sm-n3">
                             <div className="col-lg-8 px-0 px-lg-4 mb-2 mb-lg-0">
                                 <ul className="cart-list cart-panel p-lg-4 px-0 py-4">
-                                    {cartData[0]?.items.map(item => {
-                                        const theme = themes.find(t => t.id.toString() === item.theme_id.toString());
-                                        return (
-                                            <li key={item.id} className="d-flex align-items-center cart-item">
-                                                <img
-                                                    className="rounded-4 me-3 me-lg-6 d-block theme-img"
-                                                    src={theme?.square_image_url}
-                                                    alt={`${theme?.theme_title}圖片`}
-                                                />
-                                                <div className="cart-intro">
-                                                    <div
-                                                        className="d-flex justify-content-between align-items-center px-2 mb-2"
+                                    {cartItems.map(item => (
+                                        <li key={item.id} className="d-flex align-items-center cart-item">
+                                            <img
+                                                className="rounded-4 me-3 me-lg-6 d-block theme-img"
+                                                src={item.theme?.images?.square}
+                                                alt={`${item.theme?.title}圖片`}
+                                            />
+                                            <div className="cart-intro">
+                                                <div
+                                                    className="d-flex justify-content-between align-items-center px-2 mb-2"
+                                                >
+                                                    <h2 className="fs-7 lh-sm fw-bold ls-1">{item.theme?.title}甜點盒</h2>
+                                                    <button
+                                                        type="button"
+                                                        className="btn p-0 btn-remove"
+                                                        onClick={() => handleRemove(item.id)}
                                                     >
-                                                        <h2 className="fs-7 lh-sm fw-bold ls-1">{theme?.theme_title}甜點盒</h2>
-                                                        <button
-                                                            type="button"
-                                                            className="btn p-0 btn-remove"
-                                                            onClick={() => handleRemove(item.id)}
-                                                        >
-                                                            移除
-                                                        </button>
-                                                    </div>
-                                                    {/* 方案選單 */}
-                                                    <div className="dropdown plan-dropdown mb-2">
-                                                        <button
-                                                            className="btn dropdown-toggle border-0 d-flex align-items-center me-1"
-                                                            type="button"
-                                                            data-bs-toggle="dropdown"
-                                                            aria-expanded="false"
-                                                        >
-                                                            <span className="me-1">{item.duration_months}個月訂閱方案</span>
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                width="16"
-                                                                height="16"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    fill="currentColor"
-                                                                    fillRule="evenodd"
-                                                                    d="M7.293 9.293a1 1 0 0 1 1.414 0L12 12.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414"
-                                                                    clipRule="evenodd"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                        <ul className="dropdown-menu">
-                                                            {theme?.theme_plans.map(plan => (
+                                                        移除
+                                                    </button>
+                                                </div>
+                                                {/* 方案選單 */}
+                                                <div className="dropdown plan-dropdown mb-2">
+                                                    <button
+                                                        className="btn dropdown-toggle border-0 d-flex align-items-center me-1"
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleDropdown(item.id)
+                                                        }}
+                                                    >
+                                                        <span className="me-1">{item.plan?.durationMonths} 個月訂閱方案</span>
+                                                        <Icon icon="iconamoon:arrow-down-2-light" width="16" height="16" />
+                                                    </button>
+                                                    {openDropdownId === item.id && (
+                                                        <ul className="dropdown-menu show">
+                                                            {plans.filter(p => p.themeId === item.theme?.id).map(plan => (
                                                                 <li key={plan.id}>
                                                                     <button
-                                                                        className="dropdown-item"
-                                                                        href="#"
-                                                                        onClick={() => handlePlanChange(item.id, plan.duration_months, plan.price)}
+                                                                        className="dropdown-item" type="button"
+                                                                        onClick={() => {
+                                                                            handlePlanChange(item.id, plan.id);
+                                                                            setOpenDropdownId(null);
+
+                                                                        }}
                                                                     >
-                                                                        {plan.duration_months}個月訂閱方案
+                                                                        {plan.durationMonths} 個月訂閱方案
                                                                     </button>
                                                                 </li>
                                                             ))}
-                                                        </ul>
-                                                    </div>
-                                                    <p className="px-2 theme-price mb-2 mb-sm-4">
-                                                        單價：NT${item.price} / 盒
-                                                    </p>
-                                                    <div className="d-flex justify-content-between">
-                                                        <span className="theme-total-price">NT${item.price * item.quantity}</span>
-                                                        <div className="px-2 d-flex align-items-center">
-                                                            <button
-                                                                type="button"
-                                                                className="btn-minus"
-                                                                onClick={() => handleQuantityChange(item.id, -1)}
-                                                            >
-                                                                <svg
-                                                                    width="24"
-                                                                    height="24"
-                                                                    viewBox="0 0 24 24"
-                                                                    fill="none"
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                >
-                                                                    <path
-                                                                        d="M5 12C5 11.7348 5.10536 11.4804 5.29289 11.2929C5.48043 11.1054 5.73478 11 6 11H18C18.2652 11 18.5196 11.1054 18.7071 11.2929C18.8946 11.4804 19 11.7348 19 12C19 12.2652 18.8946 12.5196 18.7071 12.7071C18.5196 12.8946 18.2652 13 18 13H6C5.73478 13 5.48043 12.8946 5.29289 12.7071C5.10536 12.5196 5 12.2652 5 12Z"
-                                                                        fill="#C1B9AC"
-                                                                    />
-                                                                </svg>
-                                                            </button>
-                                                            <span className="py-2 px-4 mx-1">{item.quantity}</span>
-                                                            <button
-                                                                type="button"
-                                                                className="btn-plus"
-                                                                onClick={() => handleQuantityChange(item.id, +1)}
-                                                            >
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    width="24"
-                                                                    height="24"
-                                                                    viewBox="0 0 24 24"
-                                                                >
-                                                                    <path
-                                                                        fill="currentColor"
-                                                                        d="M13 6a1 1 0 1 0-2 0v5H6a1 1 0 1 0 0 2h5v5a1 1 0 1 0 2 0v-5h5a1 1 0 1 0 0-2h-5z"
-                                                                    />
-                                                                </svg>
-                                                            </button>
-                                                        </div>
+                                                        </ul>)}
+                                                </div>
+                                                <p className="px-2 theme-price mb-2 mb-sm-4">
+                                                    單價：NT${item.plan?.discountPrice} / 盒
+                                                </p>
+                                                <div className="d-flex justify-content-between">
+                                                    <span className="theme-total-price">NT${item.plan?.discountPrice * item.quantity}</span>
+                                                    <div className="px-2 d-flex align-items-center">
+                                                        <button
+                                                            type="button"
+                                                            className="btn-minus"
+                                                            onClick={() => handleQuantityChange(item.id, -1)}
+                                                        >
+                                                            <Icon icon="tabler:minus" width="24" height="24" />
+                                                        </button>
+                                                        <span className="py-2 px-4 mx-1">{item.quantity}</span>
+                                                        <button
+                                                            type="button"
+                                                            className="btn-plus"
+                                                            onClick={() => handleQuantityChange(item.id, +1)}
+                                                        >
+                                                            <Icon icon="tabler:plus" width="24" height="24" />
+                                                        </button>
                                                     </div>
                                                 </div>
-                                            </li>
-                                        )
-
-
-                                    })}
+                                            </div>
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
                             <div className="col-lg-4 px-0 px-lg-3">
@@ -296,17 +341,7 @@ function Cart() {
                                     <h2 className="cart-section-title mb-3 mb-lg-6">優惠代碼</h2>
                                     <div className="input-group form-group-outline">
                                         <span className="input-group-text ps-2 my-2 ms-2">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="24"
-                                                height="24"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    fill="currentColor"
-                                                    d="M11.172 2a3 3 0 0 1 2.121.879l7.71 7.71a3.41 3.41 0 0 1 0 4.822l-5.592 5.592a3.41 3.41 0 0 1-4.822 0l-7.71-7.71A3 3 0 0 1 2 11.172V6a4 4 0 0 1 4-4zM7.5 5.5a2 2 0 0 0-1.995 1.85L5.5 7.5a2 2 0 1 0 2-2"
-                                                />
-                                            </svg>
+                                            <Icon icon="tabler:tag-filled" width="24" height="24" />
                                         </span>
                                         <input
                                             type="text"
@@ -329,39 +364,26 @@ function Cart() {
                                     </div>
 
                                     {error && <div className="px-2 error-message text-semantic-error">
-                                        <svg
-                                            className="me-2"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                fill="currentColor"
-                                                fillRule="evenodd"
-                                                d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10s10-4.477 10-10M12 7a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0V8a1 1 0 0 1 1-1m-1 9a1 1 0 0 1 1-1h.008a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1"
-                                                clipRule="evenodd"
-                                            />
-                                        </svg>{error}</div>}
+                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16" />
+                                        {error}</div>}
                                 </section>
                                 <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
                                     <h2 className="cart-section-title mb-3 mb-lg-6">訂單資料</h2>
                                     <div className="px-2 px-lg-0 mb-0 mb-sm-6">
                                         {/* 商品總數 */}
                                         <p className="lh-base mb-2">
-                                            共 {cartData[0]?.items.reduce((sum, i) => sum + i.quantity, 0)} 件商品
+                                            共 {cartItems.reduce((sum, i) => sum + Number(i.quantity), 0)} 件商品
                                         </p>
 
                                         {/* 商品清單 */}
                                         <ul className="ps-4 subscription-list mb-6">
-                                            {cartData[0]?.items.map(item => {
-                                                const theme = themes.find(t => t.id.toString() === item.theme_id.toString());
+                                            {cartItems.map(item => {
                                                 return (
                                                     <li key={item.id}>
                                                         <span className="me-4">
-                                                            {theme?.theme_title}甜點盒
+                                                            {item.theme?.title}甜點盒
                                                             <span className="mx-1">-</span>
-                                                            {item.duration_months}個月訂閱方案
+                                                            {item.plan?.durationMonths} 個月訂閱方案
                                                         </span>
                                                         <span>x {item.quantity}</span>
                                                     </li>
@@ -374,26 +396,27 @@ function Cart() {
                                             <p className="d-flex justify-content-between align-items-center mb-2">
                                                 <span>小計</span>
                                                 <span>
-                                                    NT${cartData[0]?.subtotal}
+                                                    NT${subTotal}
                                                 </span>
                                             </p>
                                             <p className="d-flex justify-content-between align-items-center">
                                                 <span>折扣</span>
-                                                <span className="text-cta-200">- NT${cartData[0]?.discount_total}</span>
+                                                <span className="text-cta-200">- NT${discountTotal}</span>
                                             </p>
                                         </div>
                                         <p className="d-flex justify-content-between align-items-center lh-sm ls-1 fw-bold">
                                             <span>合計</span>
-                                            <span className="fs-5 lh-base ls-1">NT${cartData[0]?.final_total}</span>
+                                            <span className="fs-5 lh-base ls-1">NT${finalTotal}</span>
                                         </p>
                                     </div>
 
-                                    <Link
-                                        to="/cartCheckout"
+                                    <button
+                                        type="button"
+                                        onClick={handleGoToCheckout}
                                         className="btn-primary-text w-100 d-none d-sm-block text-center"
                                     >
                                         前往結帳
-                                    </Link>
+                                    </button>
                                 </section>
 
                                 <section className="py-4 px-3 p-lg-8 cart-notice">
@@ -407,22 +430,19 @@ function Cart() {
                                             台灣地區訂單將於 7–10 個工作日
                                             出貨（週末及國定假日順延）。如商品頁面標示為「預購商品」，則依照該頁公告日期出貨。
                                         </li>
-                                        <li>
-                                            若選擇超商取貨，單筆訂單商品總重量若超過 5
-                                            公斤（超過超商收貨限制），系統將自動為您拆單寄出，敬請留意。
-                                        </li>
                                     </ol>
                                 </section>
                             </div>
                         </div>
                     </form>
                     <div className="checkout-btn d-block d-sm-none">
-                        <Link
-                            to="/cartCheckout"
+                        <button
+                            type="button"
+                            onClick={handleGoToCheckout}
                             className="btn-primary-text w-100 text-center d-block"
                         >
                             前往結帳
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </main>

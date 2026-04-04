@@ -265,7 +265,11 @@
     {
       "id": "s0000001",
       "userId": "u0000001",
+      "planId": "p0000003",
+      "themeId": "t0000001",
       "subscriptionNumber": "SL12A7K29X",
+      "quantity": 3,
+      "unitPrice": 675,
       "durationMonths": 12,
       "startDate": "2025-12-10",
       "endDate": "2026-12-10",
@@ -273,7 +277,7 @@
       "status": "active",
       "isProcessed": true,
       "note": "請直接放門口。",
-      "paymentMethodId": "p0000001",
+      "paymentMethodId": "pm000001",
       "paymentSnapshot": {
         "cardBrand": "visa",
         "lastFour": "4242",
@@ -300,7 +304,11 @@
     {
       "id": "s0000002",
       "userId": "u0000001",
+      "themeId": "t0000002",
+      "planId": "p0000005",
       "subscriptionNumber": "SS06M4P82Q",
+      "quantity": 2,
+      "unitPrice": 720,
       "durationMonths": 6,
       "startDate": "2026-01-15",
       "endDate": "2026-07-15",
@@ -308,7 +316,7 @@
       "status": "cancelled",
       "isProcessed": true,
       "note": "放門口即可。",
-      "paymentMethodId": "p0000001",
+      "paymentMethodId": "pm000001",
       "paymentSnapshot": {
         "cardBrand": "visa",
         "lastFour": "4242",
@@ -335,6 +343,8 @@
     {
       "id": "s0000003",
       "userId": "u0000001",
+      "themeId": "t0000003",
+      "planId": "p0000007",
       "subscriptionNumber": "LC03Z9T61L",
       "durationMonths": 3,
       "startDate": "2026-01-01",
@@ -343,7 +353,7 @@
       "status": "completed",
       "isProcessed": true,
       "note": "放門口即可。",
-      "paymentMethodId": "p0000001",
+      "paymentMethodId": "pm000001",
       "paymentSnapshot": {
         "cardBrand": "visa",
         "lastFour": "4242",
@@ -366,79 +376,6 @@
         "companyEmail": null,
         "donateCode": null
       }
-    },
-    {
-      "id": "s0000004",
-      "userId": "u0000002",
-      "subscriptionNumber": "LC03Z9T6eM",
-      "durationMonths": 3,
-      "startDate": "2026-01-01",
-      "endDate": "2026-04-01",
-      "nextPaymentDate": "--",
-      "status": "completed",
-      "isProcessed": true,
-      "note": "放門口即可。",
-      "paymentMethodId": "p0000001",
-      "paymentSnapshot": {
-        "cardBrand": "visa",
-        "lastFour": "4242",
-        "expiryMonth": 2,
-        "expiryYear": 2027
-      },
-      "shippingInfo": {
-        "zipCode": "243",
-        "city": "新北市",
-        "district": "泰山區",
-        "street": "貴子路66號5樓",
-        "name": "王祿",
-        "phone": "0912345678"
-      },
-      "invoiceInfo": {
-        "type": "default_carrier",
-        "carrier": "/GHI9012",
-        "taxId": null,
-        "companyName": null,
-        "companyEmail": null,
-        "donateCode": null
-      }
-    }
-  ],
-  "subscription_items": [
-    {
-      "id": "si0000001",
-      "subscriptionId": "s0000001",
-      "themeId": "t0000001",
-      "planId": "p0000001",
-      "quantity": 3,
-      "unitPrice": 710,
-      "durationMonths": 3
-    },
-    {
-      "id": "si0000002",
-      "subscriptionId": "s0000002",
-      "themeId": "t0000002",
-      "planId": "p0000005",
-      "quantity": 2,
-      "unitPrice": 720,
-      "durationMonths": 6
-    },
-    {
-      "id": "si0000003",
-      "subscriptionId": "s0000003",
-      "themeId": "t0000003",
-      "planId": "p0000009",
-      "quantity": 1,
-      "unitPrice": 700,
-      "durationMonths": 12
-    },
-    {
-      "id": "si0000004",
-      "subscriptionId": "s0000004",
-      "themeId": "t0000001",
-      "planId": "p0000001",
-      "quantity": 3,
-      "unitPrice": 710,
-      "durationMonths": 3
     }
   ],
   "orders": [
@@ -589,8 +526,9 @@
   ],
   "payment_methods": [
     {
-      "id": "p0000001",
+      "id": "pm000001",
       "userId": "u0000001",
+      "cardOwner": "WANG LU",
       "lastFour": "4242",
       "expiryMonth": 2,
       "expiryYear": 2027,
