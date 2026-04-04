@@ -426,7 +426,7 @@ function Cart() {
                                     <div className="px-2 px-lg-0 mb-0 mb-sm-6">
                                         {/* 商品總數 */}
                                         <p className="lh-base mb-2">
-                                            共 {cartItems.reduce((sum, i) => sum + i.quantity, 0)} 件商品
+                                            共 {cartItems.reduce((sum, i) => sum + Number(i.quantity), 0)} 件商品
                                         </p>
 
                                         {/* 商品清單 */}
