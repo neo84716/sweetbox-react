@@ -50,7 +50,7 @@ function CartCheckout() {
 
             // 判斷是否為新的信用卡
             const isUsingStoredCard = formData.cardNumber.includes('xxx');
-            const shouldSaveNewCard = watch('saveCard') && !isUsingStoredCard;
+            const shouldSaveNewCard = formData.saveCard && !isUsingStoredCard;
             let finalPaymentMethodId = ""; //預留給新產生的卡片id
 
             // 信用卡資料轉換
