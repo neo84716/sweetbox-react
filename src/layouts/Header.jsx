@@ -1,7 +1,16 @@
 import { NavLink } from "react-router-dom";
+import { getUser, logout } from "../../utils/auth"
+import { useNavigate } from "react-router-dom";
+
 
 function Header() {
-
+    const navigate = useNavigate()
+    const handleLogout = () => {
+        logout()
+        navigate("/")
+    }
+    const user = getUser()
+    console.log("user", user)
     return (
         <nav className="navbar pt-3 px-3 pt-lg-5 px-lg-0">
             <div className="container header py-1 px-4 py-lg-2 px-lg-9">
@@ -37,27 +46,33 @@ function Header() {
                         </NavLink>
                     </li>
                     <li className="nav-item">
-                        <div className="dropdown">
-                            <button
-                                type="button"
-                                className="btn dropdown-toggle dropdown-toggle-login d-flex align-items-center py-3 px-6 border-0"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                <div className="avatar me-2">
-                                    <img
-                                        className="d-block"
-                                        src="./images/Home_Page/avatar.jpg"
-                                        alt="使用者頭像"
-                                    />
+                        {
+                            user ? (
+                                <div className="dropdown">
+                                    <button
+                                        type="button"
+                                        className="btn dropdown-toggle dropdown-toggle-login d-flex align-items-center py-3 px-6 border-0"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                    >
+                                        <div className="avatar me-2">
+                                            <img
+                                                className="d-block"
+                                                src={`${user?.avatar? user.avatar : "./images/Home_Page/avatar.jpg"}`}
+                                                alt="使用者頭像"
+                                            />
+                                        </div>
+                                        <span className="user-name">{user?.name || "訪客"}</span>
+                                    </button>
+                                    <ul className="dropdown-menu dropdown-menu-avatar">
+                                        <li><NavLink className="dropdown-item d-block" to="/subscription">訂閱管理</NavLink></li>
+                                        <li><NavLink className="dropdown-item d-block" to="/login" onClick={handleLogout}>登出</NavLink></li>
+                                    </ul>
                                 </div>
-                                <span className="user-name">歐拉</span>
-                            </button>
-                            <ul className="dropdown-menu dropdown-menu-avatar">
-                                <li><NavLink className="dropdown-item d-block" to="/subscription">訂閱管理</NavLink></li>
-                                <li><NavLink className="dropdown-item d-block" to="/login">登出</NavLink></li>
-                            </ul>
-                        </div>
+                            ) : (
+                                <NavLink to="/login">登入</NavLink>
+                            )
+                        }
                     </li>
                 </ul>
 

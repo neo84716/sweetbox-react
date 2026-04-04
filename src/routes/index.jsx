@@ -10,6 +10,7 @@ import Subscribe from "../pages/admin/Subscribe";
 import SubscribeDetail from "../pages/admin/SubscribeDetail";
 import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 
 const routes = [
@@ -27,7 +28,11 @@ const routes = [
       },
       {
         path: "cart",
-        element: <Cart />
+        element: 
+          <ProtectedRoute>
+            <Cart /> 
+          </ProtectedRoute>
+        
       },
       {
         path: "cartCheckout",
