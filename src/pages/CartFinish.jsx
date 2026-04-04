@@ -28,23 +28,22 @@ function CartFinish() {
 
                 const subsData = subsRes.map(res => res.data);
 
-                const [subItemsRes, plansRes, themesRes] = await Promise.all([
-                    api.get('/subscription_items'),
+                const [plansRes, themesRes] = await Promise.all([
                     api.get('/plans'),
                     api.get('/themes')
                 ])
                 
                 // 組合資料
                 const enrichedSubs = subsData.map(sub =>{
-                    const matchedSubItem = subItemsRes.data.find(i => i.subscriptionId === sub.id);
-                    const matchedPlan = plansRes.data.find(p => p.id === matchedSubItem?.planId);
-                    const matchedTheme = themesRes.data.find(t => t.id === matchedPlan?.themeId);
+                    const matchedPlan = plansRes.data.find(p => p.id === sub.planId);
+                    const matchedTheme = themesRes.data.find(t => t.id === sub.themeId);
 
                     return{
                         ...sub,
                         themeTitle: matchedTheme?.title ? `${matchedTheme.title}甜點盒` : "特選甜點盒",
-                        quantity: matchedSubItem?.quantity || 1,
-                        discountedPrice: matchedSubItem?.unitPrice || 0
+                        quantity: sub.quantity || 1,
+                        discountedPrice: sub.unitPrice || 0,
+                        durationMonths: sub.durationMonths || matchedPlan?.durationMonths
                     }
                 })
 
@@ -82,7 +81,7 @@ function CartFinish() {
     // 將 YYYY-MM-DD 轉換為 YYYY/MM/DD 的格式顯示
     const startDate = representSub?.startDate?.replace(/-/g, '/') || '';
     const deductionDay = representSub?.startDate ? new Date(representSub.startDate).getDate() : '';
-    const defaultCard = representSub?.paymentMethod.find(card => card.isDefault) || representSub?.paymentMethod?.[0];
+    const paymentInfo = representSub?.paymentMethod;
 
     return (
         <>
@@ -162,7 +161,7 @@ function CartFinish() {
                                 </div>
                                 <div className="d-flex justify-content-between my-2">
                                     <p className="text-neutral-600">付款方式</p>
-                                    <p>{defaultCard?.cardBrand} ···· {defaultCard?.lastFour}</p>
+                                    <p>{paymentInfo?.cardBrand} ···· {paymentInfo?.lastFour}</p>
                                 </div>
                                 {representSub?.note && (
                                     <div className="d-flex justify-content-between fs-8 fs-sm-7 my-2">
