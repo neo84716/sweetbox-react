@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import api from "../api";
+import { Icon } from "@iconify/react";
 
 
 function Cart() {
@@ -287,19 +288,7 @@ function Cart() {
                                                         }}
                                                     >
                                                         <span className="me-1">{item.plan?.durationMonths} 個月訂閱方案</span>
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            width="16"
-                                                            height="16"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                fill="currentColor"
-                                                                fillRule="evenodd"
-                                                                d="M7.293 9.293a1 1 0 0 1 1.414 0L12 12.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414"
-                                                                clipRule="evenodd"
-                                                            />
-                                                        </svg>
+                                                        <Icon icon="iconamoon:arrow-down-2-light" width="16" height="16" />
                                                     </button>
                                                     {openDropdownId === item.id && (
                                                         <ul className="dropdown-menu show">
@@ -330,18 +319,7 @@ function Cart() {
                                                             className="btn-minus"
                                                             onClick={() => handleQuantityChange(item.id, -1)}
                                                         >
-                                                            <svg
-                                                                width="24"
-                                                                height="24"
-                                                                viewBox="0 0 24 24"
-                                                                fill="none"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M5 12C5 11.7348 5.10536 11.4804 5.29289 11.2929C5.48043 11.1054 5.73478 11 6 11H18C18.2652 11 18.5196 11.1054 18.7071 11.2929C18.8946 11.4804 19 11.7348 19 12C19 12.2652 18.8946 12.5196 18.7071 12.7071C18.5196 12.8946 18.2652 13 18 13H6C5.73478 13 5.48043 12.8946 5.29289 12.7071C5.10536 12.5196 5 12.2652 5 12Z"
-                                                                    fill="currentColor"
-                                                                />
-                                                            </svg>
+                                                            <Icon icon="tabler:minus" width="24" height="24" />
                                                         </button>
                                                         <span className="py-2 px-4 mx-1">{item.quantity}</span>
                                                         <button
@@ -349,17 +327,7 @@ function Cart() {
                                                             className="btn-plus"
                                                             onClick={() => handleQuantityChange(item.id, +1)}
                                                         >
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                width="24"
-                                                                height="24"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    fill="currentColor"
-                                                                    d="M13 6a1 1 0 1 0-2 0v5H6a1 1 0 1 0 0 2h5v5a1 1 0 1 0 2 0v-5h5a1 1 0 1 0 0-2h-5z"
-                                                                />
-                                                            </svg>
+                                                            <Icon icon="tabler:plus" width="24" height="24" />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -373,17 +341,7 @@ function Cart() {
                                     <h2 className="cart-section-title mb-3 mb-lg-6">優惠代碼</h2>
                                     <div className="input-group form-group-outline">
                                         <span className="input-group-text ps-2 my-2 ms-2">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="24"
-                                                height="24"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    fill="currentColor"
-                                                    d="M11.172 2a3 3 0 0 1 2.121.879l7.71 7.71a3.41 3.41 0 0 1 0 4.822l-5.592 5.592a3.41 3.41 0 0 1-4.822 0l-7.71-7.71A3 3 0 0 1 2 11.172V6a4 4 0 0 1 4-4zM7.5 5.5a2 2 0 0 0-1.995 1.85L5.5 7.5a2 2 0 1 0 2-2"
-                                                />
-                                            </svg>
+                                            <Icon icon="tabler:tag-filled" width="24" height="24" />
                                         </span>
                                         <input
                                             type="text"
@@ -406,20 +364,8 @@ function Cart() {
                                     </div>
 
                                     {error && <div className="px-2 error-message text-semantic-error">
-                                        <svg
-                                            className="me-2"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                fill="currentColor"
-                                                fillRule="evenodd"
-                                                d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10s10-4.477 10-10M12 7a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0V8a1 1 0 0 1 1-1m-1 9a1 1 0 0 1 1-1h.008a1 1 0 1 1 0 2H12a1 1 0 0 1-1-1"
-                                                clipRule="evenodd"
-                                            />
-                                        </svg>{error}</div>}
+                                        <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16" />
+                                        {error}</div>}
                                 </section>
                                 <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
                                     <h2 className="cart-section-title mb-3 mb-lg-6">訂單資料</h2>
