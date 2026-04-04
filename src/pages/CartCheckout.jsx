@@ -98,7 +98,7 @@ function CartCheckout() {
                     }
                 };
 
-                //等 json-server 自動產生 subscription ID
+                //等 json-server 產生 subscription ID
                 const subRes = await api.post('/subscriptions',subscriptionPayload);
                 const generateSubId = subRes.data.id; 
 
@@ -163,13 +163,24 @@ function CartCheckout() {
         const isChecked = e.target.checked;
         if (isChecked) {
             try {
-                const res = await api.get(`/users/${currentUserId}`);
+                const res = await api.get(`/users/${currentUserId}?_embed=payment_methods`);
                 const userData = res.data;
+
                 setValue("name", userData.name, { shouldValidate: true });
                 setValue("phone", userData.phone, { shouldValidate: true });
                 setValue("city", userData.address.city, { shouldValidate: true });
                 setValue("district", userData.address.district, { shouldValidate: true });
                 setValue("street", userData.address.street, { shouldValidate: true });
+                
+                const defaultCard = userData.payment_methods?.find(pm => pm.isDefault === true)
+                if(defaultCard){
+                    const maskedCardNumber = `xxxx-xxxx-xxxx-${defaultCard.lastFour}`;
+
+                    setValue("cardNumber", maskedCardNumber, {shouldValidate:true});
+                    setValue("cardOwner", defaultCard.cardOwner, {shouldValidate:true});
+                    setValue("expiryMonth", String(defaultCard.expiryMonth).padStart(2, '0'),{shouldValidate:true});
+                    setValue("expiryYear", String(defaultCard.expiryYear),{shouldValidate:true});
+                }
             } catch (error) {
                 console.error("取得會員資料失敗：", error);
                 message.error("無法帶入會員資料，請稍後再試。");
@@ -181,10 +192,14 @@ function CartCheckout() {
             setValue("city", "");
             setValue("district", "");
             setValue("street", "");
+            setValue("cardNumber", "");
+            setValue("cardOwner", "");
+            setValue("expiryMonth", "");
+            setValue("expiryYear", "");
         }
     }
 
-    const currentUserId = "u8f3k2d1";
+    const currentUserId = "u0000001";
     const [cartMain, setCartMain] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [themes, setThemes] = useState([]);
@@ -426,7 +441,7 @@ function CartCheckout() {
                                 <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
                                     <h2 className="cart-section-title mb-6">付款資料</h2>
                                     <Input
-                                        id="credit-card-number"
+                                        id="cardNumber"
                                         register={register}
                                         errors={errors}
                                         labelText="信用卡卡號"
@@ -473,7 +488,7 @@ function CartCheckout() {
                                         }}
                                     />
                                     <Input
-                                        id="credit-card-owner"
+                                        id="cardOwner"
                                         register={register}
                                         errors={errors}
                                         labelText="持卡人姓名"

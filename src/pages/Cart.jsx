@@ -18,7 +18,7 @@ function Cart() {
     const [success, setSuccess] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
 
-    const currentUserId = "u8f3k2d1";
+    const currentUserId = "u0000001";
 
     useEffect(() => {
         const fetchData = async () => {
