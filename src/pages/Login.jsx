@@ -2,10 +2,14 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Input from "../components/Input";
 import { Icon } from "@iconify/react";
+import { useNavigate } from "react-router-dom";
+import api from "../api"
+import { setAuth } from "../../utils/auth";
 
 function Login() {
     const [authMode, setAuthMode] = useState('login');
-
+    const [errorMsg, setErrorMsg] = useState("")
+    const navigate = useNavigate();
     const { register, handleSubmit, watch, reset, formState: { errors }
     } = useForm({ mode: 'onTouched' });
 
@@ -15,11 +19,62 @@ function Login() {
         reset();
     }
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         if (authMode === 'login') {
-            console.log("執行登入 API", data);
+            try {
+                console.log("執行登入 API", data);
+                const userRes = await api.get(`/users?email=${data.email}`)
+                if(userRes.data.length === 0 || userRes.data[0].password !== data.password) {
+                    console.log("userRes.data:", userRes.data)
+                    setErrorMsg("帳號密碼錯誤")
+                    return
+                }
+                const user = userRes.data[0]
+                const token = "token_" + Date.now()
+                setAuth(user, token)
+                // alert("登入成功")
+                navigate("/");
+            } catch(error) {
+                console.error(error)
+            }
+
         } else {
-            console.log("執行註冊 API", data)
+            try {
+                console.log("執行註冊 API", data)
+                const emailRes = await api.get(`/users?email=${data.registerEmail}`)
+                // 確認email
+                if(emailRes.data.length > 0) {
+                    alert("email已被註冊過")
+                    return
+                }
+                // password跟confirmPassword是否一樣
+                if(data.registerPassword !== data.registerConfirmPassword) {
+                    alert("確認密碼與密碼不一致")
+                    return
+                }
+                await api.post(`/users`, {
+                    name: data.registerName,
+                    email: data.registerEmail,
+                    password: data.registerPassword,
+                    isAdmin: false,
+                    phone: null,
+                    avatar: "./images/Home_Page/avatar-default.jpg",
+                    carrier: "",
+                    address: {
+                        zipCode: "",
+                        city: "",
+                        district: "",
+                        street: ""
+                    }
+                })
+                alert("註冊成功")
+                setAuthMode("login")
+
+
+            } catch(error) {
+                console.error(error)
+            }
+            
         }
     };
 
@@ -86,6 +141,7 @@ function Login() {
                                             }}
                                             onInput={handleEmailInput}
                                         />
+                                        <p>{errorMsg}</p>
                                         <Input
                                             id='password'
                                             register={register}
@@ -122,6 +178,7 @@ function Login() {
 
                                             }
                                         />
+                                        <p>{errorMsg}</p>
                                     </>
                                 ) : (
                                     <>
