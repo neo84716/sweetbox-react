@@ -1,3 +1,4 @@
+import useAuth from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import api from "../api";
@@ -6,7 +7,7 @@ import { Icon } from "@iconify/react";
 
 function Cart() {
     const navigate = useNavigate();
-
+    const {user, isLogin} = useAuth();
     const [cartMain, setCartMain] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [plans, setPlans] = useState([]);
@@ -18,9 +19,14 @@ function Cart() {
     const [success, setSuccess] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
 
-    const currentUserId = "u0000001";
+    const currentUserId = user?.id;
 
     useEffect(() => {
+        if(!isLogin){
+            navigate("/login");
+            return;
+        }
+
         const fetchData = async () => {
             try {
                 const cartRes = await api.get(`/carts?userId=${currentUserId}&_embed=cart_items`);
@@ -60,7 +66,7 @@ function Cart() {
             }
         };
         fetchData();
-    }, []);
+    }, [isLogin, currentUserId]);
 
     // 計算及時金額
     const subTotal = cartItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
@@ -137,8 +143,8 @@ function Cart() {
                 return;
             }
 
-            if (subTotal < coupon.min_amount) {
-                setError(`需滿 ${coupon.min_amount} 元才能使用此代碼。`);
+            if (subTotal < coupon.minSpend) {
+                setError(`需滿 ${coupon.minSpend} 元才能使用此代碼。`);
                 setSuccess(false);
                 setDiscountTotal(0);
                 setAppliedCouponId(null);
@@ -164,7 +170,7 @@ function Cart() {
 
     // 前往結帳(更新carts資料表+導航)
     const handleGoToCheckout = async () => {
-        if (!cartMain) return;
+        if (!cartMain || cartItems.length === 0) return;
         try {
             await api.patch(`/carts/${cartMain.id}`, {
                 subTotal, discountTotal, finalTotal, appliedCouponId
