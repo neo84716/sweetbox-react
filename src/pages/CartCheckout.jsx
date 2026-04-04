@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import api from "../api";
+import useAuth from "../../hooks/useAuth";
 import { message } from "antd";
 import taiwanData from "../assets/utils/taiwanDistricts.json";
 import Input from "../components/Input";
@@ -33,7 +34,7 @@ function CartCheckout() {
         return `${abbr || "XX"}${durationStr}${randomStr}`;
     };
     const onSubmit = async (formData) => {
-        
+
         if (!cartItems || cartItems.length === 0) {
             message.warning("您的購物車裡還沒有甜點呢！");
             navigate('/cartEmpty');
@@ -43,29 +44,73 @@ function CartCheckout() {
 
         try {
             const createdSubscriptions = [];
+            const userId = user?.id;
             const todayStr = dayjs().format('YYYY-MM-DD');
+            const nowIsoString = new Date().toISOString();
+
+            // 判斷是否為新的信用卡
+            const isUsingStoredCard = formData.cardNumber.includes('xxx');
+            const shouldSaveNewCard = watch('saveCard') && !isUsingStoredCard;
+            let finalPaymentMethodId = ""; //預留給新產生的卡片id
+
+            // 信用卡資料轉換
+            const currentCardBrand = getCardType(formData.cardNumber);
+            const lastFour = formData.cardNumber.replace(/\s/g, '').slice(-4);
 
             // 抓取郵遞區號
             const { city: city, district: district } = formData;
             const zipCodeStr = taiwanData["台灣"]?.[city]?.[district]?.postalCode || "";
 
+            // 儲存新卡
+            if (shouldSaveNewCard) {
+                // 1. 舊的預設卡設為 false
+                const oldCardsRes = await api.get(`/payment_methods?userId=${userId}&isDefault=true`);
+                for (const oldCard of oldCardsRes.data) {
+                    await api.patch(`/payment_methods/${oldCard.id}`, { isDefault: false });
+                }
+
+                // 2. 儲存新卡資訊
+                const newCardRes = await api.post('/payment_methods', {
+                    userId: userId,
+                    cardOwner: formData.cardOwner,
+                    cardBrand: currentCardBrand,
+                    lastFour: lastFour,
+                    expiryMonth: Number(formData.expiryMonth),
+                    expiryYear: Number(formData.expiryYear),
+                    isDefault: true,
+                    isDeleted: false,
+                    creatAt: nowIsoString
+                });
+
+                finalPaymentMethodId = newCardRes.data.id; // 獲取新卡 ID
+
+            } else if (isUsingStoredCard) {
+                // 用舊卡，抓原本 ID
+                const defaultCardRes = await api.get(`/payment_methods?userId=${userId}&isDefault=true`);
+                finalPaymentMethodId = defaultCardRes.data[0]?.id || "";
+            }
+
             // 跑迴圈處理每筆購物車內的商品
             for (const item of cartItems) {
 
-                const subId = crypto.randomUUID();
                 const subNo = generateSubNumber(item.theme?.titleAbbr, item.plan?.durationMonths);
+                const subId = crypto.randomUUID();
                 const endDateStr = dayjs().add(item.plan?.durationMonths - 1, 'month').format('YYYY-MM-DD');
                 const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
                 const firstOrderNo = `${subNo}01`;
                 const itemTotal = (item.plan?.discountPrice || 0) * item.quantity;
-                
+
                 // ==========================================
                 // 1.subscription 資料處理
                 // ==========================================
 
                 const subscriptionPayload = {
-                    userId: currentUserId,
+                    userId: userId,
+                    planId: item.planId,
+                    themeId: item.themeId,
                     subscriptionNumber: subNo,
+                    quantity: item.quantity,
+                    unitPrice: item.plan?.discountPrice || 0,
                     durationMonths: item.plan?.durationMonths,
                     startDate: todayStr,
                     endDate: endDateStr,
@@ -73,13 +118,13 @@ function CartCheckout() {
                     status: "active",
                     isProcessed: false,
                     note: formData.note || "",
-                    paymentMethod: [{
-                        cardBrand: getCardType(formData['credit-card-number']),
-                        lastFour: formData['credit-card-number'].slice(-4),
+                    paymentMethodId: finalPaymentMethodId,
+                    paymentMethod: {
+                        cardBrand: currentCardBrand,
+                        lastFour: lastFour,
                         expiryMonth: Number(formData.expiryMonth),
-                        expiryYear: Number(formData.expiryYear),
-                        isDefault: true
-                    }],
+                        expiryYear: Number(formData.expiryYear)
+                    },
                     shippingInfo: {
                         zipCode: zipCodeStr,
                         city: city,
@@ -99,24 +144,15 @@ function CartCheckout() {
                 };
 
                 //等 json-server 產生 subscription ID
-                const subRes = await api.post('/subscriptions',subscriptionPayload);
-                const generateSubId = subRes.data.id; 
+                const subRes = await api.post('/subscriptions', subscriptionPayload);
+                const newSubId = subRes.data.id;
+                createdSubscriptions.push(subRes.data);
 
-                // ==========================================
-                // 2.subscription_items 資料處理
-                // ==========================================
-                const subscriptionItemPayload = {
-                    subscriptionId: generateSubId,
-                    planId: item.planId,
-                    quantity: item.quantity,
-                    unitPrice: item.plan?.discountPrice || 0,
-                    durationMonths: item.plan?.durationMonths
-                };
                 // =============================================
-                // 3. orders (第一期訂單) 資料處理
+                // 2. orders (第一期訂單) 資料處理
                 // =============================================
                 const orderPayload = {
-                    subscriptionId: generateSubId,
+                    subscriptionId: newSubId,
                     orderNo: firstOrderNo,
                     amount: itemTotal,
                     createdAt: new Date().toISOString(),
@@ -134,18 +170,15 @@ function CartCheckout() {
                 };
 
                 // 寫入剩下資料庫
-                await api.post('/subscription_items',subscriptionItemPayload);
                 await api.post('/orders', orderPayload);
 
-                // 存訂閱資料，交給其他頁
-                createdSubscriptions.push(subRes.data);
             }
 
             // 結帳後，清空購物車
-            for(const item of cartItems){
+            for (const item of cartItems) {
                 await api.delete(`/cart_items/${item.id}`)
             }
-            if(cartMain?.id){
+            if (cartMain?.id) {
                 await api.delete(`/carts/${cartMain.id}`);
             }
 
@@ -163,7 +196,7 @@ function CartCheckout() {
         const isChecked = e.target.checked;
         if (isChecked) {
             try {
-                const res = await api.get(`/users/${currentUserId}?_embed=payment_methods`);
+                const res = await api.get(`/users/${user?.id}?_embed=payment_methods`);
                 const userData = res.data;
 
                 setValue("name", userData.name, { shouldValidate: true });
@@ -171,15 +204,15 @@ function CartCheckout() {
                 setValue("city", userData.address.city, { shouldValidate: true });
                 setValue("district", userData.address.district, { shouldValidate: true });
                 setValue("street", userData.address.street, { shouldValidate: true });
-                
+
                 const defaultCard = userData.payment_methods?.find(pm => pm.isDefault === true)
-                if(defaultCard){
+                if (defaultCard) {
                     const maskedCardNumber = `xxxx-xxxx-xxxx-${defaultCard.lastFour}`;
 
-                    setValue("cardNumber", maskedCardNumber, {shouldValidate:true});
-                    setValue("cardOwner", defaultCard.cardOwner, {shouldValidate:true});
-                    setValue("expiryMonth", String(defaultCard.expiryMonth).padStart(2, '0'),{shouldValidate:true});
-                    setValue("expiryYear", String(defaultCard.expiryYear),{shouldValidate:true});
+                    setValue("cardNumber", maskedCardNumber, { shouldValidate: true });
+                    setValue("cardOwner", defaultCard.cardOwner, { shouldValidate: true });
+                    setValue("expiryMonth", String(defaultCard.expiryMonth).padStart(2, '0'), { shouldValidate: true });
+                    setValue("expiryYear", String(defaultCard.expiryYear), { shouldValidate: true });
                 }
             } catch (error) {
                 console.error("取得會員資料失敗：", error);
@@ -199,7 +232,7 @@ function CartCheckout() {
         }
     }
 
-    const currentUserId = "u0000001";
+    const { user } = useAuth();
     const [cartMain, setCartMain] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [themes, setThemes] = useState([]);
@@ -209,7 +242,7 @@ function CartCheckout() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const cartRes = await api.get(`/carts?userId=${currentUserId}&_embed=cart_items`);
+                const cartRes = await api.get(`/carts?userId=${user.id}&_embed=cart_items`);
                 const userCart = cartRes.data[0];
 
                 // 防呆：如果沒有購物車 or 購物車空的，導回 '/cart'
@@ -242,7 +275,7 @@ function CartCheckout() {
 
                 setCartItems(enrichedItems);
 
-            } catch {
+            } catch (err) {
                 console.error("資料讀取失敗", err);
                 message.error("無法取得訂單資訊");
             } finally {
@@ -259,7 +292,7 @@ function CartCheckout() {
 
     const handleCardNumberChange = (e) => {
         const formattedValue = formatCardNumber(e.target.value);
-        setValue('credit-card-number', formattedValue, { shouldValidate: true });
+        setValue('cardNumber', formattedValue, { shouldValidate: true });
     }
 
     // 訂閱備註字數
@@ -636,12 +669,12 @@ function CartCheckout() {
                                         <input
                                             className="form-check-input rounded-5"
                                             type="checkbox"
-                                            id="save_card_info"
-                                            name="save_card_info"
+                                            id="saveCard"
+                                            {...register('saveCard')}
                                         />
                                         <label
                                             className="form-check-label s-text"
-                                            htmlFor="save_card_info"
+                                            htmlFor="saveCard"
                                         >
                                             記住此卡片資訊以提供下次使用
                                         </label>
