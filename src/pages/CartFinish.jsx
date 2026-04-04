@@ -1,19 +1,88 @@
-import { Link, useLocation, Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import api from "../api";
 
 function CartFinish() {
-    const location = useLocation();
-    const subscriptions = location.state?.subscriptions; //接上一步資料
+    // 取 網址上的 sub_ids 參數
+    const [searchParams] = useSearchParams();
+    const subIdsParam = searchParams.get("sub_ids");
 
-    //防呆：未結帳者，導回購物車
+    const [subscriptions, setSubscriptions] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+
+    useEffect(() => {
+        // 防呆
+        if (!subIdsParam){
+            setIsLoading(false);
+            return;
+        }
+        
+        const fetchCompleteData = async () => {
+            try {
+
+                const subIdsArray = subIdsParam.split(',');
+                const subsRes = await Promise.all(
+                    subIdsArray.map(id => api.get(`/subscriptions/${id}`))
+                )
+
+                const subsData = subsRes.map(res => res.data);
+
+                const [subItemsRes, plansRes, themesRes] = await Promise.all([
+                    api.get('/subscription_items'),
+                    api.get('/plans'),
+                    api.get('/themes')
+                ])
+                
+                // 組合資料
+                const enrichedSubs = subsData.map(sub =>{
+                    const matchedSubItem = subItemsRes.data.find(i => i.subscriptionId === sub.id);
+                    const matchedPlan = plansRes.data.find(p => p.id === matchedSubItem?.planId);
+                    const matchedTheme = themesRes.data.find(t => t.id === matchedPlan?.themeId);
+
+                    return{
+                        ...sub,
+                        themeTitle: matchedTheme?.title ? `${matchedTheme.title}甜點盒` : "特選甜點盒",
+                        quantity: matchedSubItem?.quantity || 1,
+                        discountedPrice: matchedSubItem?.unitPrice || 0
+                    }
+                })
+
+                setSubscriptions(enrichedSubs);
+
+            } catch(err) {
+                console.error("訂閱完成頁面資料讀取失敗",err)
+
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchCompleteData();
+    }, [subIdsParam])
+
+
+    if (isLoading) {
+        return (
+            <main className="bg-neutral-300 d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                {/*  Bootstrap 內建的 Spinner 載入動畫 */}
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">載入中...</span>
+                </div>
+            </main>
+        );
+    }
+
+    //防呆：未結帳 or 取不到資料者，導回購物車
     if (!subscriptions || subscriptions.length === 0) {
         return <Navigate to="/cart" replace />;
     }
+
     //抓第一筆訂閱信用卡、時間
     const representSub = subscriptions[0];
     // 將 YYYY-MM-DD 轉換為 YYYY/MM/DD 的格式顯示
-    const startDate = representSub?.start_date?.replace(/-/g, '/') || '';
-    const deductionDay = representSub?.start_date ? new Date(representSub.start_date).getDate() : '';
-    const defaultCard = representSub?.card_info?.find(card => card.isDefault) || representSub?.card_info?.[0];
+    const startDate = representSub?.startDate?.replace(/-/g, '/') || '';
+    const deductionDay = representSub?.startDate ? new Date(representSub.startDate).getDate() : '';
+    const defaultCard = representSub?.paymentMethod.find(card => card.isDefault) || representSub?.paymentMethod?.[0];
 
     return (
         <>
@@ -54,15 +123,15 @@ function CartFinish() {
                                 <table className="w-100">
                                     <tbody>
                                         {subscriptions.map((sub) => (
-                                            <tr key={sub.subscription_no} className="align-top">
+                                            <tr key={sub.subscriptionNumber} className="align-top">
                                                 <td className="text-nowrap py-2">
-                                                    # <span>{sub.subscription_no}</span>
+                                                    # <span>{sub.subscriptionNumber}</span>
                                                 </td>
                                                 <td className="w-50 py-2">
-                                                    <div className="fw-bold mb-1">{sub.theme_name}</div>
+                                                    <div className="fw-bold mb-1">{sub.themeTitle}</div>
                                                     <div className="d-flex">
                                                         <div className="badge text-bg-primary-200 text-primary-700 fw-medium rounded-pill me-1">
-                                                            {sub.duration_months}個月訂閱方案
+                                                            {sub.durationMonths}個月訂閱方案
                                                         </div>
                                                         <div className="badge text-bg-neutral-400 text-neutral-700 fw-medium rounded-pill">
                                                             {sub.quantity} 盒
@@ -70,7 +139,9 @@ function CartFinish() {
                                                     </div>
                                                 </td>
                                                 <td className="text-end py-2">
-                                                    <p className="fw-bold ">NT${sub.discounted_price * sub.quantity.toLocaleString()}</p>
+                                                    <p className="fw-bold ">
+                                                        NT${(sub.discountedPrice * sub.quantity).toLocaleString()}
+                                                    </p>
                                                     <p className="fs-8">/月</p>
                                                 </td>
                                             </tr>
@@ -91,12 +162,12 @@ function CartFinish() {
                                 </div>
                                 <div className="d-flex justify-content-between my-2">
                                     <p className="text-neutral-600">付款方式</p>
-                                    <p>{defaultCard?.type} ···· {defaultCard?.last_four}</p>
+                                    <p>{defaultCard?.cardBrand} ···· {defaultCard?.lastFour}</p>
                                 </div>
-                                {representSub?.subscription_note && (
+                                {representSub?.note && (
                                     <div className="d-flex justify-content-between fs-8 fs-sm-7 my-2">
                                         <p className="fs-8 text-neutral-600 flex-shrink-0 me-4">訂閱備註</p>
-                                        <p className="text-end text-break">{representSub.subscription_note}</p>
+                                        <p className="text-end text-break">{representSub.note}</p>
                                     </div>
                                 )}
                             </section>
