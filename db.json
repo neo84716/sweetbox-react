@@ -94,7 +94,7 @@
       "id": "u0000002",
       "name": "管理員",
       "email": "admin@example.com",
-      "password": "admin",
+      "password": "admin01",
       "isAdmin": true,
       "phone": null,
       "avatar": null,
@@ -491,6 +491,24 @@
       "id": "o0000007",
       "subscriptionId": "s0000003",
       "orderNo": "LC03Z9T61L03",
+      "cycle": 3,
+      "amount": 700,
+      "paymentDueDate": "2026-03-01",
+      "paymentStatus": "paid",
+      "paymentDate": "2026-03-01",
+      "shippingStatus": "shipped",
+      "shippingDate": "2026-03-02",
+      "invoice": {
+        "number": "AB-000007",
+        "date": "2026-03-01T22:00:00Z",
+        "fileUrl": "/invoices/LC03Z9T61L03.pdf"
+      },
+      "isArchived": false
+    },
+    {
+      "id": "o0000008",
+      "subscriptionId": "s0000004",
+      "orderNo": "LC03Z9T61L01",
       "cycle": 3,
       "amount": 700,
       "paymentDueDate": "2026-03-01",
