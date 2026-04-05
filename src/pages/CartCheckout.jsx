@@ -40,6 +40,7 @@ function CartCheckout() {
             navigate('/cartEmpty');
             return;
         }
+        setIsSubmitting(true);
         message.loading({ content: '安全連線中，正在處理訂閱...', key: 'checkout' });
 
         try {
@@ -175,12 +176,12 @@ function CartCheckout() {
             }
 
             const subIds = createdSubscriptions.map(sub => sub.id).join(',');
-            message.success({ 
+            message.success({
                 content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2,
                 onClose: () => {
                     navigate(`/cartFinish?sub_ids=${subIds}`, { replace: true });
                 }
-             });
+            });
 
             // 結帳後，清空購物車
             try {
@@ -193,7 +194,7 @@ function CartCheckout() {
                 console.warn("背景清理失敗，不影響訂單:", cleanupError);
             }
 
-            
+
         } catch (error) {
             console.error("結帳失敗:", error);
             message.error({ content: "處理失敗，請稍後再試。", key: 'checkout', duration: 3 });
@@ -245,6 +246,7 @@ function CartCheckout() {
     const [cartItems, setCartItems] = useState([]);
     const [themes, setThemes] = useState([]);
     const [plans, setPlans] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -835,9 +837,15 @@ function CartCheckout() {
 
                                     <button
                                         type="submit"
+                                        disabled={isSubmitting || isLoading} // 提交中禁止重複點擊
                                         className="btn-primary-text w-100 d-none d-sm-block"
                                     >
-                                        確認支付並下單
+                                        {isSubmitting ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                                處理中...
+                                            </>
+                                        ) : "確認支付並下單"}
                                     </button>
                                 </section>
                                 <section className="py-4 px-3 p-lg-8 cart-notice">
