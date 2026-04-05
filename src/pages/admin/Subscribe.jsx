@@ -35,6 +35,7 @@ function Subscribe() {
         { label: "已處理", value: true },
     ];
     const [subData, setSubData] = useState([]);
+    const [userData, setUserData] = useState([]);
     const [subscriptionOrders, setSubscriptionOrders] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [filterTheme, setFilterTheme] = useState("theme_all");
@@ -52,44 +53,66 @@ function Subscribe() {
         filterStatus !== "status_all" ||
         filterPlan !== "plan_all";
 
-
     useEffect(() => {
-        api.get("/themes")
-            .then(res => {
-                console.log("themes:", res.data);
+        Promise.all([
+            api.get("/users"),
+            api.get("/themes"),
+            api.get("/subscriptions"),
+            api.get("/orders") // 注意：db.json 裡是 orders，不是 subscription_orders
+        ])
+            .then(([usersRes, themesRes, subsRes, ordersRes]) => {
+                // users
+                console.log("users:", usersRes.data);
+                setUserData(usersRes.data);
+
+                // themes
+                console.log("themes:", themesRes.data);
                 const options = [
                     { label: "全部主題", value: "theme_all" },
-                    ...res.data.map(item => ({
-                        label: item.theme_title,
-                        value: item.theme_title
+                    ...themesRes.data.map(item => ({
+                        label: item.title,
+                        value: item.title
                     }))
-                ]
+                ];
                 setThemeOptions(options);
-                console.log("options:", options);
-            })
-            .catch(err => console.log("subscriptions error:", err));
+                console.log("theme options:", options);
 
-        api.get("/subscriptions")
-            .then(res => {
-                console.log("subscriptions:", res.data); // 加 log
-                setSubData(res.data);
-            })
-            .catch(err => console.log("subscriptions error:", err));
+                // subscriptions
+                console.log("subscriptions raw:", subsRes.data);
+                const merged = subsRes.data.map(sub => {
+                    const user = usersRes.data.find(u => u.id === sub.userId);
+                    const theme = themesRes.data.find(t => t.id === sub.themeId);
 
-        api.get("/subscription_orders")
-            .then(res => {
-                console.log("subscription_orders:", res.data); // 加 log
-                setSubscriptionOrders(res.data);
+                    console.log("matching user for sub:", sub.id, "=>", user);
+                    console.log("matching theme for sub:", sub.id, "=>", theme);
+
+                    return {
+                        ...sub,
+                        email: user ? user.email : null,
+                        name: user ? user.name : null,
+                        themeTitle: theme ? theme.title : null
+                    };
+                });
+                console.log("subscriptions merged:", merged);
+                setSubData(merged);
+
+                // orders
+                console.log("orders:", ordersRes.data);
+                setSubscriptionOrders(ordersRes.data);
             })
-            .catch(err => console.log("subscription_orders error:", err));
+            .catch(err => console.log("error:", err));
     }, []);
+
+
+
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const paginatedData = subData.slice(startIndex, endIndex);
     const updateSubscription = async (item) => {
         try {
             const res = await api.patch(`/subscriptions/${item.id}`, {
-                is_processed: !item.is_processed, // 切換狀態
+                isProcessed: !item.isProcessed, // 切換狀態
                 updated_at: new Date().toISOString(), // 更新時間
             });
 
@@ -129,28 +152,27 @@ function Subscribe() {
     ];
     // 計算總數（符合篩選的 subData 數量）
     const filteredData = subData.filter(item =>
-        (filterTheme === "theme_all" || item.theme_name === filterTheme) &&
-        (filterStatus === "status_all" || item.is_processed === filterStatus) &&
-        (filterPlan === "plan_all" || item.duration_months === filterPlan) &&
+        (filterTheme === "theme_all" || item.themeTitle === filterTheme) &&
+        (filterStatus === "status_all" || item.isProcessed === filterStatus) &&
+        (filterPlan === "plan_all" || item.durationMonths === filterPlan) &&
         (
             searchText === "" ||
-            item.subscription_no?.toString().includes(searchText) ||
-            item.shipping_info.email?.toLowerCase().includes(searchText.toLowerCase())
+            item.subscriptionNumber?.toString().includes(searchText) ||
+            item.email?.toLowerCase().includes(searchText.toLowerCase())
         ) &&
         (
             dateRange.length === 0 ||
-            (new Date(item.start_date) >= dateRange[0].toDate() &&
-                new Date(item.start_date) <= dateRange[1].toDate()
+            (new Date(item.startDate) >= dateRange[0].toDate() &&
+                new Date(item.startDate) <= dateRange[1].toDate()
             )
         )
     );
-
     const totalCount = filteredData.length;
     const selectedCount = selectedIds.length;
     return (
         <>
             {/* 桌面板 */}
-            <main className="bg-neutral-300 overflow-hidden d-lg-block d-none">
+            <main className="bg-neutral-300 overflow-hidden d-lg-block d-none pb-9">
                 <div className="container mt-11">
                     <ul className="nav py-2 mb-sm-6 mb-0 nav-subscription gap-2 gap-sm-0">
                         {tabs.map((tab, index) => (
@@ -225,40 +247,40 @@ function Subscribe() {
                             <tbody>
                                 {paginatedData
                                     .filter(item =>
-                                        (filterTheme === "theme_all" || item.theme_name === filterTheme) &&
-                                        (filterStatus === "status_all" || item.is_processed === filterStatus) &&
-                                        (filterPlan === "plan_all" || item.duration_months === filterPlan) &&
+                                        (filterTheme === "theme_all" || item.themeTitle === filterTheme) &&
+                                        (filterStatus === "status_all" || item.isProcessed === filterStatus) &&
+                                        (filterPlan === "plan_all" || item.durationMonths === filterPlan) &&
                                         (
                                             searchText === "" ||
-                                            item.subscription_no?.toString().includes(searchText) ||
-                                            item.shipping_info.email?.toLowerCase().includes(searchText.toLowerCase())
+                                            item.subscriptionNumber?.toString().includes(searchText) ||
+                                            item.email?.toLowerCase().includes(searchText.toLowerCase())
                                         ) &&
                                         (
                                             dateRange.length === 0 ||
-                                            (new Date(item.start_date) >= dateRange[0].toDate() &&
-                                                new Date(item.start_date) <= dateRange[1].toDate()
+                                            (new Date(item.startDate) >= dateRange[0].toDate() &&
+                                                new Date(item.startDate) <= dateRange[1].toDate()
                                             )
                                         )
                                     )
                                     .map((item) => {
-                                        // 計算 subscription_orders 裡相同 subscription_no 的數量
+                                        // 計算 subscription_orders 裡相同 orderNo 的數量
                                         const orderCount = subscriptionOrders.filter(
-                                            order => order.subscription_no === item.subscription_no
+                                            order => order.subscriptionId === item.id
                                         ).length;
 
                                         // 計算進度百分比
-                                        const progressPercent = Math.round((orderCount / item.duration_months) * 100);
+                                        const progressPercent = Math.round((orderCount / item.durationMonths) * 100);
 
                                         return (
                                             <tr key={item.id}>
                                                 <td className="text-start text-semantic-link">
-                                                    <NavLink to={`/admin/subscribeDetail/${item.subscription_no}`}>
-                                                        <span className="order-id">{item.subscription_no}</span>
+                                                    <NavLink to={`/admin/subscribeDetail/${item.subscriptionNumber}`}>
+                                                        <span className="order-id">{item.subscriptionNumber}</span>
                                                     </NavLink>
                                                 </td>
-                                                <td>{item.shipping_info.email}</td>
-                                                <td className="text-center">{item.duration_months}個月</td>
-                                                <td className="text-center">{item.theme_name}</td>
+                                                <td>{item.email}</td>
+                                                <td className="text-center">{item.durationMonths}個月</td>
+                                                <td className="text-center">{item.themeTitle}</td>
                                                 <td className="text-center">
                                                     <div className="d-flex flex-column justify-content-center align-items-center">
                                                         <div
@@ -276,18 +298,18 @@ function Subscribe() {
                                                             ></div>
                                                         </div>
                                                         <span className="fs-8 fw-medium">
-                                                            {orderCount}/{item.duration_months}
+                                                            {orderCount}/{item.durationMonths}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="text-center">
                                                     <StatusButton
-                                                        status={item.is_processed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
+                                                        status={item.isProcessed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
                                                         onClick={() => updateSubscription(item)}
                                                         variant="desktop"
                                                     />
                                                 </td>
-                                                <td className="text-center">{item.start_date}</td>
+                                                <td className="text-center">{item.startDate}</td>
                                             </tr>
                                         );
                                     })}
@@ -434,29 +456,29 @@ function Subscribe() {
                     <div className="d-flex flex-column gap-4">
                         {paginatedData
                             .filter(item =>
-                                (filterTheme === "theme_all" || item.theme_name === filterTheme) &&
-                                (filterStatus === "status_all" || item.is_processed === filterStatus) &&
-                                (filterPlan === "plan_all" || item.duration_months === filterPlan) &&
+                                (filterTheme === "theme_all" || item.themeTitle === filterTheme) &&
+                                (filterStatus === "status_all" || item.isProcessed === filterStatus) &&
+                                (filterPlan === "plan_all" || item.durationMonths === filterPlan) &&
                                 (
                                     searchText === "" ||
-                                    item.subscription_no?.toString().includes(searchText) ||
-                                    item.shipping_info.email?.toLowerCase().includes(searchText.toLowerCase())
+                                    item.subscriptionNumber?.toString().includes(searchText) ||
+                                    item.email?.toLowerCase().includes(searchText.toLowerCase())
                                 ) &&
                                 (
                                     dateRange.length === 0 ||
-                                    (new Date(item.start_date) >= dateRange[0].toDate() &&
-                                        new Date(item.start_date) <= dateRange[1].toDate()
+                                    (new Date(item.startDate) >= dateRange[0].toDate() &&
+                                        new Date(item.startDate) <= dateRange[1].toDate()
                                     )
                                 )
                             )
                             .map((item) => {
-                                // 計算 subscription_orders 裡相同 subscription_no 的數量
+                                // 計算 subscription_orders 裡相同 orderNo 的數量
                                 const orderCount = subscriptionOrders.filter(
-                                    order => order.subscription_no === item.subscription_no
+                                    order => order.subscriptionId === item.id
                                 ).length;
 
                                 // 計算進度百分比
-                                const progressPercent = Math.round((orderCount / item.duration_months) * 100);
+                                const progressPercent = Math.round((orderCount / item.durationMonths) * 100);
 
                                 return (
                                     <div className="p-6 bg-neutral-200 rounded-5" key={item.id}>
@@ -480,14 +502,14 @@ function Subscribe() {
                                             )}
                                             <div className="flex-fill">
                                                 <h3 className="text-neutral-600 fw-bold fs-9 mb-1">訂閱編號</h3>
-                                                <td className="text-start text-semantic-link">
-                                                    <NavLink to={`/admin/subscribeDetail/${item.subscription_no}`}>
-                                                        <span className="text-neutral-800 fw-bold fs-5 ls-1">{item.subscription_no}</span>
+                                                <div className="text-start text-semantic-link">
+                                                    <NavLink to={`/admin/subscribeDetail/${item.subscriptionNumber}`}>
+                                                        <span className="text-neutral-800 fw-bold fs-5 ls-1">{item.subscriptionNumber}</span>
                                                     </NavLink>
-                                                </td>
+                                                </div>
                                             </div>
                                             <StatusButton
-                                                status={item.is_processed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
+                                                status={item.isProcessed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
                                                 onClick={() => updateSubscription(item)}
                                                 variant="mobile"
                                             />
@@ -499,28 +521,28 @@ function Subscribe() {
                                         <div className="row mb-3">
                                             <div className="col-6">
                                                 <p className="fs-8 text-neutral-600 mb-1">訂閱主題</p>
-                                                <p className="fs-8 text-neutral-800">{item.theme_name}</p>
+                                                <p className="fs-8 text-neutral-800">{item.themeTitle}</p>
                                             </div>
                                             <div className="col-6">
                                                 <p className="fs-8 text-neutral-600 mb-1">期數</p>
-                                                <p className="fs-8 text-neutral-800">{item.duration_months}個月</p>
+                                                <p className="fs-8 text-neutral-800">{item.durationMonths}個月</p>
                                             </div>
                                         </div>
                                         <div className="row mb-6">
                                             <div className="col-6">
                                                 <p className="fs-8 text-neutral-600 mb-1">開始日期</p>
-                                                <p className="fs-8 text-neutral-800">{item.start_date}</p>
+                                                <p className="fs-8 text-neutral-800">{item.startDate}</p>
                                             </div>
                                             <div className="col-6">
                                                 <p className="fs-8 text-neutral-600 mb-1">Email</p>
-                                                <p className="fs-8 text-neutral-800 text-truncate">{item.shipping_info.email}</p>
+                                                <p className="fs-8 text-neutral-800 text-truncate">{item.email}</p>
                                             </div>
                                         </div>
                                         <div className="px-6 py-4 bg-neutral-300 rounded-5">
                                             <div className="d-flex flex-column">
                                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                                     <p className="text-neutral-600 fs-9 fw-medium">服務進度</p>
-                                                    <p className="text-neutral-800 fs-9 fw-medium">{orderCount}/{item.duration_months}</p>
+                                                    <p className="text-neutral-800 fs-9 fw-medium">{orderCount}/{item.durationMonths}</p>
                                                 </div>
                                                 <div>
                                                     <div className="progress sub-progress bg-neutral-400 mb-1 w-100" role="progressbar"

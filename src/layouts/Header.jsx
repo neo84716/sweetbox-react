@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { getUser, logout } from "../../utils/auth"
+import { getUser, logout } from "../../src/utils/auth"
 import { useNavigate } from "react-router-dom";
 
 
@@ -61,7 +61,7 @@ function Header() {
                                         <div className="avatar me-2">
                                             <img
                                                 className="d-block"
-                                                src={`${user?.avatar ? user.avatar : "./images/Home_Page/avatar.jpg"}`}
+                                                src={`${user?.avatar? user.avatar : "./images/Home_Page/avatar-default.jpg"}`}
                                                 alt="使用者頭像"
                                             />
                                         </div>
