@@ -107,7 +107,7 @@ function CartCheckout() {
                 const subscriptionPayload = {
                     userId,
                     planId: item.planId,
-                    themeId: item.themeId,
+                    themeId: item.theme?.id,
                     subscriptionNumber: subNo,
                     quantity: item.quantity,
                     unitPrice: item.plan?.discountPrice || 0,
@@ -271,11 +271,11 @@ function CartCheckout() {
                 //資料組合
                 const enrichedItems = userCart.cart_items.map(item => {
                     const planDetail = plansData.find(p => p.id === item.planId);
-                    const themeDeatail = themesData.find(t => t.id === planDetail?.themeId);
+                    const themeDetail = themesData.find(t => t.id === planDetail?.themeId);
                     return {
                         ...item,
                         plan: planDetail || null,
-                        theme: themeDeatail || null
+                        theme: themeDetail || null
                     }
                 })
 
