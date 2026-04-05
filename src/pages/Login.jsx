@@ -22,7 +22,6 @@ function Login() {
     const onSubmit = async (data) => {
         if (authMode === 'login') {
             try {
-                console.log("執行登入 API", data);
                 const userRes = await api.get(`/users?email=${data.email}`)
                 if(userRes.data.length === 0 || userRes.data[0].password !== data.password) {
                     console.log("userRes.data:", userRes.data)

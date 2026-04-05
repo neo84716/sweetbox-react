@@ -39,7 +39,7 @@ function Theme() {
                                             <p className="card-text mb-6 mb-lg-8">
                                                 從人氣爆款到話題聯名，通通不錯過，喜歡嚐鮮的你一定會愛上。
                                             </p>
-                                            <NavLink to='/themedetail/1' className={"btn-theme-card border stretched-link"}>
+                                            <NavLink to='/themedetail/t0000001' className={"btn-theme-card border stretched-link"}>
                                             了解更多
                                             </NavLink>
                                         </div>
@@ -58,7 +58,7 @@ function Theme() {
                                             <p className="card-text mb-6 mb-lg-8">
                                                 當月份限定的口味與質地，只在這時登場！錯過了，就要再等一年。
                                             </p>
-                                            <NavLink to='/themedetail/2' className={"btn-theme-card border stretched-link"}>
+                                            <NavLink to='/themedetail/t0000002' className={"btn-theme-card border stretched-link"}>
                                             了解更多
                                             </NavLink>
                                         </div>
@@ -77,7 +77,7 @@ function Theme() {
                                             <p className="card-text mb-6 mb-lg-8">
                                                 精選以台灣食材與職人手藝製作的特色甜點，簡單卻令人回味無窮。
                                             </p>
-                                            <NavLink to='/themedetail/3' className={"btn-theme-card border stretched-link"}>
+                                            <NavLink to='/themedetail/t0000003' className={"btn-theme-card border stretched-link"}>
                                             了解更多
                                             </NavLink>
                                         </div>
@@ -96,7 +96,7 @@ function Theme() {
                                             <p className="card-text mb-6 mb-lg-8">
                                                 每月解鎖一國的代表甜點，為你展開一場從舌尖出發的甜點之旅。
                                             </p>
-                                            <NavLink to='/themedetail/4' className={"btn-theme-card border stretched-link"}>
+                                            <NavLink to='/themedetail/t0000004' className={"btn-theme-card border stretched-link"}>
                                             了解更多
                                             </NavLink>
                                         </div>
@@ -115,7 +115,7 @@ function Theme() {
                                             <p className="card-text mb-6 mb-lg-8">
                                                 嚴選天然原料，低糖、無麩質、植物奶製作，每一口都純粹而滿足。
                                             </p>
-                                            <NavLink to='/themedetail/5' className={"btn-theme-card border stretched-link"}>
+                                            <NavLink to='/themedetail/t0000005' className={"btn-theme-card border stretched-link"}>
                                             了解更多
                                             </NavLink>
                                         </div>
@@ -133,7 +133,7 @@ function Theme() {
                                             <p className="card-text mb-6 mb-lg-8">
                                                 無蛋無奶植物系甜點，每一口甜，都是對自己與地球的一份溫柔。
                                             </p>
-                                            <NavLink to='/themedetail/6' className={"btn-theme-card border stretched-link"}>
+                                            <NavLink to='/themedetail/t0000006' className={"btn-theme-card border stretched-link"}>
                                             了解更多
                                             </NavLink>
                                         </div>

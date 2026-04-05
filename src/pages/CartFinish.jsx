@@ -13,11 +13,11 @@ function CartFinish() {
 
     useEffect(() => {
         // 防呆
-        if (!subIdsParam){
+        if (!subIdsParam) {
             setIsLoading(false);
             return;
         }
-        
+
         const fetchCompleteData = async () => {
             try {
 
@@ -28,30 +28,35 @@ function CartFinish() {
 
                 const subsData = subsRes.map(res => res.data);
 
-                const [subItemsRes, plansRes, themesRes] = await Promise.all([
-                    api.get('/subscription_items'),
+                const [plansRes, themesRes, ordersRes] = await Promise.all([
                     api.get('/plans'),
-                    api.get('/themes')
+                    api.get('/themes'),
+                    api.get('/orders')
                 ])
-                
-                // 組合資料
-                const enrichedSubs = subsData.map(sub =>{
-                    const matchedSubItem = subItemsRes.data.find(i => i.subscriptionId === sub.id);
-                    const matchedPlan = plansRes.data.find(p => p.id === matchedSubItem?.planId);
-                    const matchedTheme = themesRes.data.find(t => t.id === matchedPlan?.themeId);
 
-                    return{
+                // 組合資料
+                const enrichedSubs = subsData.map(sub => {
+                    const matchedPlan = plansRes.data.find(p => p.id === sub.planId);
+                    const matchedTheme = themesRes.data.find(t => t.id === sub.themeId);
+                    const matchedOrder = ordersRes.data.find(o => o.subscriptionId === sub.id);
+                    console.log('ordersRes.data', ordersRes.data)
+                    console.log('sub', sub)
+                    console.log('matchedOrder', matchedOrder)
+
+                    return {
                         ...sub,
                         themeTitle: matchedTheme?.title ? `${matchedTheme.title}甜點盒` : "特選甜點盒",
-                        quantity: matchedSubItem?.quantity || 1,
-                        discountedPrice: matchedSubItem?.unitPrice || 0
+                        quantity: sub.quantity || 1,
+                        discountedPrice: sub.unitPrice || 0,
+                        durationMonths: sub.durationMonths || matchedPlan?.durationMonths,
+                        firstOrderAmount: matchedOrder ? matchedOrder.amount : 0
                     }
                 })
 
                 setSubscriptions(enrichedSubs);
 
-            } catch(err) {
-                console.error("訂閱完成頁面資料讀取失敗",err)
+            } catch (err) {
+                console.error("訂閱完成頁面資料讀取失敗", err)
 
             } finally {
                 setIsLoading(false);
@@ -82,7 +87,10 @@ function CartFinish() {
     // 將 YYYY-MM-DD 轉換為 YYYY/MM/DD 的格式顯示
     const startDate = representSub?.startDate?.replace(/-/g, '/') || '';
     const deductionDay = representSub?.startDate ? new Date(representSub.startDate).getDate() : '';
-    const defaultCard = representSub?.paymentMethod.find(card => card.isDefault) || representSub?.paymentMethod?.[0];
+    const paymentInfo = representSub?.paymentMethod;
+    const totalOriginalAmount = subscriptions.reduce((sum, sub) => sum + (sub.discountedPrice * sub.quantity), 0);
+    const totalPaidAmount = subscriptions.reduce((sum, sub) => sum + sub.firstOrderAmount, 0);
+    const totalDiscount = totalOriginalAmount - totalPaidAmount;
 
     return (
         <>
@@ -118,7 +126,7 @@ function CartFinish() {
                                 <p className="lh-base mb-3 mb-sm-2">您的一盒甜將於 <span className="text-primary-600">{startDate}</span> 開始陸續配送。</p>
                             </section>
                             {/* 訂閱明細 */}
-                            <section className="cart-wrapper mb-9 mb-lg-6 fs-8 fs-md-7">
+                            <section className="cart-wrapper mb-9 mb-lg-6 fs-8">
                                 <h3 className="fs-8 fs-sm-7 pb-3 fw-bold border-bottom border-neutral-400">訂閱明細</h3>
                                 <table className="w-100">
                                     <tbody>
@@ -149,6 +157,29 @@ function CartFinish() {
                                     </tbody>
                                 </table>
                             </section>
+                            {/* 首期訂單明細 */}
+                            <section className="cart-wrapper mb-9 mb-lg-6 fs-8">
+                                <h3 className="fs-8 fs-sm-7 pb-3 fw-bold border-bottom border-neutral-400">首期付款明細</h3>
+                                <div className="pt-3">
+                                    <div className="d-flex justify-content-between my-2">
+                                        <p className="text-neutral-600">小計</p>
+                                        <p>NT$ {totalOriginalAmount.toLocaleString()}</p>
+                                    </div>
+
+                                    {totalDiscount > 0 && (
+                                        <div className="d-flex justify-content-between my-2">
+                                            <p className="text-neutral-600">折扣</p>
+                                            <p className="text-cta-200">- NT$ {totalDiscount.toLocaleString()}</p>
+                                        </div>
+                                    )}
+
+                                    <hr className="border-neutral-600 my-1 my-md-2" />
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <p>首期實付合計</p>
+                                        <p className="fw-bold">NT$ {totalPaidAmount.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                            </section>
                             {/* 配送資訊 */}
                             <section className="cart-wrapper mb-9 mb-lg-6 fs-8">
                                 <h3 className="fs-8 fs-sm-7 pb-3 fw-bold border-bottom border-neutral-400">配送資訊</h3>
@@ -162,7 +193,7 @@ function CartFinish() {
                                 </div>
                                 <div className="d-flex justify-content-between my-2">
                                     <p className="text-neutral-600">付款方式</p>
-                                    <p>{defaultCard?.cardBrand} ···· {defaultCard?.lastFour}</p>
+                                    <p>{paymentInfo?.cardBrand} ···· {paymentInfo?.lastFour}</p>
                                 </div>
                                 {representSub?.note && (
                                     <div className="d-flex justify-content-between fs-8 fs-sm-7 my-2">

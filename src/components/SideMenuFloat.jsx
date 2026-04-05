@@ -54,7 +54,7 @@ function SideMenuFloat() {
       <ul className="nav flex-lg-column side-menu gap-2 py-2 py-lg-0">
         <li className="nav-item">
           <NavLink
-            to={`/themeDetail/1`}
+            to={`/themeDetail/t0000001`}
             className={({ isActive }) =>
               "nav-link d-flex align-items-center" + (isActive ? " active" : "")
             }
@@ -64,7 +64,7 @@ function SideMenuFloat() {
         </li>
         <li className="nav-item">
           <NavLink
-            to={`/themeDetail/2`}
+            to={`/themeDetail/t0000002`}
             className={({ isActive }) =>
               "nav-link d-flex align-items-center" + (isActive ? " active" : "")
             }
@@ -74,7 +74,7 @@ function SideMenuFloat() {
         </li>
         <li className="nav-item">
           <NavLink
-            to={`/themeDetail/3`}
+            to={`/themeDetail/t0000003`}
             className={({ isActive }) =>
               "nav-link d-flex align-items-center" + (isActive ? " active" : "")
             }
@@ -84,7 +84,7 @@ function SideMenuFloat() {
         </li>
         <li className="nav-item">
           <NavLink
-            to={`/themeDetail/4`}
+            to={`/themeDetail/t0000004`}
             className={({ isActive }) =>
               "nav-link d-flex align-items-center" + (isActive ? " active" : "")
             }
@@ -94,7 +94,7 @@ function SideMenuFloat() {
         </li>
         <li className="nav-item">
           <NavLink
-            to={`/themeDetail/5`}
+            to={`/themeDetail/t0000005`}
             className={({ isActive }) =>
               "nav-link d-flex align-items-center" + (isActive ? " active" : "")
             }
@@ -104,7 +104,7 @@ function SideMenuFloat() {
         </li>
         <li className="nav-item">
           <NavLink
-            to={`/themeDetail/6`}
+            to={`/themeDetail/t0000006`}
             className={({ isActive }) =>
               "nav-link d-flex align-items-center" + (isActive ? " active" : "")
             }
