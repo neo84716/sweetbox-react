@@ -1,76 +1,45 @@
 import React from "react"
 import AdminNav from "../../components/AdminNav"
 import CircleProgress from "../../components/CircleProgress"
-import { Icon } from "@iconify/react";
 import PayStatusBadge from "../../components/PayStatusBadge";
 import ShippedDate from "../../components/ShipDate";
 import ShippingStatus from "../../components/ShipStatus";
 import { useState, useEffect, useRef } from "react";
+import { Icon } from "@iconify/react";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
 import api from "../../api";
-import { NavLink, useParams } from "react-router-dom";
+import useAuth from "../../../hooks/useAuth"
 
 function SubscribeDetail() {
+  const navigate = useNavigate()
   const { id } = useParams();
-  // console.log("subscription id:", id);
-  // const id = "s1k3p7la";
-  // 未歸檔資料，必須管理狀態，才能修改
-  // const [orderData, setOrderData] = useState([])
-  // const [archievedData, setArchievedData] = useState([])
+  const { user, isLogin } = useAuth();
+  const isAdmin = user.isAdmin
   // 原始資料
   const [allOrders, setAllOrders] = useState([])
   // 可編輯資料
   const [editedOrders, setEditedOrders] = useState([])
-  const [userData, setUserData] = useState([])
   const [subscriptionData, setSubscriptionData] = useState({})
-  // 未歸檔
-  const orderData = editedOrders.filter(item => !item.isArchived)
-  // 已歸檔
-  const archivedData = editedOrders.filter(item => item.isArchived)
-  // 已出貨筆數
-  const shippedCount = editedOrders.filter(item => item.shippingStatus === "shipped").length
-  const shippedProgress = (shippedCount / subscriptionData?.durationMonths)*100
-  // paymentMethod 式陣列
-  // const defaultCard = subscriptionData.paymentMethod?.filter(card => {
-  //   return card.isDefault === true
-  // })
-  // paymentMethod 不是陣列
-  const defaultCard = subscriptionData?.paymentMethod?.[0]
-  console.log("subscriptionData:", subscriptionData)
-  console.log("defaultCard:",defaultCard)
-  // 計算未歸檔數量
-  const unArchivedCount = allOrders.filter((order) => {
-    return order.isArchived !== true
-  }).length
-  // 抓取訂單資料 subscription_orders
-  const getOrderData = async () => {
-    try {
-      const resOrders = await api.get(`/orders?subscriptionId=${id}`)
-      // const resPayments = await api.get(`/payments`)
-      // 手動關聯orders&payments
-      // console.log('payments:', resPayments.data)
-      // const res = resOrders.data.map(resOrder => ({
-      //   ...resOrder,
-      //   payment: resPayments.data.find(resPayment => String(resPayment.subscription_order_id) === String(resOrder.id))
-      // }))
-      setAllOrders(resOrders.data)
-      setEditedOrders(resOrders.data)
-      console.log('resOrders.data: ', resOrders.data)
-      // setOrderData(unarchived)
-      // setArchievedData(archived)
-    } catch (err) {
-      console.log('getOrderData err: ', err)
-    }
-  }
+  // 管理訂閱編號是否置頂
+  const [isSticky, setIsSticky] = useState(false);
+  const [mode, setMode] = useState("normal"); // normal | sticky-visible | hidden
+  const lastScrollY = useRef(0);
+
+
   const getSubscriptionWithInfo = async (id) => {
-    const subscriptionsRes = await api.get(`/subscriptions/${id}?_embed=subscription_items`)
-    const subWithItem = subscriptionsRes.data
-    console.log("subWithItem", subWithItem)
-    // 同時發送三個API並等待
-    const [plansRes, themesRes, usersRes] = await Promise.all([
+    const subscriptionsRes = await api.get(`/subscriptions?subscriptionNumber=${id}`)
+    const subId = subscriptionsRes.data[0].id
+    const [ordersRes, plansRes, themesRes, usersRes] = await Promise.all([
+      api.get(`/orders?subscriptionId=${subId}`),
       api.get(`/plans`),
       api.get(`/themes`),
       api.get(`/users`)
     ])
+    console.log("subId", subId)
+    console.log("ordersRes", ordersRes.data)
+    console.log("subscriptionsRes", subscriptionsRes.data)
+    const subWithItem = subscriptionsRes.data[0]
+    const orders = ordersRes.data
 
     // 將陣列轉換成物件，並以id作為key，陣列作為value
     const plansMap = new Map(plansRes.data.map(p => [p.id, p]))
@@ -78,74 +47,51 @@ function SubscribeDetail() {
     const userMap = new Map(usersRes.data.map(u => [u.id, u]))
 
     // get直接取資料，不用像find從頭開始，優化效能
-    const plan = plansMap.get(subWithItem?.subscription_items[0]?.planId)
+    const plan = plansMap.get(subWithItem?.planId)
     const theme = themeMap.get(plan?.themeId)
     const user = userMap.get(subWithItem?.userId)
+
     return (
       {
         ...subWithItem,
+        orders,
         user,  // user: user 簡寫
         plan,
         theme
       }
-      // subWithItem.map(subItem => {
-      //   const plan = plansMap.get(subItem?.subscription_items[0]?.planId)
-      //   const theme = themeMap.get(plan?.themeId)
-      //   return (
-      //     {
-      //       ...subItem,
-      //       plan,
-      //       theme
-      //     }
-      //   )
-      // })
     )
-    
   }
-  useEffect(() => {
-    getOrderData()    
-  }, [id])
 
   // 抓取使用者資料 users
   useEffect(()=>{
-    api.get('/users')
-      .then(res=>{
-        console.log('user: ', res.data)
-        setUserData(res.data)
-      })
-    // api.get(`/subscriptions?id=s1k3p7la`)
-    //   .then(res => {
-    //     setSubscriptionData(res.data[0])
-    //     console.log('subscriptions Dataq:', res.data)
-    //   })
+    if(!isAdmin) {
+      navigate("/")
+      return
+    }
     const fetchData = async () => {
       const result = await getSubscriptionWithInfo(id)
-      console.log("result:", result)
+      console.log("result11:", result)
       setSubscriptionData(result)
+      setAllOrders(result.orders)
+      setEditedOrders(result.orders)
     }
     fetchData()
   }, [id])
+  // 未歸檔
+  const orderData = editedOrders.filter(item => !item.isArchived)
+  // 已歸檔
+  const archivedData = editedOrders.filter(item => item.isArchived)
+  // 已出貨筆數
+  const shippedCount = editedOrders.filter(item => item.shippingStatus === "shipped").length
+  const shippedProgress = (shippedCount / subscriptionData?.durationMonths)*100
+  const defaultCard = subscriptionData?.paymentSnapshot
+  // 計算未歸檔數量
+  const unArchivedCount = allOrders.filter((order) => {
+    return order.isArchived !== true
+  }).length
+  
   const userInfo = subscriptionData.user
   
-  /*
-  // 管理訂閱編號是否置頂
-  const [isSticky, setIsSticky] = useState(false);
-  useEffect(() => {
-    // 監視目前頁面往下滾了多少 px
-    const handleScroll = () => {
-      setIsSticky(window.scrollY > 20);
-    };
-    // 事件監聽: 只要滾動，就執行 handleScroll
-    window.addEventListener("scroll", handleScroll);
-    // 清除事件監聽
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-  */
-  const [isSticky, setIsSticky] = useState(false);
-  const [mode, setMode] = useState("normal"); 
-  // normal | sticky-visible | hidden
-
-  const lastScrollY = useRef(0);
   // 手機版，管理滾動，對置頂列跟按鈕列的效果
   useEffect(() => {
     const handleScroll = () => {
@@ -172,18 +118,6 @@ function SubscribeDetail() {
     // 清除事件監聽
     return () => window.removeEventListener("scroll", handleScroll);
   }, [])
-
-  // 付款狀態
-  const updatePayStatusChange = async (id, newStatus) => {
-    try {
-      await api.patch(`/subscription_orders/${id}`, {
-        payment_status: newStatus
-      })
-      getOrderData()
-    } catch (err) {
-      console.log("update PayStatus error: ", err)
-    }
-  }
   // 出貨狀態按鈕管理
   const [openId, setOpenId] = useState(null) //管理哪個訂單的出貨狀態按鈕被打開
   // 修改資料的出貨狀態
@@ -383,11 +317,11 @@ function SubscribeDetail() {
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">訂閱數量</p>
-                    <p className="text-neutral-800">{subscriptionData?.subscription_items?.[0]?.quantity}盒</p>
+                    <p className="text-neutral-800">{subscriptionData?.quantity}盒</p>
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">訂閱價格</p>
-                    <p className="text-neutral-800">NT${subscriptionData?.subscription_items?.[0]?.unitPrice} / 月</p>
+                    <p className="text-neutral-800">NT${subscriptionData?.unitPrice} / 月</p>
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">支付方式</p>
@@ -463,11 +397,11 @@ function SubscribeDetail() {
                       return (
                         <tr key={item.orderNo}>
                           <th scope="row" className="ps-4 fw-normal text-semantic-link">{item.orderNo}</th>
-                          <td className="text-center fw-normal">{parseInt(item.orderNo.slice(-2))}{/* 取訂單編號的後兩碼轉換成數字，這樣如果是01就會變1 */}</td>  
+                          <td className="text-center fw-normal">{item.cycle}{/* 取訂單編號的後兩碼轉換成數字，這樣如果是01就會變1 */}</td>  
                           <td className="text-center fw-normal">{item.amount}</td>
                           <td className="text-center fw-normal">{item.paymentDate}</td>
                           <td className="text-center fw-normal">
-                            <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"} onChange={(status)=>updatePayStatusChange(item.id, status)}/>
+                            <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"}/>
                           </td>
                           <td className="text-center fw-normal">
                             <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={()=> setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>  
@@ -667,8 +601,8 @@ function SubscribeDetail() {
                             <div className="pay-date fs-8 text-neutral-800">{item.paymentDate}</div>
                           </div>
                           <div className="flex-fill">
-                            <div className="text fs-8 text-neutral-600 mb-1">付款日期</div>
-                            <div className="pay-date fs-8 text-neutral-800">{item.shipping_date}</div>
+                            <div className="text fs-8 text-neutral-600 mb-1">出貨日期</div>
+                            <div className="pay-date fs-8 text-neutral-800">{item.shippingDate}</div>
                           </div>
                         </div>
                       </div>
