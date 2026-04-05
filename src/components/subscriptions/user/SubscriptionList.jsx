@@ -80,7 +80,7 @@ function SubscriptionList({ subscriptions }) {
       if (!ref.current) {
         return;
       }
-      new Modal(ref.current, { keyboard: false });
+      Modal.getOrCreateInstance(ref.current, { keyboard: false });
       ref.current?.addEventListener('hide.bs.modal', handleHide);
     });
 
@@ -89,7 +89,7 @@ function SubscriptionList({ subscriptions }) {
         ref.current?.removeEventListener('hide.bs.modal', handleHide);
       });
     };
-  }, []);
+  }, [subscriptions]);
 
   // 切換 accordion
   const handleToggleAccordion = (id) => {
@@ -116,9 +116,32 @@ function SubscriptionList({ subscriptions }) {
       className="accordion card-accordion p-0 d-flex flex-column gap-4 mb-17"
       id="accordion-subscription"
     >
+      {/* 付款管理 Modal */}
+      <PaymentModal
+        modalRef={paymentModalRef}
+        isOpen={activeModal === 'payment'}
+        onClose={handleCloseModal}
+        isAdd={isAdd}
+        onToggleAddCard={(value) => setIsAdd(value)}
+      />
+      {/* 取消訂閱提醒 Modal */}
+      <CancelReminderModal
+        cancelReminderModalRef={cancelReminderModalRef}
+        cancelConfirmModalRef={cancelConfirmModalRef}
+        isOpen={activeModal === 'cancelReminder'}
+        onClose={handleCloseModal}
+        handleOpenModal={handleOpenModal}
+      />
+      {/* 取消訂閱確認 Modal */}
+      <CancelConfirmModal
+        cancelConfirmModalRef={cancelConfirmModalRef}
+        cancelReminderModalRef={cancelReminderModalRef}
+        isOpen={activeModal === 'cancelConfirm'}
+        onClose={handleCloseModal}
+        handleOpenModal={handleOpenModal}
+      />
       {subscriptions.map((item) => {
-        const { id, subscription, theme, plan, orders } = item;
-        const { subscriptionNumber } = item.subscription;
+        const { id, subscriptionNumber, theme, plan, orders } = item;
 
         return (
           <div
@@ -142,10 +165,8 @@ function SubscriptionList({ subscriptions }) {
                       {`訂閱編號：${subscriptionNumber}`}
                     </p>
                     <h2 className="fs-7 fw-bold ls-1">{theme.title}</h2>
-                    <span
-                      className={`${statusBadgeMap[subscription.status]} d-block`}
-                    >
-                      {subStatusMap[subscription.status]}
+                    <span className={`${statusBadgeMap[item.status]} d-block`}>
+                      {subStatusMap[item.status]}
                     </span>
                   </div>
                 </div>
@@ -161,8 +182,8 @@ function SubscriptionList({ subscriptions }) {
                       <h2 className="h4 d-inline-block fw-bold ls-1 me-3">
                         {theme.title}
                       </h2>
-                      <span className={statusBadgeMap[subscription.status]}>
-                        {subStatusMap[subscription.status]}
+                      <span className={statusBadgeMap[item.status]}>
+                        {subStatusMap[item.status]}
                       </span>
                     </div>
                   </div>
@@ -172,7 +193,7 @@ function SubscriptionList({ subscriptions }) {
                     <div className="flex-grow-1">
                       <div className="mb-4">
                         <p className="subscription-info-title">期數</p>
-                        <p className="subscription-info-content">{`${subscription.durationMonths}個月`}</p>
+                        <p className="subscription-info-content">{`${item.durationMonths}個月`}</p>
                       </div>
                       <div>
                         <p className="subscription-info-title">訂閱價格</p>
@@ -190,9 +211,8 @@ function SubscriptionList({ subscriptions }) {
                       <div>
                         <p className="subscription-info-title">下次付款日</p>
                         <p className="subscription-info-content">
-                          {statusDateMap[subscription.status]?.(
-                            subscription.nextPaymentDate,
-                          ) ?? '--'}
+                          {statusDateMap[item.status]?.(item.nextPaymentDate) ??
+                            '--'}
                         </p>
                       </div>
                     </div>
@@ -225,7 +245,7 @@ function SubscriptionList({ subscriptions }) {
                       <Icon
                         className="py-1 px-2"
                         style={
-                          subscription.status !== 'active' && {
+                          item.status !== 'active' && {
                             filter:
                               'brightness(0) saturate(100%) invert(69%) sepia(22%) saturate(124%) hue-rotate(0deg) brightness(103%) contrast(96%)',
                           }
@@ -235,7 +255,7 @@ function SubscriptionList({ subscriptions }) {
                         height="24"
                       />
                       <div
-                        className={`credit-card-number gap-2 ${subscription.status !== 'active' && 'text-neutral-500'}`}
+                        className={`credit-card-number gap-2 ${item.status !== 'active' && 'text-neutral-500'}`}
                       >
                         <span className="masked-number-compact">••••</span>
                         <span className="masked-number-compact">••••</span>
@@ -245,9 +265,7 @@ function SubscriptionList({ subscriptions }) {
                     </div>
                   </div>
                   {/* Modal */}
-                  <div
-                    className={`${subscription.status !== 'active' && 'd-none'}`}
-                  >
+                  <div className={`${item.status !== 'active' && 'd-none'}`}>
                     {/* 付款管理 Modal button*/}
                     <button
                       type="button"
@@ -259,14 +277,7 @@ function SubscriptionList({ subscriptions }) {
                     >
                       付款管理
                     </button>
-                    {/* 付款管理 Modal */}
-                    <PaymentModal
-                      modalRef={paymentModalRef}
-                      isOpen={activeModal === 'payment'}
-                      onClose={handleCloseModal}
-                      isAdd={isAdd}
-                      onToggleAddCard={(value) => setIsAdd(value)}
-                    />
+
                     {/* 取消訂閱提醒 Modal button*/}
                     <button
                       type="button"
@@ -280,22 +291,6 @@ function SubscriptionList({ subscriptions }) {
                     >
                       <span className="small">取消目前訂閱方案</span>
                     </button>
-                    {/* 取消訂閱提醒 Modal */}
-                    <CancelReminderModal
-                      cancelReminderModalRef={cancelReminderModalRef}
-                      cancelConfirmModalRef={cancelConfirmModalRef}
-                      isOpen={activeModal === 'cancelReminder'}
-                      onClose={handleCloseModal}
-                      handleOpenModal={handleOpenModal}
-                    />
-                    {/* 取消訂閱確認 Modal */}
-                    <CancelConfirmModal
-                      cancelConfirmModalRef={cancelConfirmModalRef}
-                      cancelReminderModalRef={cancelReminderModalRef}
-                      isOpen={activeModal === 'cancelConfirm'}
-                      onClose={handleCloseModal}
-                      handleOpenModal={handleOpenModal}
-                    />
                   </div>
                 </div>
                 {/* 手風琴 mobile 下拉按鈕 */}
@@ -402,11 +397,15 @@ function SubscriptionList({ subscriptions }) {
                           <h3 className="mb-1 fs-9 ls-1 text-neutral-600">
                             訂單編號
                           </h3>
-                          <p className="h5">{order.id}</p>
+                          <p className="h5">{order.orderNo}</p>
                         </div>
                         <div>
-                          <span className="badge-resolved me-3">已付款</span>
-                          <span className="badge-resolved">已出貨</span>
+                          <span className="badge-resolved me-3">
+                            {paymentStatusMap[order.paymentStatus]}
+                          </span>
+                          <span className="badge-resolved">
+                            {shippingStatusMap[order.shippingStatus]}
+                          </span>
                         </div>
                       </div>
                       {/* 訂單詳細內容 */}
@@ -415,15 +414,15 @@ function SubscriptionList({ subscriptions }) {
                         <div className="d-flex">
                           <div className="flex-grow-1 small">
                             <p className="mb-1 text-neutral-600">金額</p>
-                            <p>NT$675</p>
+                            <p>NT${order.amount}</p>
                           </div>
                           <div className="flex-grow-1 small">
                             <p className="mb-1 text-neutral-600">期數</p>
-                            <p>3</p>
+                            <p>{order.cycle}</p>
                           </div>
                           <div className="flex-grow-1 small">
                             <p className="mb-1 text-neutral-600">付款日期</p>
-                            <p>2026-02-28</p>
+                            <p>{order.paymentDate}</p>
                           </div>
                         </div>
                         <div className="subscription-info-divider"></div>
