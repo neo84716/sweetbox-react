@@ -49,6 +49,29 @@ function CartCheckout() {
             const todayStr = dayjs().format('YYYY-MM-DD');
             const nowIsoString = new Date().toISOString();
             const { subTotal, discountTotal, finalTotal } = cartMain;
+            let remainingDiscount = discountTotal;
+            const preCalculatedItems = cartItems.map((item, index) => {
+                const itemSubTotal = (item.plan?.discountPrice || 0) * item.quantity; //折前小計
+                let itemDiscount = 0;
+
+                if (subTotal > 0) {
+                    if (index === cartItems.length - 1) {
+                        // 最後品項扣除「剩餘折扣額」
+                        itemDiscount = remainingDiscount;
+                    } else {
+                        // 前面的品項按比例四捨五入計算
+                        itemDiscount = Math.round((itemSubTotal / subTotal) * discountTotal);
+                        remainingDiscount -= itemDiscount; // 扣除已經分配出去的折扣
+                    }
+                }
+
+                return {
+                    ...item,
+                    itemSubTotal,
+                    itemDiscount,
+                    firstOrderAmount: itemSubTotal - itemDiscount
+                };
+            });
 
             // 判斷是否為新的信用卡
             const isUsingStoredCard = formData.cardNumber.includes('xxx');
@@ -98,11 +121,7 @@ function CartCheckout() {
                 const endDateStr = dayjs().add(item.plan?.durationMonths - 1, 'month').format('YYYY-MM-DD');
                 const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
                 const firstOrderNo = `${subNo}01`;
-                const itemSubTotal = (item.plan?.discountPrice || 0) * item.quantity; //折前小計
-                const itemDiscount = subTotal > 0
-                    ? Math.round((itemSubTotal / subTotal) * discountTotal)
-                    : 0; //按比例分折扣金額
-                const firstOrderAmount = itemSubTotal - itemDiscount; //原總價-折扣金額
+                const { itemSubTotal, itemDiscount, firstOrderAmount } = item;  //折前小計
 
                 const subscriptionPayload = {
                     userId,
@@ -166,7 +185,7 @@ function CartCheckout() {
             };
 
             // --- 3. Promise.all 同時發送所有請求
-            const results = await Promise.all(cartItems.map(item => createSubscriptionTask(item)));
+            const results = await Promise.all(preCalculatedItems.map(item => createSubscriptionTask(item)));
 
             // 將結果存入 createdSubscriptions 供導頁使用
             createdSubscriptions.push(...results);
