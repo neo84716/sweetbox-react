@@ -58,7 +58,7 @@ function Header() {
                                         <div className="avatar me-2">
                                             <img
                                                 className="d-block"
-                                                src={`${user?.avatar? user.avatar : "./images/Home_Page/avatar.jpg"}`}
+                                                src={`${user?.avatar? user.avatar : "./images/Home_Page/avatar-default.jpg"}`}
                                                 alt="使用者頭像"
                                             />
                                         </div>
