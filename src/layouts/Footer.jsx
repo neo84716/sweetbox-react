@@ -1,4 +1,9 @@
+import { NavLink } from "react-router-dom";
+import { getUser, logout } from "../../utils/auth"
+import { useNavigate } from "react-router-dom";
+
 function Footer() {
+    const user = getUser()
     return (
         <footer className="footer bg-neutral-400 position-relative">
             <div className="footer-wave"></div>
@@ -6,8 +11,12 @@ function Footer() {
                 <a href="index.html"><img className="footer-logo mb-3 mb-lg-0" src="./images/Home_Page/sweetBox_logo.svg"
                     alt="一盒甜logo" /></a>
                 <ul className="d-flex gap-1 gap-lg-6 mb-3 mb-lg-0">
-                    <li className="footer-nav-item"><a href="theme.html">主題一覽</a></li>
-                    <li className="footer-nav-item"><a href="#">會員中心</a></li>
+                    <li className="footer-nav-item"><NavLink to="/theme">主題一覽</NavLink></li>
+                    { user?.isAdmin ? (
+                        <li className="footer-nav-item"><NavLink to="/admin/subscribe">後台管理</NavLink></li>
+                    ):(
+                        <li className="footer-nav-item"><NavLink to="/subscription">會員中心</NavLink></li>
+                        )}
                 </ul>
                 <ul className="d-flex gap-6">
                     <li>

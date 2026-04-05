@@ -10,7 +10,6 @@ function Header() {
         navigate("/")
     }
     const user = getUser()
-    console.log("user", user)
     return (
         <nav className="navbar pt-3 px-3 pt-lg-5 px-lg-0">
             <div className="container header py-1 px-4 py-lg-2 px-lg-9">
@@ -35,16 +34,20 @@ function Header() {
                         ><span className="underline">主題一覽</span>
                         </NavLink>
                     </li>
-                    <li className="nav-item">
-                        <a href="#" className="nav-icon service-icon" aria-label="客服圖示"></a>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink
-                            to='/cart'
-                            className="nav-icon cart-icon"
-                            aria-label="購物車圖示">
-                        </NavLink>
-                    </li>
+                    {!user?.isAdmin && (
+                        <>
+                            <li className="nav-item">
+                                <a href="#" className="nav-icon service-icon" aria-label="客服圖示"></a>
+                            </li>
+                            <li className="nav-item">
+                                <NavLink
+                                    to='/cart'
+                                    className="nav-icon cart-icon"
+                                    aria-label="購物車圖示">
+                                </NavLink>
+                            </li>
+                        </>
+                    )}
                     <li className="nav-item">
                         {
                             user ? (
@@ -58,14 +61,18 @@ function Header() {
                                         <div className="avatar me-2">
                                             <img
                                                 className="d-block"
-                                                src={`${user?.avatar? user.avatar : "./images/Home_Page/avatar.jpg"}`}
+                                                src={`${user?.avatar ? user.avatar : "./images/Home_Page/avatar.jpg"}`}
                                                 alt="使用者頭像"
                                             />
                                         </div>
                                         <span className="user-name">{user?.name || "訪客"}</span>
                                     </button>
                                     <ul className="dropdown-menu dropdown-menu-avatar">
-                                        <li><NavLink className="dropdown-item d-block" to="/subscription">訂閱管理</NavLink></li>
+                                        {user?.isAdmin ? (
+                                            <li><NavLink className="dropdown-item d-block" to="/admin/subscribe">後台管理</NavLink></li>
+                                        ) : (
+                                            <li><NavLink className="dropdown-item d-block" to="/subscription">訂閱管理</NavLink></li>
+                                        )}
                                         <li><NavLink className="dropdown-item d-block" to="/login" onClick={handleLogout}>登出</NavLink></li>
                                     </ul>
                                 </div>
@@ -107,17 +114,27 @@ function Header() {
                         <li className="dropdown-item-wrapper">
                             <NavLink className="dropdown-item" to="/theme">主題一覽</NavLink>
                         </li>
+                        {user?.isAdmin ? (
+                            // 管理者顯示
+                            <li className="dropdown-item-wrapper">
+                                <NavLink className="dropdown-item" to="/admin/subscribe">後台管理</NavLink>
+                            </li>
+                        ) : (
+                            // 訪客、一般使用者顯示
+                            <>
+                                <li className="dropdown-item-wrapper">
+                                    <NavLink className="dropdown-item" to="/service">客服諮詢</NavLink>
+                                </li>
+                                <li className="dropdown-item-wrapper">
+                                    <NavLink className="dropdown-item" to="/cart">購物車</NavLink>
+                                </li>
+                                <li className="dropdown-item-wrapper">
+                                    <NavLink className="dropdown-item" to="/member">會員中心</NavLink>
+                                </li>
+                            </>
+                        )}
                         <li className="dropdown-item-wrapper">
-                            <NavLink className="dropdown-item" to="/service">客服諮詢</NavLink>
-                        </li>
-                        <li className="dropdown-item-wrapper">
-                            <NavLink className="dropdown-item" to="/cart">購物車</NavLink>
-                        </li>
-                        <li className="dropdown-item-wrapper">
-                            <NavLink className="dropdown-item" to="/member">會員中心</NavLink>
-                        </li>
-                        <li className="dropdown-item-wrapper">
-                            <NavLink className="dropdown-item" to="/login">登出</NavLink>
+                            <NavLink className="dropdown-item" to="/login" onClick={handleLogout}>登出</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
                             <button
@@ -141,8 +158,8 @@ function Header() {
                             </button>
                         </li>
                     </ul>
-                </div>
-            </div>
+                </div >
+            </div >
         </nav >
     )
 }
