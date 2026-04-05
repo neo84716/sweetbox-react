@@ -48,6 +48,7 @@ function CartCheckout() {
             const userId = user?.id;
             const todayStr = dayjs().format('YYYY-MM-DD');
             const nowIsoString = new Date().toISOString();
+            const { subTotal, discountTotal, finalTotal } = cartMain;
 
             // 判斷是否為新的信用卡
             const isUsingStoredCard = formData.cardNumber.includes('xxx');
@@ -93,104 +94,108 @@ function CartCheckout() {
 
             // 訂閱Task
             const createSubscriptionTask = async (item) => {
-            const subNo = generateSubNumber(item.theme?.titleAbbr, item.plan?.durationMonths);
-            const endDateStr = dayjs().add(item.plan?.durationMonths - 1, 'month').format('YYYY-MM-DD');
-            const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
-            const firstOrderNo = `${subNo}01`;
-            const itemTotal = (item.plan?.discountPrice || 0) * item.quantity;
+                const subNo = generateSubNumber(item.theme?.titleAbbr, item.plan?.durationMonths);
+                const endDateStr = dayjs().add(item.plan?.durationMonths - 1, 'month').format('YYYY-MM-DD');
+                const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
+                const firstOrderNo = `${subNo}01`;
+                const itemSubTotal = (item.plan?.discountPrice || 0) * item.quantity; //折前小計
+                const itemDiscount = subTotal > 0
+                    ? Math.round((itemSubTotal / subTotal) * discountTotal)
+                    : 0; //按比例分折扣金額
+                const firstOrderAmount = itemSubTotal - itemDiscount; //原總價-折扣金額
 
-            const subscriptionPayload = {
-                userId,
-                planId: item.planId,
-                themeId: item.themeId,
-                subscriptionNumber: subNo,
-                quantity: item.quantity,
-                unitPrice: item.plan?.discountPrice || 0,
-                durationMonths: item.plan?.durationMonths,
-                startDate: todayStr,
-                endDate: endDateStr,
-                nextPaymentDate: nextPaymentStr,
-                status: "active",
-                isProcessed: false,
-                note: formData.note || "",
-                paymentMethodId: finalPaymentMethodId,
-                paymentMethod: {
-                    cardBrand: currentCardBrand,
-                    lastFour,
-                    expiryMonth: Number(formData.expiryMonth),
-                    expiryYear: Number(formData.expiryYear)
-                },
-                shippingInfo: {
-                    zipCode: zipCodeStr, city, district,
-                    street: formData.street, name: formData.name, phone: formData.phone
-                },
-                invoiceInfo: {
-                    type: formData.type,
-                    carrier: formData.carrier || "",
-                    tax_id: formData.taxId || "",
-                    company_name: formData.companyName || "",
-                    company_email: formData.companyEmail || "",
-                    donate_code: formData.donateCode || ""
-                }
+                const subscriptionPayload = {
+                    userId,
+                    planId: item.planId,
+                    themeId: item.themeId,
+                    subscriptionNumber: subNo,
+                    quantity: item.quantity,
+                    unitPrice: item.plan?.discountPrice || 0,
+                    durationMonths: item.plan?.durationMonths,
+                    startDate: todayStr,
+                    endDate: endDateStr,
+                    nextPaymentDate: nextPaymentStr,
+                    status: "active",
+                    isProcessed: false,
+                    note: formData.note || "",
+                    paymentMethodId: finalPaymentMethodId,
+                    paymentMethod: {
+                        cardBrand: currentCardBrand,
+                        lastFour,
+                        expiryMonth: Number(formData.expiryMonth),
+                        expiryYear: Number(formData.expiryYear)
+                    },
+                    shippingInfo: {
+                        zipCode: zipCodeStr, city, district,
+                        street: formData.street, name: formData.name, phone: formData.phone
+                    },
+                    invoiceInfo: {
+                        type: formData.type,
+                        carrier: formData.carrier || "",
+                        tax_id: formData.taxId || "",
+                        company_name: formData.companyName || "",
+                        company_email: formData.companyEmail || "",
+                        donate_code: formData.donateCode || ""
+                    }
+                };
+
+                // 1 先 POST Subscription 取得 ID
+                const subRes = await api.post('/subscriptions', subscriptionPayload);
+                const newSubId = subRes.data.id;
+
+                // 2 POST Order
+                await api.post('/orders', {
+                    subscriptionId: newSubId,
+                    orderNo: firstOrderNo,
+                    amount: firstOrderAmount,
+                    createdAt: nowIsoString,
+                    paymentDueDate: todayStr,
+                    paymentStatus: "paid",
+                    paymentDate: todayStr,
+                    shippingStatus: "pending",
+                    shippingDate: null,
+                    invoice: {
+                        number: `AB-${Math.floor(Math.random() * 100000000)}`,
+                        date: nowIsoString,
+                        fileUrl: null
+                    },
+                    isArchived: false
+                });
+
+                return subRes.data; // 回傳給 Promise.all
             };
 
-            // 1 先 POST Subscription 取得 ID
-            const subRes = await api.post('/subscriptions', subscriptionPayload);
-            const newSubId = subRes.data.id;
+            // --- 3. Promise.all 同時發送所有請求
+            const results = await Promise.all(cartItems.map(item => createSubscriptionTask(item)));
 
-            // 2 POST Order
-            await api.post('/orders', {
-                subscriptionId: newSubId,
-                orderNo: firstOrderNo,
-                amount: itemTotal,
-                createdAt: nowIsoString,
-                paymentDueDate: todayStr,
-                paymentStatus: "paid",
-                paymentDate: todayStr,
-                shippingStatus: "pending",
-                shippingDate: null,
-                invoice: {
-                    number: `AB-${Math.floor(Math.random() * 100000000)}`,
-                    date: nowIsoString,
-                    fileUrl: null
-                },
-                isArchived: false
+            // 將結果存入 createdSubscriptions 供導頁使用
+            createdSubscriptions.push(...results);
+
+            // --- 4. 成功後導頁 ---
+            const subIds = results.map(sub => sub.id).join(',');
+            message.success({
+                content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2,
+                onClose: () => {
+                    // 清理購物車
+                    const cleanup = async () => {
+                        try {
+                            const deletePromises = cartItems.map(item => api.delete(`/cart_items/${item.id}`));
+                            await Promise.allSettled(deletePromises);
+                            if (cartMain?.id) await api.delete(`/carts/${cartMain.id}`);
+                        } catch (e) { console.warn("清理失敗", e); }
+                    };
+                    cleanup();
+                    navigate(`/cartFinish?sub_ids=${subIds}`, { replace: true });
+                }
             });
 
-            return subRes.data; // 回傳給 Promise.all
-        };
 
-        // --- 3. Promise.all 同時發送所有請求
-        const results = await Promise.all(cartItems.map(item => createSubscriptionTask(item)));
-        
-        // 將結果存入 createdSubscriptions 供導頁使用
-        createdSubscriptions.push(...results);
-
-        // --- 4. 成功後導頁 ---
-        const subIds = results.map(sub => sub.id).join(',');
-        message.success({
-            content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2,
-            onClose: () => {
-                // 清理購物車
-                const cleanup = async () => {
-                    try {
-                        const deletePromises = cartItems.map(item => api.delete(`/cart_items/${item.id}`));
-                        await Promise.allSettled(deletePromises);
-                        if (cartMain?.id) await api.delete(`/carts/${cartMain.id}`);
-                    } catch (e) { console.warn("清理失敗", e); }
-                };
-                cleanup();
-                navigate(`/cartFinish?sub_ids=${subIds}`, { replace: true });
-            }
-        });
-
-
-    } catch (error) {
-        console.error("結帳失敗:", error);
-        message.error({ content: "處理失敗，請稍後再試。", key: 'checkout', duration: 3 });
-        setIsSubmitting(false);
+        } catch (error) {
+            console.error("結帳失敗:", error);
+            message.error({ content: "處理失敗，請稍後再試。", key: 'checkout', duration: 3 });
+            setIsSubmitting(false);
+        }
     }
-}
 
     const handleSyncMemberData = async (e) => {
         const isChecked = e.target.checked;
@@ -858,10 +863,16 @@ function CartCheckout() {
                     <div className="checkout-btn d-block d-sm-none">
                         <button
                             type="submit"
+                            disabled={isSubmitting || isLoading}
                             form="checkoutForm"
                             className="btn-primary-text w-100"
                         >
-                            確認支付並下單
+                            {isSubmitting ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    處理中...
+                                </>
+                            ) : "確認支付並下單"}
                         </button>
                     </div>
                 </div>
