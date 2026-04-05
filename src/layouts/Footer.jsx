@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { getUser, logout } from "../../utils/auth"
+import { getUser, logout } from "../../src/utils/auth"
 
 function Footer() {
     const [user, setUser] = useState(getUser());
