@@ -198,6 +198,7 @@ function CartCheckout() {
         } catch (error) {
             console.error("結帳失敗:", error);
             message.error({ content: "處理失敗，請稍後再試。", key: 'checkout', duration: 3 });
+            setIsSubmitting(false); //失敗，submit按鈕還原
         }
     }
 
