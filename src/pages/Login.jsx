@@ -4,7 +4,7 @@ import Input from "../components/Input";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
 import api from "../api"
-import { setAuth } from "../../utils/auth";
+import { setAuth } from "../../src/utils/auth";
 
 function Login() {
     const [authMode, setAuthMode] = useState('login');

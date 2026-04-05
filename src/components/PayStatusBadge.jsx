@@ -6,7 +6,7 @@ const PAYSTATUS = {
   "pending": "即將付款",
 };
 
-function PayStatusBadge({currentStatus, isArchived, onChange}) {
+function PayStatusBadge({currentStatus, isArchived}) {
   // const [payStatus, setPayStatus] = useState(currentStatus)
   
   // 定義切換方法
