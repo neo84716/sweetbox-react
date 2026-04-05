@@ -529,6 +529,7 @@
       "id": "pm000001",
       "userId": "u0000001",
       "cardOwner": "WANG LU",
+      "cardBrand": "visa",
       "lastFour": "4242",
       "expiryMonth": 2,
       "expiryYear": 2027,
