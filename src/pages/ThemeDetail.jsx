@@ -29,7 +29,9 @@ function ThemeDetail() {
     2: { count: 0, liked: false },
     3: { count: 0, liked: false }
   })
-
+  const userData = localStorage.getItem("user");
+  const userObj = JSON.parse(userData);
+  console.log(userObj);
   const handleLikes = (id) => {
     setLikes((prev) => {
       const item = prev[id]
@@ -47,64 +49,121 @@ function ThemeDetail() {
     if (!activePlan || !themeData) return;
 
     try {
-      const res = await api.get("/carts");
-      let cart = res.data[0]; // 永遠只有一筆
+      // 取得使用者資料
+      const userData = localStorage.getItem("user");
+      const userObj = JSON.parse(userData);
+      console.log("目前使用者:", userObj);
 
-      // 如果沒有購物車，先建立一筆新的
+      // 先抓購物車
+      const res = await api.get("/carts");
+      let cart = res.data.find(c => c.userId === userObj.id);
+
+      // 如果沒有購物車，建立一筆新的
       if (!cart) {
+        const maxCartId = res.data.length > 0
+          ? Math.max(...res.data.map(c => parseInt(c.id.replace("c", ""))))
+          : 0;
+
         cart = {
-          id: "1", // 注意是字串
-          user_id: 1,
-          items: [],
-          subtotal: 0,
-          discount_total: 0,
-          final_total: 0,
-          coupons: [],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          id: `c${String(maxCartId + 1).padStart(7, "0")}`,
+          userId: userObj.id,
+          subTotal: 0,
+          discountTotal: 0,
+          finalTotal: 0,
+          couponId: null,
+          createdAt: new Date().toISOString(),
+          appliedCouponId: null,
         };
+        console.log("建立新購物車:", cart);
         await api.post("/carts", cart);
       }
 
-      // 找出目前 items 的最大 id
-      const maxId = cart.items.length > 0
-        ? Math.max(...cart.items.map(item => item.id))
+      // 取得 cart_items
+      const itemsRes = await api.get("/cart_items");
+      const cartItems = itemsRes.data.filter(item => item.cartId === cart.id);
+
+      const maxItemId = itemsRes.data.length > 0
+        ? Math.max(...itemsRes.data.map(item => parseInt(item.id.replace("ci", ""))))
         : 0;
 
-      const newItem = {
-        id: maxId + 1,
-        theme_id: themeData.id,
-        duration_months: activePlan.duration_months,
-        quantity,
-        price: activePlan.price,
-      };
+      const existingItem = cartItems.find(item => item.planId === activePlan.id);
 
-      const updatedCart = {
-        ...cart,
-        items: [...cart.items, newItem],
-        subtotal: cart.subtotal + newItem.price * newItem.quantity,
-        final_total: cart.final_total + newItem.price * newItem.quantity,
-        updated_at: new Date().toISOString(),
-      };
+      let updatedCart;
+      if (existingItem) {
+        const updatedItem = {
+          ...existingItem,
+          quantity: existingItem.quantity + quantity,
+        };
+        console.log("更新 cart_item:", updatedItem);
+        await api.put(`/cart_items/${existingItem.id}`, updatedItem);
 
+        const itemTotal = activePlan.discountPrice * quantity;
+        updatedCart = {
+          ...cart,
+          subTotal: cart.subTotal + itemTotal,
+          finalTotal: cart.finalTotal + itemTotal,
+          updatedAt: new Date().toISOString(),
+        };
+      } else {
+        const newCartItem = {
+          id: `ci${String(maxItemId + 1).padStart(7, "0")}`,
+          cartId: cart.id,
+          planId: activePlan.id,
+          quantity,
+        };
+        console.log("新增 cart_item:", newCartItem);
+        await api.post("/cart_items", newCartItem);
+
+        const itemTotal = activePlan.discountPrice * quantity;
+        updatedCart = {
+          ...cart,
+          subTotal: cart.subTotal + itemTotal,
+          finalTotal: cart.finalTotal + itemTotal,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+
+      console.log("更新購物車:", updatedCart);
       await api.put(`/carts/${cart.id}`, updatedCart);
-      console.log("已加入購物車");
+
+      console.log("已加入購物車，送出的資料如下：");
+      console.table({
+        cartId: cart.id,
+        planId: activePlan.id,
+        quantity,
+        discountPrice: activePlan.discountPrice,
+        total: activePlan.discountPrice * quantity,
+      });
+
       navigate("/cart");
     } catch (err) {
-      console.log(err);
+      console.log("錯誤:", err);
     }
   };
 
 
-
   useEffect(() => {
-    api.get("/themes")
-      .then(res => {
-        const theme = res.data.find(item => item.id === id);
-        setThemeData(theme);
+    Promise.all([api.get("/themes"), api.get("/plans")])
+      .then(([themesRes, plansRes]) => {
+        const theme = themesRes.data.find(item => item.id === id);
+        const relatedPlans = plansRes.data.filter(plan => plan.themeId === id);
+
+        const combined = {
+          ...theme,
+          plans: relatedPlans
+        };
+
+        // 列出 log
+        console.log("Theme:", theme);
+        console.log("Related Plans:", relatedPlans);
+        console.log("Combined:", combined);
+
+        setThemeData(combined);
       })
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
   }, [id]);
+
+
 
 
   return (
@@ -172,7 +231,7 @@ function ThemeDetail() {
                     <ul className="nav flex-lg-column side-menu gap-2 py-2 py-lg-0">
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/1`}
+                          to={`/themeDetail/t0000001`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -182,7 +241,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/2`}
+                          to={`/themeDetail/t0000002`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -192,7 +251,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/3`}
+                          to={`/themeDetail/t0000003`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -202,7 +261,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/4`}
+                          to={`/themeDetail/t0000004`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -212,7 +271,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/5`}
+                          to={`/themeDetail/t0000005`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -222,7 +281,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/6`}
+                          to={`/themeDetail/t0000006`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -292,7 +351,7 @@ function ThemeDetail() {
                 <div className="mb-9 mb-lg-5">
                   <div className="theme-topic">
                     <h1 className="mb-5 fs-3 fs-lg-2 fw-bold ls-1">
-                      {`${themeData?.theme_title}盒`}
+                      {`${themeData?.title}盒`}
                     </h1>
                     <h2 className="mb-3 fs-7 ls-1 fw-bold">我們幫你挑最值得期待的那一盒</h2>
                     <p>不論是人氣爆款還是話題聯名, 通通不錯過。喜歡嚐鮮的你一定會愛上。</p>
@@ -301,8 +360,10 @@ function ThemeDetail() {
                     {/* plan選項 */}
 
                     <ul className="my-6">
-                      {themeData?.theme_plans?.map((plan, idx) => {
-                        const savedAmount = themeData.price - plan.price;
+                      {themeData?.plans?.map((plan, idx) => {
+                        // 原始價 - 優惠價，算出節省金額
+                        const savedAmount = plan.originalPrice - plan.discountPrice;
+
                         return (
                           <li key={plan.id} className="mb-3">
                             <button
@@ -311,21 +372,30 @@ function ThemeDetail() {
                               onClick={() => setActivePlan(plan)}
                             >
                               <div className="subtitle">
-                                <p>{idx === 0 ? "初嚐首選" : idx === 1 ? "人氣推薦" : "鑑賞家專屬"}</p>
+                                <p>
+                                  {idx === 0
+                                    ? "初嚐首選"
+                                    : idx === 1
+                                      ? "人氣推薦"
+                                      : "鑑賞家專屬"}
+                                </p>
                                 <p className="text-cta-200">節省 ${savedAmount}</p>
                               </div>
                               <div className="title">
-                                <p>{plan.duration_months}個月方案</p>
-                                <p className="align-bottom">NT$ {plan.price}<span>/月</span></p>
+                                <p>{plan.durationMonths} 個月方案</p>
+                                <p className="align-bottom">
+                                  NT$ {plan.discountPrice}
+                                  <span>/月</span>
+                                </p>
                               </div>
                             </button>
                           </li>
                         );
                       })}
-
                     </ul>
+
                     {/* 數量 */}
-                    <div className="quantity mb-lg-6">
+                    <div className="quantity mb-lg-6 d-flex align-items-center">
                       {/* 減少按鈕 */}
                       <button
                         className="btn-icon-lg"
@@ -334,16 +404,14 @@ function ThemeDetail() {
                         onClick={() => setQuantity(prev => Math.max(prev - 1, 1))}
                         disabled={quantity <= 1}
                       >
-                        <div>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2" />
-                          </svg>
-                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                          <path fill="currentColor" d="M18 12.998H6a1 1 0 0 1 0-2h12a1 1 0 0 1 0 2" />
+                        </svg>
                       </button>
 
-                      {/* spinner */}
+                      {/* spinner 顯示數量 */}
                       <input
-                        className="spinner mx-3 fs-7 fw-bold ls-1 border-0 bg-transparent"
+                        className="spinner mx-3 fs-7 fw-bold ls-1 border-0 bg-transparent text-center"
                         type="text"
                         role="spinbutton"
                         aria-live="assertive"
@@ -359,24 +427,25 @@ function ThemeDetail() {
                         aria-label="Increase"
                         onClick={() => setQuantity(prev => prev + 1)}
                       >
-                        <div>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path
-                              fill="currentColor"
-                              d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"
-                            />
-                          </svg>
-                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                          <path
+                            fill="currentColor"
+                            d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"
+                          />
+                        </svg>
                       </button>
                     </div>
+
                     {/* 訂閱按鈕固定欄位 */}
-                    <div className="subscribe-fixed-bar d-flex justify-content-between">
+                    <div className="subscribe-fixed-bar d-flex justify-content-between align-items-center">
                       <div className="pb-4">
+                        {/* 節省金額 */}
                         <p className="mb-1 fs-9 text-cta-200">
-                          {activePlan ? `節省$${(themeData.price - activePlan.price) * quantity}` : ""}
+                          {activePlan ? `節省 $${(activePlan.originalPrice - activePlan.discountPrice) * quantity}` : ""}
                         </p>
+                        {/* 總金額 */}
                         <p className="fs-4 fw-bold ls-1">
-                          {activePlan ? `NT$ ${activePlan.price * quantity}` : ""}
+                          {activePlan ? `NT$ ${activePlan.discountPrice * quantity}` : ""}
                         </p>
                       </div>
                       <div className="pt-3">
@@ -390,9 +459,9 @@ function ThemeDetail() {
                             <path fill="currentColor" d="M15 7.586L22.414 15H2v-2h15.586l-4-4z" />
                           </svg>
                         </button>
-
                       </div>
                     </div>
+
                   </div>
                 </div>
                 {/* 食用建議advice */}
