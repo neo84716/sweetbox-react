@@ -81,7 +81,7 @@
       "password": "123456",
       "isAdmin": false,
       "phone": "0912345678",
-      "avatar": "./images/Home_Page/avatar.jpg",
+      "avatar": "./images/Home_Page/Avatar-6.png",
       "carrier": "/ABC1234",
       "address": {
         "zipCode": "243",
@@ -97,9 +97,25 @@
       "password": "admin01",
       "isAdmin": true,
       "phone": null,
-      "avatar": null,
+      "avatar": "./images/Home_Page/Avatar_admin.png",
       "carrier": null,
       "address": null
+    },
+    {
+      "id": "u0000003",
+      "name": "Jennie",
+      "email": "jennie.nichols@example.com",
+      "password": "000000",
+      "isAdmin": false,
+      "phone": "0979040888",
+      "avatar": "./images/Home_Page/Avatar-3.png",
+      "carrier": "/J8RC1H34",
+      "address": {
+        "zipCode": "502",
+        "city": "彰化縣",
+        "district": "芬園鄉",
+        "street": "彰南路四段276巷28-2號"
+      }
     }
   ],
   "plans": [
@@ -238,7 +254,8 @@
       "discountTotal": 0,
       "finalTotal": 4410,
       "couponId": null,
-      "createdAt": "2026-04-02T10:00:00Z"
+      "createdAt": "2026-04-02T10:00:00Z",
+      "appliedCouponId": null
     }
   ],
   "cart_items": [
@@ -378,6 +395,45 @@
         "companyEmail": null,
         "donateCode": null
       }
+    },
+    {
+      "id": "s0000004",
+      "userId": "u0000003",
+      "planId": "p0000011",
+      "themeId": "t0000004",
+      "subscriptionNumber": "GB06ST73X7",
+      "quantity": 2,
+      "unitPrice": 720,
+      "durationMonths": 6,
+      "startDate": "2025-11-20",
+      "endDate": "2026-04-20",
+      "nextPaymentDate": "2026-04-20",
+      "status": "active",
+      "isProcessed": true,
+      "note": "請直接放門口。",
+      "paymentMethodId": "pm000002",
+      "paymentSnapshot": {
+        "cardBrand": "jcb",
+        "lastFour": "8301",
+        "expiryMonth": 6,
+        "expiryYear": 2030
+      },
+      "shippingInfo": {
+        "zipCode": "502",
+        "city": "彰化縣",
+        "district": "芬園鄉",
+        "street": "彰南路四段276巷28-2號",
+        "name": "張美惠",
+        "phone": "0979040888"
+      },
+      "invoiceInfo": {
+        "type": "default_carrier",
+        "carrier": "/J8RC1H34",
+        "taxId": null,
+        "companyName": null,
+        "companyEmail": null,
+        "donateCode": null
+      }
     }
   ],
   "orders": [
@@ -509,21 +565,93 @@
     },
     {
       "id": "o0000008",
-      "subscriptionId": "s0000004",
-      "orderNo": "LC03Z9T61L01",
-      "cycle": 3,
-      "amount": 700,
-      "paymentDueDate": "2026-03-01",
+      "subscriptionId": "GB06ST73X7",
+      "orderNo": "GB06ST73X701",
+      "cycle": 1,
+      "amount": 1440,
+      "paymentDueDate": "2025-11-20",
       "paymentStatus": "paid",
-      "paymentDate": "2026-03-01",
+      "paymentDate": "2025-11-20",
       "shippingStatus": "shipped",
-      "shippingDate": "2026-03-02",
+      "shippingDate": "2025-11-21",
       "invoice": {
-        "number": "AB-000007",
-        "date": "2026-03-01T22:00:00Z",
-        "fileUrl": "/invoices/LC03Z9T61L03.pdf"
+        "number": "AB-000008",
+        "date": "2025-11-20T07:00:00Z",
+        "fileUrl": "/invoices/GB06ST73X701.pdf"
       },
-      "isArchived": false
+      "isArchived": true
+    },
+    {
+      "id": "o0000009",
+      "subscriptionId": "GB06ST73X7",
+      "orderNo": "GB06ST73X702",
+      "cycle": 2,
+      "amount": 1440,
+      "paymentDueDate": "2025-12-20",
+      "paymentStatus": "paid",
+      "paymentDate": "2025-12-20",
+      "shippingStatus": "shipped",
+      "shippingDate": "2025-12-21",
+      "invoice": {
+        "number": "AB-000009",
+        "date": "2025-12-20T07:00:00Z",
+        "fileUrl": "/invoices/GB06ST73X702.pdf"
+      },
+      "isArchived": true
+    },
+    {
+      "id": "o0000010",
+      "subscriptionId": "GB06ST73X7",
+      "orderNo": "GB06ST73X703",
+      "cycle": 3,
+      "amount": 1440,
+      "paymentDueDate": "2026-01-20",
+      "paymentStatus": "paid",
+      "paymentDate": "2026-01-20",
+      "shippingStatus": "shipped",
+      "shippingDate": "2026-01-21",
+      "invoice": {
+        "number": "AB-000010",
+        "date": "2026-01-20T07:00:00Z",
+        "fileUrl": "/invoices/GB06ST73X703.pdf"
+      },
+      "isArchived": true
+    },
+    {
+      "id": "o0000011",
+      "subscriptionId": "GB06ST73X7",
+      "orderNo": "GB06ST73X704",
+      "cycle": 4,
+      "amount": 1440,
+      "paymentDueDate": "2026-02-20",
+      "paymentStatus": "paid",
+      "paymentDate": "2026-02-20",
+      "shippingStatus": "shipped",
+      "shippingDate": "2026-02-21",
+      "invoice": {
+        "number": "AB-000010",
+        "date": "2026-02-20T07:00:00Z",
+        "fileUrl": "/invoices/GB06ST73X704.pdf"
+      },
+      "isArchived": true
+    },
+    {
+      "id": "o0000012",
+      "subscriptionId": "GB06ST73X7",
+      "orderNo": "GB06ST73X705",
+      "cycle": 5,
+      "amount": 1440,
+      "paymentDueDate": "2026-03-20",
+      "paymentStatus": "paid",
+      "paymentDate": "2026-03-20",
+      "shippingStatus": "shipped",
+      "shippingDate": "2026-03-21",
+      "invoice": {
+        "number": "AB-000010",
+        "date": "2026-03-20T07:00:00Z",
+        "fileUrl": "/invoices/GB06ST73X705.pdf"
+      },
+      "isArchived": true
     }
   ],
   "payment_methods": [
@@ -538,6 +666,18 @@
       "isDeleted": false,
       "isDefault": true,
       "createdAt": "2025-12-10T00:00:00Z"
+    },
+    {
+      "id": "pm000002",
+      "userId": "u0000003",
+      "cardOwner": "張美惠",
+      "cardBrand": "jcb",
+      "lastFour": "8301",
+      "expiryMonth": 6,
+      "expiryYear": 2030,
+      "isDeleted": false,
+      "isDefault": true,
+      "createdAt": "2025-11-20T08:00:00Z"
     }
   ],
   "coupons": [
