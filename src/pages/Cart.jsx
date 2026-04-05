@@ -7,22 +7,23 @@ import { Icon } from "@iconify/react";
 
 function Cart() {
     const navigate = useNavigate();
-    const {user, isLogin} = useAuth();
+    const { user, isLogin } = useAuth();
     const [cartMain, setCartMain] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [plans, setPlans] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [couponCode, setCouponCode] = useState("");
     const [discountTotal, setDiscountTotal] = useState(0);
-    const [appliedCouponId, setAppliedCouponId] = useState(null);
+    const [couponId, setCouponId] = useState(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
 
     const currentUserId = user?.id;
 
+
     useEffect(() => {
-        if(!isLogin){
+        if (!isLogin) {
             navigate("/login");
             return;
         }
@@ -37,7 +38,7 @@ function Cart() {
 
                     setCartMain(userCart);
                     setDiscountTotal(userCart.discountTotal || 0);
-                    setAppliedCouponId(userCart.appliedCouponId || null);
+                    setCouponId(userCart.couponId || null);
 
                     const [themesRes, plansRes] = await Promise.all([
                         api.get("/themes"),
@@ -68,6 +69,21 @@ function Cart() {
         fetchData();
     }, [isLogin, currentUserId]);
 
+    const updateCartTotals = async (updatedSubTotal, updatedDiscount, updatedFinal, couponId) => {
+        if (!cartMain?.id) return;
+        try {
+            await api.patch(`/carts/${cartMain.id}`, {
+                subTotal: updatedSubTotal,
+                discountTotal: updatedDiscount,
+                finalTotal: updatedFinal,
+                couponId: couponId
+            });
+        } catch (err) {
+            console.error("同步購物車金額失敗", err);
+        }
+    };
+
+
     // 計算及時金額
     const subTotal = cartItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
     const finalTotal = Math.max(0, subTotal - discountTotal);
@@ -76,9 +92,23 @@ function Cart() {
     const handleRemove = async (itemId) => {
         try {
             await api.delete(`/cart_items/${itemId}`);
-            setCartItems(prev => prev.filter(item => item.id !== itemId));
+            const remainingItems = cartItems.filter(item => item.id !== itemId);
+            setCartItems(remainingItems);
+
+            // 商品清空，刪除該筆 cart 母表
+            if (remainingItems.length === 0 && cartMain?.id) {
+                await api.delete(`/carts/${cartMain.id}`);
+                setCartMain(null);
+                setDiscountTotal(0);
+                setCouponId(null);
+            } else {
+                // 如果還有商品，更新金額
+                const newSubTotal = remainingItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
+                const newFinal = Math.max(0, newSubTotal - discountTotal);
+                await updateCartTotals(newSubTotal, discountTotal, newFinal, couponId);
+            }
         } catch (err) {
-            console.error("刪除失敗", err);
+            console.error("移除失敗", err);
         }
     };
 
@@ -95,10 +125,14 @@ function Cart() {
             if (target.quantity === newQty) return;
 
             await api.patch(`/cart_items/${itemId}`, { quantity: newQty });
-            setCartItems(prev => prev.map(item =>
-                item.id === itemId
-                    ? { ...item, quantity: newQty } : item
-            ))
+            const newItems = cartItems.map(item =>
+                item.id === itemId ? { ...item, quantity: newQty } : item
+            );
+            setCartItems(newItems);
+
+            const newSubTotal = newItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
+            const newFinal = Math.max(0, newSubTotal - discountTotal);
+            await updateCartTotals(newSubTotal, discountTotal, newFinal, couponId);
         } catch (err) {
             console.error("更新數量失敗", err);
         }
@@ -107,15 +141,22 @@ function Cart() {
     // 編輯方案
     const handlePlanChange = async (itemId, newPlanId) => {
         try {
-            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId })
+            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId });
             const newPlanDetail = plans.find(p => p.id === newPlanId);
 
-            setCartItems(prev => prev.map(item =>
+            const newItems = cartItems.map(item =>
                 item.id === itemId
                     ? { ...item, planId: newPlanId, plan: newPlanDetail } : item
-            ))
+            );
+            setCartItems(newItems);
+
+            // 💡 統一變數名稱並同步至 carts 資料表
+            const updatedSubTotal = newItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
+            const updatedFinalTotal = Math.max(0, updatedSubTotal - discountTotal);
+
+            await updateCartTotals(updatedSubTotal, discountTotal, updatedFinalTotal, couponId);
         } catch (err) {
-            console.error("更新方案失敗", err)
+            console.error("更新方案失敗", err);
         }
     };
 
@@ -131,7 +172,8 @@ function Cart() {
                 setError("此優惠代碼無效。");
                 setSuccess(false);
                 setDiscountTotal(0);
-                setAppliedCouponId(null);
+                setCouponId(null);
+                await updateCartTotals(subTotal, 0, subTotal, null);
                 return;
             }
 
@@ -139,7 +181,7 @@ function Cart() {
                 setError("此優惠代碼已過期。");
                 setSuccess(false);
                 setDiscountTotal(0);
-                setAppliedCouponId(null);
+                setCouponId(null);
                 return;
             }
 
@@ -147,7 +189,7 @@ function Cart() {
                 setError(`需滿 ${coupon.minSpend} 元才能使用此代碼。`);
                 setSuccess(false);
                 setDiscountTotal(0);
-                setAppliedCouponId(null);
+                setCouponId(null);
                 return;
             }
 
@@ -158,10 +200,15 @@ function Cart() {
                 discount = subTotal * (1 - coupon.discountValue);
             }
 
-            setDiscountTotal(Math.round(discount));
-            setAppliedCouponId(coupon.id);
+            const updatedDiscountTotal = Math.round(discount);
+            const updatedFinalTotal = Math.max(0, subTotal - updatedDiscountTotal);
+
+            setDiscountTotal(updatedDiscountTotal);
+            setCouponId(coupon.id);
             setSuccess(true);
             setError("");
+
+            await updateCartTotals(subTotal, updatedDiscountTotal, updatedFinalTotal, coupon.id);
         } catch (err) {
             console.error("優惠代碼驗證失敗。", err);
             setError("驗證過程發生錯誤。");
@@ -173,7 +220,10 @@ function Cart() {
         if (!cartMain || cartItems.length === 0) return;
         try {
             await api.patch(`/carts/${cartMain.id}`, {
-                subTotal, discountTotal, finalTotal, appliedCouponId
+                subTotal,
+                discountTotal,
+                finalTotal,
+                couponId
             });
             navigate("/cartCheckout");
         } catch (err) {
