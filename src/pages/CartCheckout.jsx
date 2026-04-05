@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Link, useNavigate } from "react-router-dom";
-import { useForm, useWatch, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import api from "../api";
 import useAuth from "../../hooks/useAuth";
 import { message } from "antd";
 import taiwanData from "../assets/utils/taiwanDistricts.json";
-import Input from "../components/Input";
-import Select from "../components/Select";
-import FormError from "../components/FormError";
 import InvoiceSection from "../components/InvoiceSection";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { creditCardYears, creditCardMonths, invoiceOpts } from "../assets/utils/formOptions";
+import { creditCardYears, creditCardMonths } from "../assets/utils/formOptions";
 import { formatCardNumber, getCardType } from "../assets/utils/paymentUtils";
+import ReceiverSection from "../components/cart/ReceiverSection";
+import PaymentSection from "../components/cart/PaymentSection";
+import OrderSummary from "../components/cart/OrderSummary";
 
 // 設定台灣時區
 dayjs.extend(utc);
@@ -367,344 +367,29 @@ function CartCheckout() {
                         <div className="row mx-0 mx-sm-n3">
                             <div className="col-lg-8 px-0 px-lg-4 mb-2 mb-lg-0">
                                 {/* 收件資料 */}
-                                <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
-                                    <h2 className="cart-section-title mb-6">收件資料</h2>
-                                    <Input
-                                        id='name'
-                                        register={register}
-                                        errors={errors}
-                                        labelText='姓名'
-                                        type='text'
-                                        placeholderText='請輸入真實姓名'
-                                        ariaLabel='收件者姓名'
-                                        iconName='material-symbols:person-outline-rounded'
-                                        rules={{
-                                            required: {
-                                                value: true,
-                                                message: '請輸入真實收件人全名。'
-                                            }
-                                        }}
-                                        labelRight={
-                                            <div className="form-check">
-                                                <input
-                                                    className="form-check-input rounded-5"
-                                                    type="checkbox"
-                                                    id='syncMemberData'
-                                                    {...register('syncMemberData', {
-                                                        onChange: handleSyncMemberData
-                                                    })}
-                                                />
-                                                <label className="form-check-label s-text" htmlFor='syncMemberData'>
-                                                    帶入會員資料
-                                                </label>
-                                            </div>
-                                        }
-                                    />
-                                    <Input
-                                        id='phone'
-                                        register={register}
-                                        errors={errors}
-                                        labelText='電話'
-                                        type='tel'
-                                        placeholderText='請輸入電話號碼'
-                                        ariaLabel='收件者電話號碼'
-                                        iconName='bx:phone'
-                                        rules={{
-                                            required: {
-                                                value: true,
-                                                message: '請輸入電話號碼。'
-                                            },
-                                            minLength: {
-                                                value: 6,
-                                                message: '至少 6 碼。'
-                                            }
-                                        }}
-                                        // ...rest 部分
-                                        maxLength={10}
-                                        onInput={(e) => {
-                                            e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
-                                        }}
-                                    />
-                                    <div>
-                                        <label htmlFor="city" className="form-label px-2">地址</label>
-                                        <div className="row g-3 mb-3">
-                                            <div className="col-6">
-                                                <Controller
-                                                    name="city"
-                                                    control={control}
-                                                    rules={{ required: '請選擇城市' }}
-                                                    render={({ field: { onChange, value }, fieldState: { error } }) => (
-                                                        <Select
-                                                            id='city'
-                                                            placeholderText='城市'
-                                                            options={cities}
-                                                            value={value}
-                                                            onChange={(val) => {
-                                                                onChange(val); // 告訴 RHF 城市換了
-                                                                //清空值時，觸發鄉鎮市區「必填」提醒
-                                                                setValue('district', '', { shouldValidate: true }); // 💡 連動防呆：城市切換時，清空鄉鎮市區的值
-                                                            }}
-                                                            errorMsg={error?.message}
-                                                        />
-                                                    )}
-                                                />
-                                                <FormError
-                                                    message={errors?.city?.message}
-                                                />
-                                            </div>
-                                            <div className="col-6">
-                                                <Controller
-                                                    name="district"
-                                                    control={control}
-                                                    rules={{ required: '請選擇鄉鎮市區' }}
-                                                    render={({ field: { onChange, value }, fieldState: { error } }) => (
-                                                        <Select
-                                                            id='district'
-                                                            placeholderText='鄉鎮市區'
-                                                            options={districts}
-                                                            value={value}
-                                                            onChange={(val) => {
-                                                                onChange(val);
-                                                                trigger(['city', 'district']);
-                                                            }}
-                                                            disabled={!currentCity} // 防呆：沒選城市，不給選
-                                                            errorMsg={error?.message}
-                                                        />
-                                                    )}
-                                                />
-                                                <FormError
-                                                    message={errors?.district?.message}
-                                                />
-                                            </div>
-                                        </div>
-                                        <Input
-                                            id='street'
-                                            register={register}
-                                            errors={errors}
-                                            wrapperClass='mb-0'
-                                            type='text'
-                                            placeholderText='請輸入地址'
-                                            ariaLabel='收件者地址'
-                                            iconName='mi:location'
-                                            rules={{
-                                                required: {
-                                                    value: true,
-                                                    message: '請輸入地址。'
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                </section>
+                                <ReceiverSection
+                                    register={register}
+                                    errors={errors}
+                                    control={control}
+                                    cities={cities}
+                                    districts={districts}
+                                    currentCity={currentCity}
+                                    setValue={setValue}
+                                    trigger={trigger}
+                                    handleSyncMemberData={handleSyncMemberData}
+                                />
                                 {/* 付款資料 */}
-                                <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
-                                    <h2 className="cart-section-title mb-6">付款資料</h2>
-                                    <Input
-                                        id="cardNumber"
-                                        register={register}
-                                        errors={errors}
-                                        labelText="信用卡卡號"
-                                        type="tel"
-                                        placeholderText="0000-0000-0000-0000"
-                                        ariaLabel="信用卡卡號"
-                                        iconName="tabler:credit-card"
-                                        rules={{
-                                            required: {
-                                                value: true,
-                                                message: '請輸入信用卡卡號。',
-                                            },
-                                            minLength: {
-                                                value: 19,
-                                                message: '信用卡卡號需為 16 碼。',
-                                            },
-                                            onChange: handleCardNumberChange,
-                                        }}
-                                        labelRight={
-                                            <div className="d-flex">
-                                                <Icon
-                                                    className="me-3"
-                                                    icon="logos:visaelectron"
-                                                    width="35.93"
-                                                    height="16"
-                                                ></Icon>
-                                                <Icon
-                                                    className="me-3"
-                                                    icon="logos:mastercard"
-                                                    width="20.59"
-                                                    height="16"
-                                                ></Icon>
-                                                <Icon
-                                                    icon="logos:jcb"
-                                                    width="20.69"
-                                                    height="16"
-                                                ></Icon>
-                                            </div>
-                                        }
-                                        // ...rest 部分
-                                        maxLength={19}
-                                        onInput={(e) => {
-                                            e.target.value = e.target.value.replace(/\D/g, ''); // 強制過濾非數字字元
-                                        }}
-                                    />
-                                    <Input
-                                        id="cardOwner"
-                                        register={register}
-                                        errors={errors}
-                                        labelText="持卡人姓名"
-                                        type="text"
-                                        placeholderText="請輸入卡片上的英文姓名。"
-                                        ariaLabel="持卡人姓名"
-                                        iconName="material-symbols:person-outline-rounded"
-                                        rules={{
-                                            required: {
-                                                value: true,
-                                                message: '請輸入持卡人英文姓名。',
-                                            },
-                                        }}
-                                    />
-
-                                    <div className="mb-4 mb-lg-6">
-                                        <div className="row g-3">
-                                            <div className="col-lg-6">
-                                                <label htmlFor="" className="form-label px-2">
-                                                    有效期限
-                                                </label>
-                                                <div className="row g-3">
-                                                    <div className="col-6">
-                                                        <Controller
-                                                            name="expiryMonth"
-                                                            control={control}
-                                                            rules={{
-                                                                validate: (val) => {
-                                                                    if (!val) return '請選擇效期';
-
-                                                                    const currentYear =
-                                                                        getValues('expiryYear');
-                                                                    if (!currentYear) return true;
-
-                                                                    const now = new Date();
-                                                                    const expiration = new Date(
-                                                                        Number(currentYear),
-                                                                        Number(val),
-                                                                        1,
-                                                                    );
-
-                                                                    if (now >= expiration) {
-                                                                        return '信用卡已過期';
-                                                                    }
-
-                                                                    return true;
-                                                                },
-                                                            }}
-                                                            render={({
-                                                                field: { onChange, value },
-                                                                fieldState: { error },
-                                                            }) => (
-                                                                <Select
-                                                                    id="expiryMonth"
-                                                                    placeholderText="月份"
-                                                                    options={creditCardMonths}
-                                                                    value={value}
-                                                                    onChange={(val) => {
-                                                                        onChange(val);
-                                                                        trigger([
-                                                                            'expiryMonth',
-                                                                            'expiryYear',
-                                                                        ]); // 💡 觸發年份與月份的連動驗證
-                                                                    }}
-                                                                    errorMsg={error?.message}
-                                                                    suffix=" 月"
-                                                                />
-                                                            )}
-                                                        />
-                                                        <FormError
-                                                            message={errors?.expiryMonth?.message}
-                                                        />
-                                                    </div>
-                                                    <div className="col-6">
-                                                        <Controller
-                                                            name="expiryYear"
-                                                            control={control}
-                                                            rules={{
-                                                                validate: (val) => {
-                                                                    if (!val) return '請選擇年份';
-                                                                    return true;
-                                                                },
-                                                            }}
-                                                            render={({
-                                                                field: { onChange, value },
-                                                                fieldState: { error },
-                                                            }) => (
-                                                                <Select
-                                                                    id="expiryYear"
-                                                                    placeholderText="年份"
-                                                                    options={creditCardYears}
-                                                                    value={value}
-                                                                    onChange={(val) => {
-                                                                        onChange(val);
-                                                                        trigger([
-                                                                            'expiryMonth',
-                                                                            'expiryYear',
-                                                                        ]);
-                                                                    }}
-                                                                    errorMsg={error?.message}
-                                                                    suffix=" 年"
-                                                                />
-                                                            )}
-                                                        />
-                                                        <FormError
-                                                            message={errors?.expiryYear?.message}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="col-lg-6">
-                                                <Input
-                                                    id="card-cvv"
-                                                    register={register}
-                                                    errors={errors}
-                                                    labelText="安全碼"
-                                                    type="tel"
-                                                    placeholderText="CVV"
-                                                    ariaLabel="信用卡安全碼"
-                                                    iconName="lets-icons:lock"
-                                                    rules={{
-                                                        required: {
-                                                            value: true,
-                                                            message: '請輸入信用卡安全碼。',
-                                                        },
-                                                        minLength: {
-                                                            value: 3,
-                                                            message: '安全碼應為 3 碼。',
-                                                        },
-                                                    }}
-                                                    // ...rest 部分
-                                                    maxLength={3}
-                                                    onInput={(e) => {
-                                                        e.target.value = e.target.value.replace(
-                                                            /\D/g,
-                                                            '',
-                                                        ); // 強制過濾非數字字元
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="form-check">
-                                        <input
-                                            className="form-check-input rounded-5"
-                                            type="checkbox"
-                                            id="saveCard"
-                                            {...register('saveCard')}
-                                        />
-                                        <label
-                                            className="form-check-label s-text"
-                                            htmlFor="saveCard"
-                                        >
-                                            記住此卡片資訊以提供下次使用
-                                        </label>
-                                    </div>
-                                </section>
+                                <PaymentSection
+                                    register={register}
+                                    errors={errors}
+                                    control={control}
+                                    creditCardMonths={creditCardMonths}
+                                    creditCardYears={creditCardYears}
+                                    handleCardNumberChange={handleCardNumberChange}
+                                    getValues={getValues}
+                                    trigger={trigger}
+                                    Icon={Icon}
+                                />
 
                                 {/* 索取發票 */}
                                 <section className="cart-panel p-4 p-lg-6 mb-2 mb-lg-6">
@@ -781,88 +466,13 @@ function CartCheckout() {
                                 </section>
                             </div>
                             <div className="col-lg-4 px-0 px-lg-3">
-                                <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
-                                    <h2 className="cart-section-title mb-3 mb-lg-6">
-                                        訂單明細
-                                    </h2>
-                                    <div className="px-2 px-lg-0 mb-0 mb-sm-6">
-                                        <ul className="fs-8 order-list mb-6">
-                                            {cartItems.map((item) => (
-                                                <li
-                                                    key={item.id}
-                                                    className="py-2 mb-3 d-flex text-neutral-800"
-                                                >
-                                                    <div className="flex-shrink-0 me-1 me-lg-2 align-self-lg-center">
-                                                        <img
-                                                            className="order-img rounded-2 bg-secondary d-inline-block"
-                                                            src={item.theme?.images?.square}
-                                                            alt={item.theme?.title}
-                                                        />
-                                                    </div>
-                                                    <div className="px-2 flex-grow-1 d-flex flex-column justify-content-center">
-                                                        <div className="fw-bold mb-1 text-neutral-800">
-                                                            {item.theme?.title}甜點盒
-                                                        </div>
-                                                        <div>
-                                                            <span>
-                                                                {item.plan?.durationMonths}個月訂閱方案
-                                                            </span>
-                                                            <span className="d-none d-lg-inline">
-                                                                {' '}·{' '}
-                                                            </span>
-                                                            <span className="d-block d-lg-inline">
-                                                                NT${item.plan?.discountPrice} / 盒
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex-shrink-0 text-end px-2 ms-2 align-self-end">
-                                                        <div className="mb-lg-1">x {item.quantity}</div>
-                                                        <div className="fw-bold text-neutral-800">
-                                                            NT$
-                                                            {(
-                                                                (item.plan?.discountPrice || 0) * item.quantity
-                                                            ).toLocaleString()}
-                                                        </div>
-                                                    </div>
-                                                </li>
-
-                                            ))}
-                                        </ul>
-
-                                        {/* 小計、折扣、合計 */}
-                                        <div className="lh-base pb-6 mb-6 border-bottom border-neutral-400">
-                                            <p className="d-flex justify-content-between align-items-center mb-2">
-                                                <span>小計</span>
-                                                <span>NT${cartMain?.subTotal?.toLocaleString() || 0}</span>
-                                            </p>
-                                            <p className="d-flex justify-content-between align-items-center">
-                                                <span>折扣</span>
-                                                <span className="text-cta-200">
-                                                    - NT${cartMain?.discountTotal?.toLocaleString() || 0}
-                                                </span>
-                                            </p>
-                                        </div>
-                                        <p className="d-flex justify-content-between align-items-center lh-sm ls-1 fw-bold">
-                                            <span>合計</span>
-                                            <span className="fs-5 lh-base ls-1">
-                                                NT${cartMain?.finalTotal?.toLocaleString() || 0}
-                                            </span>
-                                        </p>
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting || isLoading} // 提交中禁止重複點擊
-                                        className="btn-primary-text w-100 d-none d-sm-block"
-                                    >
-                                        {isSubmitting ? (
-                                            <>
-                                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                                處理中...
-                                            </>
-                                        ) : "確認支付並下單"}
-                                    </button>
-                                </section>
+                                {/* 訂單明細 */}
+                                <OrderSummary
+                                    cartItems={cartItems}
+                                    cartMain={cartMain}
+                                    isSubmitting={isSubmitting}
+                                    isLoading={isLoading}
+                                />
                                 <section className="py-4 px-3 p-lg-8 cart-notice">
                                     <h3 className="mb-3 mb-lg-4">購物須知</h3>
                                     <ol>
