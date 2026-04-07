@@ -305,7 +305,6 @@ function Subscribe() {
                                                 <td className="text-center">
                                                     <StatusButton
                                                         status={item.isProcessed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
-                                                        onClick={() => updateSubscription(item)}
                                                         variant="desktop"
                                                     />
                                                 </td>
@@ -510,7 +509,6 @@ function Subscribe() {
                                             </div>
                                             <StatusButton
                                                 status={item.isProcessed ? STATUS.PROCESSED : STATUS.UNPROCESSED}
-                                                onClick={() => updateSubscription(item)}
                                                 variant="mobile"
                                             />
 
