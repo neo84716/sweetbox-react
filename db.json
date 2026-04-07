@@ -42,7 +42,7 @@
       "titleEn": "global",
       "titleAbbr": "GB",
       "subtitle": "我們幫你挑最值得期待的那一盒",
-      "description": "精選以台灣食材與職人手藝製作的特色甜點, 簡單卻令人回味無窮。",
+      "description": "每月解鎖一國的代表甜點，為你展開一場從舌尖出發的甜點之旅。",
       "images": {
         "main": "./images/Theme_Page/pic_theme_world.png",
         "square": "./images/Cart_Page/pic_world.jpg"
@@ -248,23 +248,26 @@
   ],
   "carts": [
     {
-      "id": "c0000002",
-      "userId": "c475",
-      "subTotal": 710,
-      "discountTotal": 0,
-      "finalTotal": 710,
+      "id": "c0000001",
+      "userId": "u0000001",
       "couponId": null,
+      "discountTotal": null,
       "createdAt": "2026-04-05T13:50:19.655Z",
-      "appliedCouponId": null,
-      "updatedAt": "2026-04-05T13:50:19.670Z"
+      "updatedAt": "2026-04-06T18:10:42.445Z"
     }
   ],
   "cart_items": [
     {
       "id": "ci0000001",
-      "cartId": "c0000002",
+      "cartId": "c0000001",
       "planId": "p0000001",
       "quantity": 1
+    },
+    {
+      "id": "ci0000002",
+      "cartId": "c0000001",
+      "planId": "p0000011",
+      "quantity": 2
     }
   ],
   "subscriptions": [
@@ -306,8 +309,7 @@
         "companyName": null,
         "companyEmail": null,
         "donateCode": null
-      },
-      "updated_at": "2026-04-07T01:06:50.073Z"
+      }
     },
     {
       "id": "s0000002",
@@ -362,7 +364,7 @@
       "endDate": "2026-04-01",
       "nextPaymentDate": "--",
       "status": "completed",
-      "isProcessed": true,
+      "isProcessed": false,
       "note": "放門口即可。",
       "createdAt": "2026-01-01T00:00:00Z",
       "paymentMethodId": "pm000001",
@@ -387,7 +389,8 @@
         "companyName": null,
         "companyEmail": null,
         "donateCode": null
-      }
+      },
+      "updated_at": "2026-04-06T18:13:35.736Z"
     },
     {
       "id": "s0000004",
@@ -465,7 +468,8 @@
         "company_name": "",
         "company_email": "",
         "donate_code": ""
-      }
+      },
+      "updated_at": "2026-04-06T18:15:12.097Z"
     }
   ],
   "orders": [
@@ -505,7 +509,7 @@
         "date": "2026-01-15T22:00:00Z",
         "fileUrl": "/invoices/SS06M4P82Q01.pdf"
       },
-      "isArchived": false
+      "isArchived": true
     },
     {
       "id": "o0000003",
@@ -524,7 +528,7 @@
         "date": "2026-02-15T22:00:00Z",
         "fileUrl": "/invoices/SS06M4P82Q02.pdf"
       },
-      "isArchived": false
+      "isArchived": true
     },
     {
       "id": "o0000004",
@@ -537,13 +541,13 @@
       "paymentStatus": "paid",
       "paymentDate": "2026-03-10",
       "shippingStatus": "not_required",
-      "shippingDate": "2026-03-11",
+      "shippingDate": "-",
       "invoice": {
         "number": "AB-000004",
         "date": "2026-03-10T22:00:00Z",
         "fileUrl": "/invoices/SS06M4P82QCF.pdf"
       },
-      "isArchived": false
+      "isArchived": true
     },
     {
       "id": "o0000005",
@@ -562,7 +566,7 @@
         "date": "2026-01-01T22:00:00Z",
         "fileUrl": "/invoices/LC03Z9T61L01.pdf"
       },
-      "isArchived": false
+      "isArchived": true
     },
     {
       "id": "o0000006",
@@ -581,7 +585,7 @@
         "date": "2026-02-01T22:00:00Z",
         "fileUrl": "/invoices/LC03Z9T61L02.pdf"
       },
-      "isArchived": false
+      "isArchived": true
     },
     {
       "id": "o0000007",
@@ -696,6 +700,7 @@
       "id": "2fc1",
       "subscriptionId": "5f96",
       "orderNo": "SL03MF6IJZ01",
+      "cycle": 1,
       "amount": 710,
       "createdAt": "2026-04-05T13:51:02.498Z",
       "paymentDueDate": "2026-04-05",
@@ -707,6 +712,63 @@
         "number": "AB-32404093",
         "date": "2026-04-05T13:51:02.498Z",
         "fileUrl": null
+      },
+      "isArchived": false
+    },
+    {
+      "id": "o0000013",
+      "subscriptionId": "s0000001",
+      "orderNo": "SL12A7K29X02",
+      "cycle": 2,
+      "amount": 2025,
+      "paymentDueDate": "2026-01-10",
+      "createdAt": "2026-01-10T00:00:00Z",
+      "paymentStatus": "paid",
+      "paymentDate": "2026-01-10",
+      "shippingStatus": "shipped",
+      "shippingDate": "2026-01-11",
+      "invoice": {
+        "number": "AB-000002",
+        "date": "2026-01-10T22:00:00Z",
+        "fileUrl": "/invoices/SL12A7K29X02.pdf"
+      },
+      "isArchived": true
+    },
+    {
+      "id": "o0000014",
+      "subscriptionId": "s0000001",
+      "orderNo": "SL12A7K29X03",
+      "cycle": 3,
+      "amount": 2025,
+      "paymentDueDate": "2026-02-10",
+      "createdAt": "2026-02-10T00:00:00Z",
+      "paymentStatus": "paid",
+      "paymentDate": "2026-02-10",
+      "shippingStatus": "shipped",
+      "shippingDate": "2026-02-11",
+      "invoice": {
+        "number": "AB-000003",
+        "date": "2026-02-10T22:00:00Z",
+        "fileUrl": "/invoices/SL12A7K29X03.pdf"
+      },
+      "isArchived": true
+    },
+    {
+      "id": "o0000015",
+      "subscriptionId": "s0000001",
+      "orderNo": "SL12A7K29X04",
+      "cycle": 4,
+      "amount": 2025,
+      "paymentDueDate": "2026-03-10",
+      "createdAt": "2026-03-10T00:00:00Z",
+      "paymentStatus": "paid",
+      "paymentDate": "2026-03-10",
+      "shippingStatus": "shipped",
+      "shippingDate": "2026-03-11",
+      "invoice": {
+        "number": "AB-000004",
+        "date": "2026-03-10T22:00:00Z",
+        "fileUrl": "/invoices/SL12A7K29X04.pdf"
       },
       "isArchived": true
     }
@@ -762,3 +824,4 @@
     }
   ]
 }
+
