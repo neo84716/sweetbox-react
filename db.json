@@ -281,7 +281,7 @@
       "endDate": "2026-12-10",
       "nextPaymentDate": "2026-01-10",
       "status": "active",
-      "isProcessed": true,
+      "isProcessed": false,
       "note": "請直接放門口。",
       "createdAt": "2025-12-10T00:00:00Z",
       "paymentMethodId": "pm000001",
@@ -306,7 +306,8 @@
         "companyName": null,
         "companyEmail": null,
         "donateCode": null
-      }
+      },
+      "updated_at": "2026-04-07T01:06:50.073Z"
     },
     {
       "id": "s0000002",
@@ -485,7 +486,7 @@
         "date": "2025-12-10T22:00:00Z",
         "fileUrl": "/invoices/SL12A7K29X01.pdf"
       },
-      "isArchived": false
+      "isArchived": true
     },
     {
       "id": "o0000002",

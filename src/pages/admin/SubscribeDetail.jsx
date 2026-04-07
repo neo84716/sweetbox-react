@@ -86,7 +86,7 @@ function SubscribeDetail() {
   const shippedProgress = (shippedCount / subscriptionData?.durationMonths)*100
   const defaultCard = subscriptionData?.paymentSnapshot
   // 計算未歸檔數量
-  const unArchivedCount = allOrders.filter((order) => {
+  const unArchivedCount = editedOrders.filter((order) => {
     return order.isArchived !== true
   }).length
   
@@ -236,6 +236,11 @@ function SubscribeDetail() {
     }
     // 把原始資料變更成更新後的資料
     setAllOrders(editedOrders)
+    if (unArchivedCount === 0) {
+      await api.patch(`subscriptions/${subscriptionData.id}`, {
+        isProcessed: true
+      })
+    }
   }
 
   return (
