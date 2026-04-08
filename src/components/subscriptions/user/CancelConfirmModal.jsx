@@ -1,19 +1,106 @@
 import { Icon } from '@iconify/react';
+import api from '../../../api';
+
+// 模擬時間
+const mockNow = '2026-04-08T10:00:00.000Z';
+
+// 信用卡 icon 樣式
+const cardIcons = {
+  visa: 'logos:visaelectron',
+  mastercard: 'logos:mastercard',
+  jcb: 'logos:jcb',
+};
+
+// 生成發票號碼
+  const generateInvoiceNumber = () => {
+    // 兩個隨機英文字母
+    const letters = Array.from({ length: 2 }, () => {
+      return String.fromCharCode(Math.floor(Math.random() * 26) + 65);
+    }).join('');
+
+    // 後面 6 位數字
+    const numbers = Math.floor(Math.random() * 1000000)
+      .toString()
+      .padStart(6, '0');
+
+    return `${letters}-${numbers}`;
+  };
 
 function CancelConfirmModal({
   cancelConfirmModalRef,
-  cancelReminderModalRef,
-  isOpen,
-  onClose,
-  handleOpenModal,
+  handleCloseModal,
+  handleModalState,
+  subscription,
+  fetchSubscriptions
 }) {
+
+  if (!subscription) return null;
+
+  // 取得訂單編號
+  const getOrderNo = (subscription) => {
+    const subscriptionNumber = subscription.subscriptionNumber;
+    return `${subscriptionNumber}CF`;
+  };
+
+  // 格式化日期 YYYY-MM-DD
+  const formatDate = (date) => {
+    return new Date(date).toISOString().slice(0, 10);
+  };
+
+  // 計算罰金與已訂閱期數
+  const deliveredCount = Math.max(
+    ...subscription.orders.map((order) => order.cycle),
+  );
+  const { discountPrice, originalPrice } = subscription.plan;
+  const difference = Math.abs(discountPrice - originalPrice);
+
+  const penalty = deliveredCount * difference;
+
+  const { id } = subscription;
+
+  const handelCancelSubscription = async (subscriptionId) => {
+    try {
+      const orderNo = getOrderNo(subscription);
+      const invoiceNumber = generateInvoiceNumber();
+
+      // 新增訂單的資料
+      const newOrder = {
+        subscriptionId: id,
+        orderNo,
+        cycle: '-',
+        amount: penalty,
+        paymentDueDate: formatDate(mockNow),
+        createdAt: mockNow,
+        paymentStatus: 'pending',
+        paymentDate: formatDate(mockNow),
+        shippingStatus: 'not_required',
+        shippingDate: null,
+        invoice: {
+          number: invoiceNumber,
+          date: mockNow,
+          fileUrl: `/invoices/${orderNo}.pdf`,
+        },
+        isArchived: false,
+      };
+
+      // 新增一筆訂單、修改訂閱狀態
+      await Promise.all([
+        api.post('/orders', newOrder),
+        api.patch(`/subscriptions/${subscriptionId}`, {
+          status: 'cancelled',
+          nextPaymentDate: formatDate(mockNow) })
+      ]);
+
+    } catch (error) {
+      console.error('取消訂閱失敗:', error?.message || '請稍後再試！');
+    }
+  };
+
   return (
     <div
-      className={`modal fade ${isOpen && 'show'}`}
+      className="modal fade"
       tabIndex="-1"
       aria-labelledby="cancelConfirmModalLabel"
-      aria-hidden={!isOpen}
-      aria-modal={isOpen}
       role="dialog"
       ref={cancelConfirmModalRef}
     >
@@ -27,29 +114,38 @@ function CancelConfirmModal({
                 <div>
                   <p className="text-label mb-6 fw-bold ls-1 lh-sm">結算明細</p>
                   <div className="d-flex gap-4">
-                    <img
-                      className="align-self-start rounded-3"
-                      src="./images/Subscription_Page/local_theme_pic_thumbnail.png"
-                      alt="甜點盒圖片"
-                    />
+                    <div className="theme-wrapper">
+                      <img
+                        className="align-self-start rounded-3"
+                        src={subscription.theme.images.square}
+                        alt="甜點盒圖片"
+                      />
+                    </div>
                     <div>
-                      <p className="h6 ls-1 mb-6">在地甜點盒</p>
+                      <p className="h6 ls-1 mb-6">{subscription.theme.title}</p>
                       <ul className="d-flex flex-column gap-3">
                         <li>
                           <p className="mb-1 text-label">訂閱編號</p>
-                          <p className="small">LC062HY2C7</p>
+                          <p className="small">
+                            {subscription.subscriptionNumber}
+                          </p>
                         </li>
                         <li>
                           <p className="mb-1 text-label">已配送期數</p>
-                          <p className="small">4/6期</p>
+                          <p className="small">
+                            {deliveredCount}/{subscription.durationMonths}期
+                          </p>
                         </li>
                         <li>
                           <p className="mb-1 text-label">訂閱數量</p>
-                          <p className="small">1 盒</p>
+                          <p className="small">{subscription.quantity} 盒</p>
                         </li>
                         <li>
                           <p className="mb-1 text-label">訂閱價格</p>
-                          <p className="small">NT$700/月</p>
+                          <p className="small">
+                            NT${subscription.unitPrice * subscription.quantity}
+                            /月
+                          </p>
                         </li>
                       </ul>
                     </div>
@@ -60,9 +156,15 @@ function CancelConfirmModal({
                   <p className="text-label mb-3">扣款方式</p>
                   <div className="d-flex gap-2 align-items-center">
                     <div className="credit-card-logo">
-                      <Icon icon="logos:visaelectron" width="28" height="16" />
+                      <Icon
+                        icon={cardIcons[subscription.paymentSnapshot.cardBrand]}
+                        width="28"
+                        height="16"
+                      />
                     </div>
-                    <p>**** **** **** 1234</p>
+                    <p>
+                      **** **** **** {subscription.paymentSnapshot.lastFour}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -76,7 +178,10 @@ function CancelConfirmModal({
                     type="button"
                     className="btn-close btn-close-md"
                     aria-label="Close"
-                    onClick={() => onClose(cancelConfirmModalRef)}
+                    onClick={() => {
+                      handleCloseModal();
+                      handleModalState(null, null);
+                    }}
                   ></button>
                 </div>
                 <div className="d-flex flex-column gap-8">
@@ -94,20 +199,20 @@ function CancelConfirmModal({
                     <div className="subscription-summary d-flex flex-column gap-1 mb-4">
                       <p className="subscription-summary-item">
                         <span>單期原價</span>
-                        <span>$740</span>
+                        <span>${subscription.plan.originalPrice}</span>
                       </p>
                       <p className="subscription-summary-item">
                         <span>訂閱優惠價</span>
-                        <span>$700</span>
+                        <span>${subscription.plan.discountPrice}</span>
                       </p>
                       <div className="subscription-info-divider"></div>
                       <p className="subscription-summary-item">
                         <span>每期優惠金額(價差)</span>
-                        <span>$40</span>
+                        <span>${difference}</span>
                       </p>
                       <p className="subscription-summary-item">
                         <span>累計已配送期數</span>
-                        <span>4期</span>
+                        <span>{deliveredCount}期</span>
                       </p>
                     </div>
                     <div className="rounded-3 p-4 bg-primary-200 d-flex justify-content-between">
@@ -115,7 +220,7 @@ function CancelConfirmModal({
                         補貼總額計算
                       </span>
                       <span className="fs-8 fw-bold ls-1 lh-sm text-primary-600">
-                        $40 X 4期 = $160
+                        ${difference} X {deliveredCount}期 = ${penalty}
                       </span>
                     </div>
                   </div>
@@ -124,19 +229,21 @@ function CancelConfirmModal({
                     <button
                       type="button"
                       className="btn btn-semantic-error rounded-pill px-6 py-3 ls-1 lh-sm"
-                      onClick={() => onClose(cancelConfirmModalRef)}
+                      onClick={() => {
+                        handelCancelSubscription(subscription.id);
+                        handleCloseModal();
+                        handleModalState(null, null);
+                        fetchSubscriptions();
+                      }}
                     >
-                      確認扣款 NT$160 ，並取消訂閱
+                      確認扣款 NT${penalty} ，並取消訂閱
                     </button>
                     <button
                       type="button"
                       className="btn py-3 fs-8 text-neutral-700 border-0"
                       onClick={() => {
-                        onClose(cancelConfirmModalRef);
-                        handleOpenModal(
-                          cancelReminderModalRef,
-                          'cancelReminder',
-                        );
+                        handleCloseModal();
+                        handleModalState('cancelReminder', subscription);
                       }}
                     >
                       返回上一步
@@ -148,12 +255,16 @@ function CancelConfirmModal({
                     <div className="d-flex align-items-center gap-2">
                       <div className="py-1 px-2">
                         <Icon
-                          icon="logos:visaelectron"
+                          icon={
+                            cardIcons[subscription.paymentSnapshot.cardBrand]
+                          }
                           width="28"
                           height="16"
                         />
                       </div>
-                      <span>**** **** **** 1234</span>
+                      <span>
+                        **** **** **** {subscription.paymentSnapshot.lastFour}
+                      </span>
                     </div>
                   </div>
                   {/* 行動版訂閱編號卡片 */}
@@ -162,29 +273,35 @@ function CancelConfirmModal({
                     <div className="d-flex gap-4 mb-4">
                       <img
                         className="rounded-3"
-                        src="./images/Subscription_Page/local_theme_pic_thumbnail.png"
+                        src={subscription.theme.images.square}
                         alt="甜點盒圖片"
                       />
                       <div>
                         <p className="fs-9 lh-sm ls-1 fw-bold text-neutral-600 mb-1">
-                          訂閱編號：LC062HY2C7
+                          訂閱編號：{subscription.subscriptionNumber}
                         </p>
-                        <p className="fs-8 fw-bold lh-sm ls-1">在地甜點盒</p>
+                        <p className="fs-8 fw-bold lh-sm ls-1">
+                          {subscription.theme.title}
+                        </p>
                       </div>
                     </div>
                     {/* 訂閱內容 */}
                     <div className="d-flex gap-4">
                       <div className="flex-grow-1">
                         <p className="text-label mb-1">數量</p>
-                        <p>1 盒</p>
+                        <p>{subscription.quantity} 盒</p>
                       </div>
                       <div className="flex-grow-1">
                         <p className="text-label mb-1">價格</p>
-                        <p>NT$700/月</p>
+                        <p>
+                          NT${subscription.unitPrice * subscription.quantity}/月
+                        </p>
                       </div>
                       <div className="flex-grow-1">
                         <p className="text-label mb-1">已配送</p>
-                        <p>4/6期</p>
+                        <p>
+                          {deliveredCount}/{subscription.durationMonths}期
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -195,15 +312,20 @@ function CancelConfirmModal({
                 <button
                   className="btn w-100 border-0 py-3 fs-8 text-neutral-700"
                   onClick={() => {
-                    onClose(cancelConfirmModalRef);
-                    handleOpenModal(cancelReminderModalRef, 'cancelReminder');
+                    handleCloseModal();
+                    handleModalState('cancelReminder', subscription);
                   }}
                 >
                   返回上一步
                 </button>
                 <button
                   className="btn btn-semantic-error btn-action py-3 w-100"
-                  onClick={() => onClose(cancelConfirmModalRef)}
+                  onClick={() => {
+                    handelCancelSubscription(subscription.id);
+                    handleCloseModal();
+                    handleModalState(null, null);
+                    fetchSubscriptions();
+                  }}
                 >
                   扣款並取消訂閱
                 </button>

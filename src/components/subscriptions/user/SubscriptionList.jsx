@@ -53,10 +53,13 @@ const statusDateMap = {
 
 const { Modal } = bootstrap;
 
-function SubscriptionList({ subscriptions }) {
+function SubscriptionList({ subscriptions, fetchSubscriptions }) {
   const [isAdd, setIsAdd] = useState(false);
-  const [activeModal, setActiveModal] = useState(null);
   const [expandedIds, setExpandedIds] = useState([]); // 已展開的訂閱 Id
+  const [modalState, setModalState] = useState({
+    type: null,
+    subscription: null,
+  });
 
   const paymentModalRef = useRef(null);
   const cancelReminderModalRef = useRef(null);
@@ -89,7 +92,7 @@ function SubscriptionList({ subscriptions }) {
         ref.current?.removeEventListener('hide.bs.modal', handleHide);
       });
     };
-  }, [subscriptions]);
+  }, [modalState]);
 
   // 切換 accordion
   const handleToggleAccordion = (id) => {
@@ -101,15 +104,26 @@ function SubscriptionList({ subscriptions }) {
   };
 
   // Modal 開關
-  const handleOpenModal = (ref, type) => {
-    Modal.getOrCreateInstance(ref.current)?.show();
-    setActiveModal(type);
-  };
-
   const handleCloseModal = (ref) => {
     Modal.getInstance(ref.current)?.hide();
-    setActiveModal(null);
   };
+
+  // 確定訂閱取到值才開啟 modal
+  useEffect(() => {
+    if (!modalState.type || !modalState.subscription) return;
+
+    const modalRefs = {
+      payment: paymentModalRef,
+      cancelReminder: cancelReminderModalRef,
+      cancelConfirm: cancelConfirmModalRef,
+    };
+
+    const handleOpenModal = (ref) => {
+      Modal.getOrCreateInstance(ref.current)?.show();
+    };
+
+    handleOpenModal(modalRefs[modalState.type]);
+  }, [modalState]);
 
   return (
     <div
@@ -119,26 +133,30 @@ function SubscriptionList({ subscriptions }) {
       {/* 付款管理 Modal */}
       <PaymentModal
         modalRef={paymentModalRef}
-        isOpen={activeModal === 'payment'}
-        onClose={handleCloseModal}
+        handleCloseModal={() => handleCloseModal(paymentModalRef)}
         isAdd={isAdd}
         onToggleAddCard={(value) => setIsAdd(value)}
+        subscription={modalState.subscription}
       />
+
       {/* 取消訂閱提醒 Modal */}
       <CancelReminderModal
         cancelReminderModalRef={cancelReminderModalRef}
-        cancelConfirmModalRef={cancelConfirmModalRef}
-        isOpen={activeModal === 'cancelReminder'}
-        onClose={handleCloseModal}
-        handleOpenModal={handleOpenModal}
+        handleCloseModal={() => handleCloseModal(cancelReminderModalRef)}
+        handleModalState={(type, subscription) =>
+          setModalState({ type, subscription })
+        }
+        subscription={modalState.subscription}
       />
       {/* 取消訂閱確認 Modal */}
       <CancelConfirmModal
         cancelConfirmModalRef={cancelConfirmModalRef}
-        cancelReminderModalRef={cancelReminderModalRef}
-        isOpen={activeModal === 'cancelConfirm'}
-        onClose={handleCloseModal}
-        handleOpenModal={handleOpenModal}
+        handleCloseModal={() => handleCloseModal(cancelConfirmModalRef)}
+        handleModalState={(type, subscription) =>
+          setModalState({ type, subscription })
+        }
+        subscription={modalState.subscription}
+        fetchSubscriptions={fetchSubscriptions}
       />
       {subscriptions.map((item) => {
         const { id, subscriptionNumber, theme, plan, orders } = item;
@@ -156,7 +174,7 @@ function SubscriptionList({ subscriptions }) {
                     <img
                       className="w-100"
                       src={theme.images.square}
-                      alt="季節甜點主題圖片"
+                      alt={`${theme.title}主題圖片`}
                     />
                   </div>
                   {/* 訂閱標題-mobile */}
@@ -198,7 +216,7 @@ function SubscriptionList({ subscriptions }) {
                       <div>
                         <p className="subscription-info-title">訂閱價格</p>
                         <p className="subscription-info-content">
-                          {`NT$${plan.discountPrice}/月 (原價$${plan.originalPrice})`}
+                          {`NT$${item.unitPrice * item.quantity}/月 (原價$${plan.originalPrice * item.quantity})`}
                         </p>
                       </div>
                     </div>
@@ -271,7 +289,7 @@ function SubscriptionList({ subscriptions }) {
                       type="button"
                       className="btn btn-cta-200 btn-action w-100 py-3 mb-1"
                       onClick={() => {
-                        handleOpenModal(paymentModalRef, 'payment');
+                        setModalState({ type: 'payment', subscription: item });
                         setIsAdd(false);
                       }}
                     >
@@ -282,12 +300,12 @@ function SubscriptionList({ subscriptions }) {
                     <button
                       type="button"
                       className="btn p-3 border-0 mb-1 w-100"
-                      onClick={() =>
-                        handleOpenModal(
-                          cancelReminderModalRef,
-                          'cancelReminder',
-                        )
-                      }
+                      onClick={() => {
+                        setModalState({
+                          type: 'cancelReminder',
+                          subscription: item,
+                        });
+                      }}
                     >
                       <span className="small">取消目前訂閱方案</span>
                     </button>

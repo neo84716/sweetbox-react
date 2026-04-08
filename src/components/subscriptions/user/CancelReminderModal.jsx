@@ -2,18 +2,29 @@ import { Icon } from '@iconify/react';
 
 function CancelReminderModal({
   cancelReminderModalRef,
-  cancelConfirmModalRef,
-  isOpen,
-  onClose,
-  handleOpenModal,
+  handleModalState,
+  handleCloseModal,
+  subscription
 }) {
+  if (!subscription) return null;
+  
+  const deliveredCount = Math.max(
+    ...subscription.orders.map((order) => order.cycle),
+  );
+  const calculatePenalty = (subscription) => {
+    const { discountPrice, originalPrice } = subscription.plan;
+    const difference = Math.abs(discountPrice - originalPrice);
+
+    return deliveredCount * difference;
+  };
+
+  const penalty = calculatePenalty(subscription);
+
   return (
     <div
-      className={`modal fade ${isOpen && 'show'}`}
+      className="modal fade"
       tabIndex="-1"
       aria-labelledby="cancelReminderModalLabel"
-      aria-hidden={!isOpen}
-      aria-modal={isOpen}
       role="dialog"
       ref={cancelReminderModalRef}
     >
@@ -54,7 +65,10 @@ function CancelReminderModal({
                     type="button"
                     className="btn-close btn-close-lg"
                     aria-label="Close"
-                    onClick={() => onClose(cancelReminderModalRef)}
+                    onClick={() => {
+                      handleCloseModal()
+                      handleModalState(null, null)
+                    }}
                   ></button>
                 </div>
                 <div className="d-flex flex-column gap-6 gap-sm-8">
@@ -66,13 +80,12 @@ function CancelReminderModal({
                   {/* 右側說明 */}
                   <div className="modal-info-card">
                     <p className="mb-8">
-                      您的「6個月在地甜點盒」已享有連續 4 期
-                      的優惠折扣。若現在終止訂閱，將失去 $40/盒
-                      的優惠折扣，並需補足先前4期的差額共：
+                      {`您的「${subscription.durationMonths}個月${subscription.theme.title}」已享有連續 ${deliveredCount} 期的優惠折扣。若現在終止訂閱，將失去 $${penalty}/盒
+                      的優惠折扣，並需補足先前 ${deliveredCount} 期的差額共：`}
                     </p>
                     <p className="d-flex gap-4 align-items-end">
                       <span className="text-label">補貼總額</span>
-                      <span className="h2 ls-1">$160</span>
+                      <span className="h2 ls-1">${penalty}</span>
                       <span className="text-label">NTD</span>
                     </p>
                   </div>
@@ -81,7 +94,10 @@ function CancelReminderModal({
                     <button
                       type="button"
                       className="btn btn-cta-200 btn-action py-3 px-6"
-                      onClick={() => onClose(cancelReminderModalRef)}
+                      onClick={() => {
+                        handleCloseModal()
+                        handleModalState(null, null)
+                      }}
                     >
                       保留訂閱，繼續甜點旅程
                     </button>
@@ -89,8 +105,8 @@ function CancelReminderModal({
                       type="button"
                       className="btn py-3 fs-8 text-neutral-700 border-0"
                       onClick={() => {
-                        onClose(cancelReminderModalRef);
-                        handleOpenModal(cancelConfirmModalRef, 'cancelConfirm');
+                        handleCloseModal();
+                        handleModalState('cancelConfirm', subscription);
                       }}
                     >
                       確認前往取消並支付價差
@@ -103,15 +119,18 @@ function CancelReminderModal({
                 <button
                   className="btn flex-grow-1 border-0"
                   onClick={() => {
-                    onClose(cancelReminderModalRef);
-                    handleOpenModal(cancelConfirmModalRef, 'cancelConfirm');
+                    handleCloseModal();
+                    handleModalState('cancelConfirm', subscription);
                   }}
                 >
                   取消訂閱
                 </button>
                 <button
                   className="btn btn-cta-200 btn-action flex-grow-1"
-                  onClick={() => onClose(cancelReminderModalRef)}
+                  onClick={() => {
+                    handleCloseModal();
+                    handleModalState(null, null);
+                  }}
                 >
                   保留訂閱
                 </button>

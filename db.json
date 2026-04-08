@@ -282,13 +282,14 @@
       "durationMonths": 12,
       "startDate": "2025-12-10",
       "endDate": "2026-12-10",
-      "nextPaymentDate": "2026-01-10",
+      "nextPaymentDate": "2026-04-10",
       "status": "active",
       "isProcessed": true,
       "note": "請直接放門口。",
       "createdAt": "2025-12-10T00:00:00Z",
       "paymentMethodId": "pm000001",
       "paymentSnapshot": {
+        "cardOwner": "WANG LU",
         "cardBrand": "visa",
         "lastFour": "4242",
         "expiryMonth": 2,
@@ -329,6 +330,7 @@
       "createdAt": "2026-01-15T00:00:00Z",
       "paymentMethodId": "pm000001",
       "paymentSnapshot": {
+        "cardOwner": "WANG LU",
         "cardBrand": "visa",
         "lastFour": "4242",
         "expiryMonth": 2,
@@ -369,6 +371,7 @@
       "createdAt": "2026-01-01T00:00:00Z",
       "paymentMethodId": "pm000001",
       "paymentSnapshot": {
+        "cardOwner": "WANG LU",
         "cardBrand": "visa",
         "lastFour": "4242",
         "expiryMonth": 2,
@@ -409,6 +412,7 @@
       "note": "請直接放門口。",
       "paymentMethodId": "pm000002",
       "paymentSnapshot": {
+        "cardOwner": "張美惠",
         "cardBrand": "jcb",
         "lastFour": "8301",
         "expiryMonth": 6,
@@ -447,7 +451,8 @@
       "isProcessed": false,
       "note": "afadwdwad",
       "paymentMethodId": "pm000001",
-      "paymentMethod": {
+      "paymentSnapshot": {
+        "cardOwner": "WANG LU",
         "cardBrand": "visa",
         "lastFour": "4242",
         "expiryMonth": 2,
@@ -824,4 +829,3 @@
     }
   ]
 }
-
