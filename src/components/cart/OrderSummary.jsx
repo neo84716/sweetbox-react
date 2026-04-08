@@ -1,4 +1,4 @@
-function OrderSummary({ cartItems, cartMain, isSubmitting, isLoading }) {
+function OrderSummary({ cartItems, displayCartMain, isSubmitting, isLoading }) {
     return (
         <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
             <h2 className="cart-section-title mb-3 mb-lg-6">
@@ -52,19 +52,19 @@ function OrderSummary({ cartItems, cartMain, isSubmitting, isLoading }) {
                 <div className="lh-base pb-6 mb-6 border-bottom border-neutral-400">
                     <p className="d-flex justify-content-between align-items-center mb-2">
                         <span>小計</span>
-                        <span>NT${cartMain?.subTotal?.toLocaleString() || 0}</span>
+                        <span>NT${displayCartMain?.subTotal?.toLocaleString() || 0}</span>
                     </p>
                     <p className="d-flex justify-content-between align-items-center">
                         <span>折扣</span>
                         <span className="text-cta-200">
-                            - NT${cartMain?.discountTotal?.toLocaleString() || 0}
+                            - NT${displayCartMain?.discountTotal?.toLocaleString() || 0}
                         </span>
                     </p>
                 </div>
                 <p className="d-flex justify-content-between align-items-center lh-sm ls-1 fw-bold">
                     <span>合計</span>
                     <span className="fs-5 lh-base ls-1">
-                        NT${cartMain?.finalTotal?.toLocaleString() || 0}
+                        NT${displayCartMain?.finalTotal?.toLocaleString() || 0}
                     </span>
                 </p>
             </div>

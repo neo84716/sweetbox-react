@@ -39,9 +39,6 @@ function CartFinish() {
                     const matchedPlan = plansRes.data.find(p => p.id === sub.planId);
                     const matchedTheme = themesRes.data.find(t => t.id === sub.themeId);
                     const matchedOrder = ordersRes.data.find(o => o.subscriptionId === sub.id);
-                    console.log('ordersRes.data', ordersRes.data)
-                    console.log('sub', sub)
-                    console.log('matchedOrder', matchedOrder)
 
                     return {
                         ...sub,

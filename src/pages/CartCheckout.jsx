@@ -48,30 +48,8 @@ function CartCheckout() {
             const userId = user?.id;
             const todayStr = dayjs().format('YYYY-MM-DD');
             const nowIsoString = new Date().toISOString();
-            const { subTotal, discountTotal, finalTotal } = cartMain;
-            let remainingDiscount = discountTotal;
-            const preCalculatedItems = cartItems.map((item, index) => {
-                const itemSubTotal = (item.plan?.discountPrice || 0) * item.quantity; //折前小計
-                let itemDiscount = 0;
-
-                if (subTotal > 0) {
-                    if (index === cartItems.length - 1) {
-                        // 最後品項扣除「剩餘折扣額」
-                        itemDiscount = remainingDiscount;
-                    } else {
-                        // 前面的品項按比例四捨五入計算
-                        itemDiscount = Math.round((itemSubTotal / subTotal) * discountTotal);
-                        remainingDiscount -= itemDiscount; // 扣除已經分配出去的折扣
-                    }
-                }
-
-                return {
-                    ...item,
-                    itemSubTotal,
-                    itemDiscount,
-                    firstOrderAmount: itemSubTotal - itemDiscount
-                };
-            });
+            const currentSubTotal = subTotal;
+            const currentDiscountTotal = discountTotal;
 
             // 判斷是否為新的信用卡
             const isUsingStoredCard = formData.cardNumber.includes('xxx');
@@ -94,8 +72,17 @@ function CartCheckout() {
                     await api.patch(`/payment_methods/${oldCard.id}`, { isDefault: false });
                 }
 
-                // 2. 儲存新卡資訊
+                // 2. 算新id
+                const PaymentMethodsRes = await api.get('/payment_methods');
+                const maxPaymentMethodId = PaymentMethodsRes.data
+                    .map(pm => parseInt(pm.id.replace('pm', '')))
+                    .filter(n => !isNaN(n))
+                    .reduce((max, n) => Math.max(max, n), 0);
+                const newCardId = `pm${String(maxPaymentMethodId + 1).padStart(6, '0')}`
+                
+                // 3. 儲存新卡資訊
                 const newCardRes = await api.post('/payment_methods', {
+                    id:newCardId,
                     userId: userId,
                     cardOwner: formData.cardOwner,
                     cardBrand: currentCardBrand,
@@ -115,15 +102,58 @@ function CartCheckout() {
                 finalPaymentMethodId = defaultCardRes.data[0]?.id || "";
             }
 
+            const [subsRes, ordersRes] = await Promise.all([
+                api.get('/subscriptions'),
+                api.get('/orders')
+            ]);
+
+            const maxSubId = subsRes.data
+                .map(s => parseInt(s.id.replace('s', '')))
+                .filter(n => !isNaN(n))
+                .reduce((max, n) => Math.max(max, n), 0);
+
+            const maxOrderId = ordersRes.data
+                .map(o => parseInt(o.id.replace('o', '')))
+                .filter(n => !isNaN(n))
+                .reduce((max, n) => Math.max(max, n), 0);
+
+            let remainingDiscount = currentDiscountTotal;
+            const preCalculatedItems = cartItems.map((item, index) => {
+                const itemSubTotal = (item.plan?.discountPrice || 0) * item.quantity; //折前小計
+                let itemDiscount = 0;
+
+                if (currentSubTotal > 0) {
+                    if (index === cartItems.length - 1) {
+                        // 最後品項扣除「剩餘折扣額」
+                        itemDiscount = remainingDiscount;
+                    } else {
+                        // 前面的品項按比例四捨五入計算
+                        itemDiscount = Math.round((itemSubTotal / currentSubTotal) * currentDiscountTotal);
+                        remainingDiscount -= itemDiscount; // 扣除已經分配出去的折扣
+                    }
+                }
+
+
+                return {
+                    ...item,
+                    itemSubTotal,
+                    itemDiscount,
+                    firstOrderAmount: itemSubTotal - itemDiscount,
+                    newSubId: `s${String(maxSubId + 1 + index).padStart(7, '0')}`,
+                    newOrderId: `o${String(maxOrderId + 1 + index).padStart(7, '0')}`
+                };
+            });
+
             // 訂閱Task
             const createSubscriptionTask = async (item) => {
+                const { itemSubTotal, itemDiscount, firstOrderAmount, newSubId, newOrderId } = item;  //折前小計
                 const subNo = generateSubNumber(item.theme?.titleAbbr, item.plan?.durationMonths);
                 const endDateStr = dayjs().add(item.plan?.durationMonths - 1, 'month').format('YYYY-MM-DD');
                 const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
                 const firstOrderNo = `${subNo}01`;
-                const { itemSubTotal, itemDiscount, firstOrderAmount } = item;  //折前小計
 
                 const subscriptionPayload = {
+                    id: newSubId,
                     userId,
                     planId: item.planId,
                     themeId: item.theme?.id,
@@ -160,12 +190,13 @@ function CartCheckout() {
 
                 // 1 先 POST Subscription 取得 ID
                 const subRes = await api.post('/subscriptions', subscriptionPayload);
-                const newSubId = subRes.data.id;
 
                 // 2 POST Order
                 await api.post('/orders', {
+                    id: newOrderId,
                     subscriptionId: newSubId,
                     orderNo: firstOrderNo,
+                    cycle:1,
                     amount: firstOrderAmount,
                     createdAt: nowIsoString,
                     paymentDueDate: todayStr,
@@ -314,6 +345,19 @@ function CartCheckout() {
     const currentCity = watch('city');
     const cities = Object.keys(taiwanData["台灣"]);
     const districts = currentCity ? Object.keys(taiwanData["台灣"][currentCity]) : [];
+
+    // 金額
+    const subTotal = cartItems.reduce((sum, item) =>
+        sum + (item.plan?.discountPrice || 0) * item.quantity, 0
+    );
+    const discountTotal = cartMain?.discountTotal || 0;
+    const finalTotal = Math.max(0, subTotal - discountTotal);
+    const displayCartMain = {
+        ...cartMain,
+        subTotal,
+        discountTotal,
+        finalTotal
+    };
 
     const handleCardNumberChange = (e) => {
         const formattedValue = formatCardNumber(e.target.value);
@@ -469,7 +513,7 @@ function CartCheckout() {
                                 {/* 訂單明細 */}
                                 <OrderSummary
                                     cartItems={cartItems}
-                                    cartMain={cartMain}
+                                    displayCartMain={displayCartMain}
                                     isSubmitting={isSubmitting}
                                     isLoading={isLoading}
                                 />
