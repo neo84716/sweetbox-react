@@ -121,8 +121,6 @@ function Cart() {
 
     // 移除商品
     const handleRemove = async (itemId) => {
-        console.log(`準備刪除 itemId: ${itemId}`);
-        console.log(`isRemoving: ${isRemoving}, 參考內有此id: ${deletingItemsRef.current.has(itemId)}`);
 
         if (isRemoving || deletingItemsRef.current.has(itemId)) {
             console.warn(`重複點擊或正在刪除中，itemId: ${itemId} 執行緒被攔截`);
@@ -130,25 +128,20 @@ function Cart() {
         }
         deletingItemsRef.current.add(itemId);
         try {
-            console.log(`執行 DELETE /cart_items/${itemId}`);
-
 
             await api.delete(`/cart_items/${itemId}`);
             const newCartItems = cartItems.filter(item => item.id !== itemId);
             setCartItems(newCartItems);
             syncCartTotals(newCartItems, couponIdRef.current);
-            console.log("newCartItems", newCartItems);
-            console.log("couponIdRef.current", couponIdRef.current)
 
         } catch (err) {
             console.error("刪除失敗", err);
             console.error(`刪除 itemId: ${itemId} 失敗，錯誤詳細資訊:`, err);
         } finally {
-            console.log(`準備解除 itemId: ${itemId} 的鎖定狀態`);
             setTimeout(() => {
                 deletingItemsRef.current.delete(itemId);
                 setIsRemoving(false);
-                console.log(`itemId: ${itemId} 鎖定狀態已解除`);
+
             }, 100);
         }
     };
@@ -179,13 +172,11 @@ function Cart() {
             item.id === itemId
                 ? { ...item, quantity: newQty } : item
         ));
-        console.log("【點擊】準備清除前，目前的 tiemerRefs:", tiemerRefs.current);
 
         // B.防抖攔截
         // 若 500ms 內使用者再次點擊，則清除前一次的計時器
         if (tiemerRefs.current[itemId]) {
             clearTimeout(tiemerRefs.current[itemId]);
-            console.log(`已清除計時器 ID: ${tiemerRefs.current}`);
         }
 
         // 重設定時器
@@ -202,7 +193,6 @@ function Cart() {
                     discountTotalRef.current,
                     couponIdRef.current
                 );
-                console.log("500ms 內無新點擊，防抖成功！正式發送 API 請求");
 
             } catch (err) {
                 console.error("更新數量失敗", err);
@@ -218,7 +208,7 @@ function Cart() {
 
             }
         }, 500)
-        console.log("【點擊結束】已設定新計時器，新的 ID 是:", tiemerRefs.current);
+
     };
 
     // 編輯方案
@@ -256,8 +246,6 @@ function Cart() {
             const res = await api.get("/coupons");
             const coupons = res.data;
             const coupon = coupons.find(c => c.code === couponCode.trim());
-            console.log("coupon", coupon)
-
 
             if (!coupon || !coupon.isActive) {
                 setError("此優惠代碼無效。");
@@ -306,7 +294,6 @@ function Cart() {
             setCartMain(updatedCart);
 
             syncCartTotals(cartItemsRef.current, coupon.id);
-            console.log('cartMain加優惠券', cartMain,"updatedCart",updatedCart);
 
         } catch (err) {
             console.error("優惠代碼驗證失敗。", err);
@@ -346,7 +333,6 @@ function Cart() {
                 discountTotal,
                 updatedAt: dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
             });
-            console.log("cartMain", cartMain);
             navigate("/cartCheckout");
         } catch (err) {
             console.error("更新購物車總金額失敗", err);

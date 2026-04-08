@@ -126,13 +126,11 @@ function CartCheckout() {
                     if (index === cartItems.length - 1) {
                         // 最後品項扣除「剩餘折扣額」
                         itemDiscount = remainingDiscount;
-                        console.log("最後品項扣除「剩餘折扣額」 itemDiscount", itemDiscount)
                     } else {
                         // 前面的品項按比例四捨五入計算
                         itemDiscount = Math.round((itemSubTotal / currentSubTotal) * currentDiscountTotal);
                         remainingDiscount -= itemDiscount; // 扣除已經分配出去的折扣
                     }
-                    console.log("itemSubTotal", itemSubTotal, "itemDiscount", itemDiscount)
                 }
 
 
@@ -145,7 +143,6 @@ function CartCheckout() {
                     newOrderId: `o${String(maxOrderId + 1 + index).padStart(7, '0')}`
                 };
             });
-            console.log("👉 攤分後的各品項金額：", preCalculatedItems);
 
             // 訂閱Task
             const createSubscriptionTask = async (item) => {
@@ -190,7 +187,6 @@ function CartCheckout() {
                         donate_code: formData.donateCode || ""
                     }
                 };
-                console.log("🚀 準備發送 Subscription 資料：", subscriptionPayload);
 
                 // 1 先 POST Subscription 取得 ID
                 const subRes = await api.post('/subscriptions', subscriptionPayload);
