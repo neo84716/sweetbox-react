@@ -13,6 +13,14 @@ import { useParams } from "react-router-dom"
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+// 台灣時間
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Taipei");
 
 
 function ThemeDetail() {
@@ -67,12 +75,8 @@ function ThemeDetail() {
         cart = {
           id: `c${String(maxCartId + 1).padStart(7, "0")}`,
           userId: userObj.id,
-          subTotal: 0,
-          discountTotal: 0,
-          finalTotal: 0,
           couponId: null,
           createdAt: new Date().toISOString(),
-          appliedCouponId: null,
         };
         console.log("建立新購物車:", cart);
         await api.post("/carts", cart);
@@ -97,12 +101,9 @@ function ThemeDetail() {
         console.log("更新 cart_item:", updatedItem);
         await api.put(`/cart_items/${existingItem.id}`, updatedItem);
 
-        const itemTotal = activePlan.discountPrice * quantity;
         updatedCart = {
           ...cart,
-          subTotal: cart.subTotal + itemTotal,
-          finalTotal: cart.finalTotal + itemTotal,
-          updatedAt: new Date().toISOString(),
+          updatedAt: dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
         };
       } else {
         const newCartItem = {
@@ -114,12 +115,9 @@ function ThemeDetail() {
         console.log("新增 cart_item:", newCartItem);
         await api.post("/cart_items", newCartItem);
 
-        const itemTotal = activePlan.discountPrice * quantity;
         updatedCart = {
           ...cart,
-          subTotal: cart.subTotal + itemTotal,
-          finalTotal: cart.finalTotal + itemTotal,
-          updatedAt: new Date().toISOString(),
+          updatedAt: dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
         };
       }
 
@@ -353,8 +351,8 @@ function ThemeDetail() {
                     <h1 className="mb-5 fs-3 fs-lg-2 fw-bold ls-1">
                       {`${themeData?.title}盒`}
                     </h1>
-                    <h2 className="mb-3 fs-7 ls-1 fw-bold">我們幫你挑最值得期待的那一盒</h2>
-                    <p>不論是人氣爆款還是話題聯名, 通通不錯過。喜歡嚐鮮的你一定會愛上。</p>
+                    <h2 className="mb-3 fs-7 ls-1 fw-bold">{`${themeData?.subtitle}`}</h2>
+                    <p>{`${themeData?.description}`}</p>
                   </div>
                   <div className="plan-area">
                     {/* plan選項 */}

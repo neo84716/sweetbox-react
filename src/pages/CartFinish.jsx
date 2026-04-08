@@ -91,6 +91,11 @@ function CartFinish() {
     const totalOriginalAmount = subscriptions.reduce((sum, sub) => sum + (sub.discountedPrice * sub.quantity), 0);
     const totalPaidAmount = subscriptions.reduce((sum, sub) => sum + sub.firstOrderAmount, 0);
     const totalDiscount = totalOriginalAmount - totalPaidAmount;
+    console.log('訂閱內容subscriptions',subscriptions)
+    console.log("totalDiscount",totalDiscount, 
+        'totalOriginalAmount',totalOriginalAmount,
+        'totalPaidAmount',totalPaidAmount
+    )
 
     return (
         <>

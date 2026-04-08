@@ -1,8 +1,16 @@
 import useAuth from "../../hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import api from "../api";
 import { Icon } from "@iconify/react";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+// 台灣時間
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Taipei");
 
 
 function Cart() {
@@ -15,12 +23,35 @@ function Cart() {
     const [couponCode, setCouponCode] = useState("");
     const [discountTotal, setDiscountTotal] = useState(0);
     const [couponId, setCouponId] = useState(null);
+    const [isRemoving, setIsRemoving] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [updatingItemId, setUpdatingItemId] = useState(null);
+    const tiemerRefs = useRef({});
+    const cartItemsRef = useRef(cartItems);
+    const discountTotalRef = useRef(0);
+    const couponIdRef = useRef(null);
+    const deletingItemsRef = useRef(new Set());
 
     const currentUserId = user?.id;
 
+    // 保持 Refs 與 最新 State 同步
+    useEffect(() => {
+        cartItemsRef.current = cartItems;
+        discountTotalRef.current = discountTotal;
+        couponIdRef.current = couponId;
+    }, [cartItems, discountTotal, couponId]);
+
+    useEffect(() => {
+        return () => {
+            // 取出 tiemerRefs 內所有的計時器 ID 並逐一清除
+            Object.values(tiemerRefs.current).forEach(timerId => {
+                if (timerId) clearTimeout(timerId);
+            });
+        };
+    }, []);
 
     useEffect(() => {
         if (!isLogin) {
@@ -69,20 +100,20 @@ function Cart() {
         fetchData();
     }, [isLogin, currentUserId]);
 
-    const updateCartTotals = async (updatedSubTotal, updatedDiscount, updatedFinal, couponId) => {
-        if (!cartMain?.id) return;
-        try {
-            await api.patch(`/carts/${cartMain.id}`, {
-                subTotal: updatedSubTotal,
-                discountTotal: updatedDiscount,
-                finalTotal: updatedFinal,
-                couponId: couponId
-            });
-        } catch (err) {
-            console.error("同步購物車金額失敗", err);
-        }
-    };
+    const syncCartTotals = async (currentItems, currentCouponId) => {
+        if (!cartMain) return;
 
+        // const newSubTotal = currentItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
+        // const newFinalTotal = Math.max(0, newSubTotal - currentDiscount);
+        const currentTwTime = dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+
+        // 確保前端的 cartMain 狀態與資料庫一致
+        setCartMain(prev => ({
+            ...prev,
+            couponId: currentCouponId,
+            updatedAt: currentTwTime
+        }));
+    };
 
     // 計算及時金額
     const subTotal = cartItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
@@ -90,73 +121,132 @@ function Cart() {
 
     // 移除商品
     const handleRemove = async (itemId) => {
-        try {
-            await api.delete(`/cart_items/${itemId}`);
-            const remainingItems = cartItems.filter(item => item.id !== itemId);
-            setCartItems(remainingItems);
+        console.log(`準備刪除 itemId: ${itemId}`);
+        console.log(`isRemoving: ${isRemoving}, 參考內有此id: ${deletingItemsRef.current.has(itemId)}`);
 
-            // 商品清空，刪除該筆 cart 母表
-            if (remainingItems.length === 0 && cartMain?.id) {
-                await api.delete(`/carts/${cartMain.id}`);
-                setCartMain(null);
-                setDiscountTotal(0);
-                setCouponId(null);
-            } else {
-                // 如果還有商品，更新金額
-                const newSubTotal = remainingItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
-                const newFinal = Math.max(0, newSubTotal - discountTotal);
-                await updateCartTotals(newSubTotal, discountTotal, newFinal, couponId);
-            }
+        if (isRemoving || deletingItemsRef.current.has(itemId)) {
+            console.warn(`重複點擊或正在刪除中，itemId: ${itemId} 執行緒被攔截`);
+            return;
+        }
+        deletingItemsRef.current.add(itemId);
+        try {
+            console.log(`執行 DELETE /cart_items/${itemId}`);
+
+
+            await api.delete(`/cart_items/${itemId}`);
+            const newCartItems = cartItems.filter(item => item.id !== itemId);
+            setCartItems(newCartItems);
+            syncCartTotals(newCartItems, couponIdRef.current);
+            console.log("newCartItems", newCartItems);
+            console.log("couponIdRef.current", couponIdRef.current)
+
         } catch (err) {
-            console.error("移除失敗", err);
+            console.error("刪除失敗", err);
+            console.error(`刪除 itemId: ${itemId} 失敗，錯誤詳細資訊:`, err);
+        } finally {
+            console.log(`準備解除 itemId: ${itemId} 的鎖定狀態`);
+            setTimeout(() => {
+                deletingItemsRef.current.delete(itemId);
+                setIsRemoving(false);
+                console.log(`itemId: ${itemId} 鎖定狀態已解除`);
+            }, 100);
         }
     };
 
-    // 編輯數量
+
+    // 編輯數量(防抖 & 樂觀更新)
     const handleQuantityChange = async (itemId, delta) => {
-        try {
-            const target = cartItems.find(item => item.id === itemId);
-            const newQty = target.quantity + delta;
 
-            if (newQty === 0) {
-                await handleRemove(itemId);
-                return;
-            };
-            if (target.quantity === newQty) return;
+        const target = cartItems.find(item => item.id === itemId);
+        if (!target) return;
 
-            await api.patch(`/cart_items/${itemId}`, { quantity: newQty });
-            const newItems = cartItems.map(item =>
-                item.id === itemId ? { ...item, quantity: newQty } : item
-            );
-            setCartItems(newItems);
+        const newQty = target.quantity + delta;
 
-            const newSubTotal = newItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
-            const newFinal = Math.max(0, newSubTotal - discountTotal);
-            await updateCartTotals(newSubTotal, discountTotal, newFinal, couponId);
-        } catch (err) {
-            console.error("更新數量失敗", err);
+        if (newQty === 0) {
+            if (tiemerRefs.current[itemId]) {
+                clearTimeout(tiemerRefs.current[itemId]);
+                delete tiemerRefs.current[itemId];
+            }
+            handleRemove(itemId);
+            return;
         }
+
+        if (newQty < 1) return;
+        if (target.quantity === newQty) return;
+
+        // A. 樂觀更新: 立刻更新前端畫面與方案資料(不發API)
+        setCartItems(prev => prev.map(item =>
+            item.id === itemId
+                ? { ...item, quantity: newQty } : item
+        ));
+        console.log("【點擊】準備清除前，目前的 tiemerRefs:", tiemerRefs.current);
+
+        // B.防抖攔截
+        // 若 500ms 內使用者再次點擊，則清除前一次的計時器
+        if (tiemerRefs.current[itemId]) {
+            clearTimeout(tiemerRefs.current[itemId]);
+            console.log(`已清除計時器 ID: ${tiemerRefs.current}`);
+        }
+
+        // 重設定時器
+        tiemerRefs.current[itemId] = setTimeout(async () => {
+            // 啟動 UI 鎖定
+            setIsUpdating(true);
+            setUpdatingItemId(itemId);
+
+            try {
+                await api.patch(`/cart_items/${itemId}`, { quantity: newQty });
+
+                await syncCartTotals(
+                    cartItemsRef.current,
+                    discountTotalRef.current,
+                    couponIdRef.current
+                );
+                console.log("500ms 內無新點擊，防抖成功！正式發送 API 請求");
+
+            } catch (err) {
+                console.error("更新數量失敗", err);
+                // 錯誤回滾 Rollback (退回操作前狀態)
+                setCartItems(prev => prev.map(item =>
+                    item.id === itemId ? { ...item, quantity: target.quantity } : item
+                ))
+            } finally {
+                // 解除 UI 鎖定狀態與計時器紀錄
+                setIsUpdating(false);
+                setUpdatingItemId(null);
+                delete tiemerRefs.current[itemId];
+
+            }
+        }, 500)
+        console.log("【點擊結束】已設定新計時器，新的 ID 是:", tiemerRefs.current);
     };
 
     // 編輯方案
     const handlePlanChange = async (itemId, newPlanId) => {
+
+        // 備份操作前狀態
+        const previousItems = cartItemsRef.current;
+        const newPlanDetail = plans.find(p => p.id === newPlanId);
+
+        // 樂觀更新: 立刻更新前端畫面與方案資料(不發API)
+        const newCartItems = previousItems.map(item =>
+            item.id === itemId
+                ? { ...item, planId: newPlanId, plan: newPlanDetail }
+                : item
+        );
+        setCartItems(newCartItems);
+
         try {
-            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId });
-            const newPlanDetail = plans.find(p => p.id === newPlanId);
-
-            const newItems = cartItems.map(item =>
-                item.id === itemId
-                    ? { ...item, planId: newPlanId, plan: newPlanDetail } : item
+            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId })
+            await syncCartTotals(
+                newCartItems,
+                discountTotalRef.current,
+                couponIdRef.current,
             );
-            setCartItems(newItems);
 
-            // 💡 統一變數名稱並同步至 carts 資料表
-            const updatedSubTotal = newItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
-            const updatedFinalTotal = Math.max(0, updatedSubTotal - discountTotal);
-
-            await updateCartTotals(updatedSubTotal, discountTotal, updatedFinalTotal, couponId);
         } catch (err) {
-            console.error("更新方案失敗", err);
+            console.error("更新方案失敗", err)
+            setCartItems(previousItems); //錯誤回滾
         }
     };
 
@@ -166,6 +256,7 @@ function Cart() {
             const res = await api.get("/coupons");
             const coupons = res.data;
             const coupon = coupons.find(c => c.code === couponCode.trim());
+            console.log("coupon", coupon)
 
 
             if (!coupon || !coupon.isActive) {
@@ -173,11 +264,10 @@ function Cart() {
                 setSuccess(false);
                 setDiscountTotal(0);
                 setCouponId(null);
-                await updateCartTotals(subTotal, 0, subTotal, null);
                 return;
             }
 
-            if (new Date(coupon.expires_at) < new Date()) {
+            if (new Date(coupon.expiryDate) < new Date()) {
                 setError("此優惠代碼已過期。");
                 setSuccess(false);
                 setDiscountTotal(0);
@@ -200,18 +290,50 @@ function Cart() {
                 discount = subTotal * (1 - coupon.discountValue);
             }
 
-            const updatedDiscountTotal = Math.round(discount);
-            const updatedFinalTotal = Math.max(0, subTotal - updatedDiscountTotal);
+            const finalDiscount = Math.round(discount);
 
-            setDiscountTotal(updatedDiscountTotal);
+            setDiscountTotal(Math.round(discount));
             setCouponId(coupon.id);
             setSuccess(true);
             setError("");
 
-            await updateCartTotals(subTotal, updatedDiscountTotal, updatedFinalTotal, coupon.id);
+            const updatedCart = {
+                ...cartMain,
+                couponId: coupon.id,
+                discountTotal: finalDiscount
+            }
+            await api.put(`/carts/${cartMain.id}`, updatedCart);
+            setCartMain(updatedCart);
+
+            syncCartTotals(cartItemsRef.current, coupon.id);
+            console.log('cartMain加優惠券', cartMain,"updatedCart",updatedCart);
+
         } catch (err) {
             console.error("優惠代碼驗證失敗。", err);
             setError("驗證過程發生錯誤。");
+        }
+    };
+
+    // 刪除已套用優惠 
+    const handleCancelCoupon = async () => {
+        try {
+            setCouponCode("");
+            setDiscountTotal(0);
+            setCouponId(null);
+            setSuccess(false);
+            setError("");
+
+            await api.put(`/carts/${cartMain.id}`, {
+                ...cartMain,
+                couponId: null,
+                discountTotal: null
+            });
+
+            syncCartTotals(cartItemsRef.current, null);
+
+        } catch (err) {
+            console.error("取消優惠代碼失敗。", err);
+            setError("取消優惠代碼發生錯誤。");
         }
     };
 
@@ -220,11 +342,11 @@ function Cart() {
         if (!cartMain || cartItems.length === 0) return;
         try {
             await api.patch(`/carts/${cartMain.id}`, {
-                subTotal,
+                couponId,
                 discountTotal,
-                finalTotal,
-                couponId
+                updatedAt: dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
             });
+            console.log("cartMain", cartMain);
             navigate("/cartCheckout");
         } catch (err) {
             console.error("更新購物車總金額失敗", err);
@@ -305,7 +427,7 @@ function Cart() {
                         <div
                             className="d-flex justify-content-between align-items-center mb-2 mb-lg-6">
                             <h1 className="cart-title p-3 py-lg-2 px-lg-4">購物車</h1>
-                            <NavLink to='/themedetail/t0000001' className='btn py-3 px-4 px-lg-8 border-0 btn-shopping'>
+                            <NavLink to={`/themedetail/t0000001`} className='btn py-3 px-4 px-lg-8 border-0 btn-shopping'>
                                 繼續購物
                             </NavLink>
 
@@ -327,8 +449,9 @@ function Cart() {
                                                     <h2 className="fs-7 lh-sm fw-bold ls-1">{item.theme?.title}甜點盒</h2>
                                                     <button
                                                         type="button"
-                                                        className="btn p-0 btn-remove"
+                                                        className="btn p-0 btn-remove ${isRemoving ? 'opacity-50' : ''}`"
                                                         onClick={() => handleRemove(item.id)}
+                                                        disabled={isRemoving}
                                                     >
                                                         移除
                                                     </button>
@@ -372,8 +495,9 @@ function Cart() {
                                                     <div className="px-2 d-flex align-items-center">
                                                         <button
                                                             type="button"
-                                                            className="btn-minus"
+                                                            className={`btn-minus ${item.quantity <= 1 ? 'text-neutral-500' : ''}`}
                                                             onClick={() => handleQuantityChange(item.id, -1)}
+                                                            disabled={item.quantity <= 1}
                                                         >
                                                             <Icon icon="tabler:minus" width="24" height="24" />
                                                         </button>
@@ -408,20 +532,32 @@ function Cart() {
                                             name="discount_number"
                                             value={couponCode}
                                             onChange={e => setCouponCode(e.target.value)}
+                                            disabled={success}
                                         />
-                                        <button
-                                            className="btn d-block border-0"
-                                            type="button"
-                                            id="button-addon2"
-                                            onClick={handleApplyCoupon}
-                                        >
-                                            套用
-                                        </button>
+                                        {/* 👈 動態渲染按鈕：依據 success 狀態切換「取消」與「套用」 */}
+                                        {success ? (
+                                            <button
+                                                className="btn d-block border-0 text-neutral-600"
+                                                type="button"
+                                                onClick={handleCancelCoupon}
+                                            >
+                                                取消
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="btn d-block border-0"
+                                                type="button"
+                                                onClick={handleApplyCoupon}
+                                            >
+                                                套用
+                                            </button>
+                                        )}
                                     </div>
 
-                                    {error && <div className="px-2 error-message text-semantic-error">
+
+                                    {error && (<div className="px-2 error-message text-semantic-error">
                                         <Icon className="me-2" icon="gridicons:notice-outline" width="16" height="16" />
-                                        {error}</div>}
+                                        {error}</div>)}
                                 </section>
                                 <section className="cart-panel py-4 px-3 p-lg-8 mb-2 mb-lg-6">
                                     <h2 className="cart-section-title mb-3 mb-lg-6">訂單資料</h2>
@@ -456,7 +592,12 @@ function Cart() {
                                                 </span>
                                             </p>
                                             <p className="d-flex justify-content-between align-items-center">
-                                                <span>折扣</span>
+                                                <span>
+                                                    折扣
+                                                    {success && (
+                                                        <span className="ms-2 text-cta-200">{couponCode}</span>
+                                                    )}
+                                                </span>
                                                 <span className="text-cta-200">- NT${discountTotal}</span>
                                             </p>
                                         </div>
@@ -490,7 +631,7 @@ function Cart() {
                                 </section>
                             </div>
                         </div>
-                    </form>
+                    </form >
                     <div className="checkout-btn d-block d-sm-none">
                         <button
                             type="button"
@@ -500,8 +641,8 @@ function Cart() {
                             前往結帳
                         </button>
                     </div>
-                </div>
-            </main>
+                </div >
+            </main >
         </>
     )
 }
