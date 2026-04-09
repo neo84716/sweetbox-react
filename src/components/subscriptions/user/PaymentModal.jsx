@@ -1,7 +1,8 @@
 // 外部工具
 import { Icon } from '@iconify/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import api from '../../../api';
 
 // 元件區
 import Select from '../../Select';
@@ -20,43 +21,8 @@ import {
 // 最多的卡片數量
 const maxCards = 5;
 
-// 信用卡資料
-const creditCards = [
-  {
-    id: 1,
-    userId: 1,
-    type: 'visa',
-    lastFour: '4242',
-    expMonth: '12',
-    expYear: '2026',
-    isDefault: true,
-    isDeleted: false,
-    token: 'tok_demo_1',
-    users: [
-      {
-        id: 1,
-        name: 'Lucas Wang',
-      },
-    ],
-  },
-  {
-    id: 2,
-    userId: 1,
-    type: 'mastercard',
-    lastFour: '5136',
-    expMonth: '6',
-    expYear: '2028',
-    isDefault: false,
-    isDeleted: false,
-    token: 'tok_demo_2',
-    users: [
-      {
-        id: 1,
-        name: 'Lucas Wang',
-      },
-    ],
-  },
-];
+// 模擬操作時間
+const mockNow = '2026-04-08T10:00:00.000Z';
 
 // 信用卡 icon 樣式
 const cardIcons = {
@@ -65,8 +31,15 @@ const cardIcons = {
   jcb: 'logos:jcb',
 };
 
-function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
-  const [cards, setCards] = useState(creditCards);
+function PaymentModal({
+  modalRef,
+  handleCloseModal,
+  isAdd,
+  onToggleAddCard,
+  subscription,
+}) {
+
+  const [cards, setCards] = useState([]);
 
   const {
     register,
@@ -81,15 +54,39 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
     defaultValues: {
       cardNumber: '',
       userName: '',
-      expMonth: '',
-      expYear: '',
+      expiryMonth: '',
+      expiryYear: '',
       cvc: '',
     },
     mode: 'onBlur',
   });
 
   const defaultCard = cards?.find((card) => card?.isDefault) || cards?.[0];
-  const activeCards = cards?.filter((card) => !card?.isDeleted);
+  const activeCards = cards?.filter(
+    (card) => !card?.isDeleted,
+  );
+  // console.log(subscription.theme.images.square)
+  const fetchPaymentData = useCallback(async () => {
+    const userId = subscription?.userId;
+    try {
+      const paymentsRes = await api.get(`/payment_methods?userId=${userId}`);
+      
+      setCards(paymentsRes.data);
+    } catch (error) {
+      console.error('載入付款資料失敗：', error?.message);
+    }
+  }, [subscription?.userId]);
+
+  useEffect(() => {
+    (async () => {
+      fetchPaymentData();
+    })();
+  }, [fetchPaymentData]);
+
+  // 確定有拿到訂閱資料才開 Modal
+  if (!subscription) return null;
+
+  // console.log(subscription.theme.images.square);
 
   const handleAddCard = () => {
     onToggleAddCard(true);
@@ -114,60 +111,76 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
     setValue('cvc', formattedValue, { shouldValidate: true });
   };
 
-  const handleDefaultCard = (cardId) => {
-    const newCards = cards.map((card) => ({
-      ...card,
-      isDefault: card.id === cardId,
-    }));
-    setCards(newCards);
+  const handleDefaultCard = async (cardId) => {
+    const currentDefaultCard = cards.find((card) => card.isDefault)
+
+    try {
+      await Promise.all([
+        currentDefaultCard && 
+          await api.patch(`/payment_methods/${currentDefaultCard.id}`, {
+            isDefault: false,
+          }),
+        await api.patch(`/payment_methods/${cardId}`, {
+          isDefault: true
+        })
+      ]);
+      fetchPaymentData();
+    } catch (error) {
+      console.error('設定預設信用卡失敗', error?.message);
+    }
   };
 
-  const handleRemoveCard = (cardId) => {
-    setCards((prev) =>
-      prev.map((card) =>
-        card.id === cardId ? { ...card, isDeleted: true } : card,
-      ),
-    );
+  const handleRemoveCard = async (cardId) => {
+    try {
+      await api.patch(`/payment_methods/${cardId}`, {
+        isDeleted: true
+      });
+      fetchPaymentData();
+    } catch (error) {
+      console.error('移除信用卡失敗', error?.message || '請重新再試！')
+    }
   };
 
-  const handlePaymentSubmit = (data) => {
-    const { cardNumber, expMonth, expYear } = data;
+  const handlePaymentSubmit = async (data) => {
+    const { cardNumber, userName, expiryMonth, expiryYear } = data;
     const creditCard = {
-      id: crypto.randomUUID(),
-      userId: 1,
-      type: getCardType(cardNumber),
+      userId: subscription.userId,
+      cardOwner: userName,
+      cardBrand: getCardType(cardNumber),
       lastFour: cardNumber.slice(-4),
-      expMonth,
-      expYear,
+      expiryMonth,
+      expiryYear,
+      isDeleted: false,
       isDefault: true,
-      token: crypto.randomUUID(),
-      users: [
-        {
-          id: 1,
-          name: 'Lucas Wang',
-        },
-      ],
+      createdAt: mockNow,
     };
 
-    // 將使用者的信用卡都設為非預設卡片
-    const newCards = cards.map((card) => ({
-      ...card,
-      isDefault: false,
-    }));
+    try {
+      // 找出使用者預設信用卡
+      const currentDefaultCard = cards.find((card) => card.isDefault);
+
+      if(currentDefaultCard) {
+        await api.patch(`/payment_methods/${currentDefaultCard.id}`, {
+          isDefault: false
+        })
+      }
+
+      await api.post('/payment_methods', creditCard);
+      fetchPaymentData();
+
+    } catch (error) {
+      console.error('新增信用卡失敗：', error?.message || '請重新輸入卡號')
+    }
 
     onToggleAddCard(false);
-    setCards([creditCard, ...newCards]);
     reset();
   };
 
   return (
     <div
-      className={`modal fade ${isOpen && 'show'}`}
+      className="modal fade"
       tabIndex="-1"
       aria-labelledby="paymentManageModalLabel"
-      aria-hidden={!isOpen}
-      aria-modal={isOpen}
-      role="dialog"
       ref={modalRef}
     >
       <div className="modal-dialog modal-fullscreen-lg-down modal-wide">
@@ -189,7 +202,7 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
               type="button"
               className="btn-close btn-close-lg align-self-start me-0 mt-0 d-none d-lg-block"
               aria-label="Close"
-              onClick={() => onClose(modalRef)}
+              onClick={() => handleCloseModal()}
             ></button>
           </div>
           {/* Modal 內容 */}
@@ -287,13 +300,13 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                         <div className="d-flex gap-3">
                           <div className="flex-grow-1">
                             <Controller
-                              name="expMonth"
+                              name="expiryMonth"
                               control={control}
                               rules={{
                                 validate: (val) => {
                                   if (!val) return '請選擇有效期限';
 
-                                  const currentYear = getValues('expYear');
+                                  const currentYear = getValues('expiryYear');
                                   if (!currentYear) return true;
 
                                   const now = new Date();
@@ -316,18 +329,18 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                                   value={value}
                                   onChange={(val) => {
                                     onChange(val);
-                                    trigger(['expMonth', 'expYear']);
+                                    trigger(['expiryMonth', 'expiryYear']);
                                   }}
                                   placeholderText="月"
                                   suffix="月"
-                                  errorMsg={errors?.expMonth?.message}
+                                  errorMsg={errors?.expiryMonth?.message}
                                 />
                               )}
                             />
                           </div>
                           <div className="flex-grow-1">
                             <Controller
-                              name="expYear"
+                              name="expiryYear"
                               control={control}
                               rules={{
                                 validate: (val) => {
@@ -342,11 +355,11 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                                   value={value}
                                   onChange={(val) => {
                                     onChange(val);
-                                    trigger(['expMonth', 'expYear']);
+                                    trigger(['expiryMonth', 'expiryYear']);
                                   }}
                                   placeholderText="年"
                                   suffix="年"
-                                  errorMsg={errors?.expYear?.message}
+                                  errorMsg={errors?.expiryYear?.message}
                                 />
                               )}
                             />
@@ -354,8 +367,8 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                         </div>
                         <FormError
                           message={
-                            errors?.expMonth?.message ||
-                            errors?.expYear?.message
+                            errors?.expiryMonth?.message ||
+                            errors?.expiryYear?.message
                           }
                         />
                       </div>
@@ -429,7 +442,7 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                             <div className="px-2 rounded-1 bg-neutral-100 align-self-start">
                               <Icon
                                 icon={
-                                  cardIcons[defaultCard.type] ||
+                                  cardIcons[defaultCard.cardBrand] ||
                                   'logos:visaelectron'
                                 }
                                 width="28"
@@ -450,15 +463,15 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                                   CARD HOLDER
                                 </p>
                                 <p className="fs-8">
-                                  {formatToUpperCase(defaultCard.users[0].name)}
+                                  {formatToUpperCase(defaultCard.cardOwner)}
                                 </p>
                               </div>
                               <div className="text-end">
                                 <p className="text-neutral-600 fs-9">EXPIRES</p>
                                 <p className="fs-8">
                                   {formatExpiryDate(
-                                    defaultCard.expMonth,
-                                    defaultCard.expYear,
+                                    defaultCard.expiryMonth,
+                                    defaultCard.expiryYear,
                                   )}
                                 </p>
                               </div>
@@ -510,7 +523,7 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                         <div className="d-flex justify-content-start justify-content-sm-between gap-3 mb-4 mb-sm-0">
                           <div className="credit-card-logo align-self-center">
                             <Icon
-                              icon={cardIcons[card.type]}
+                              icon={cardIcons[card.cardBrand]}
                               width="24"
                               height="16"
                             />
@@ -518,13 +531,16 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                           <div className="small">
                             <p className="mb-1 d-flex flex-column flex-sm-row">
                               <span className="mb-1 mb-sm-0">
-                                {card.type.toUpperCase()}
+                                {card.cardBrand.toUpperCase()}
                               </span>
                               <span>{`• • • • ${card.lastFour}`}</span>
                             </p>
                             <p className="text-neutral-600">
                               到期日{' '}
-                              {formatExpiryDate(card.expMonth, card.expYear)}
+                              {formatExpiryDate(
+                                card.expiryMonth,
+                                card.expiryYear,
+                              )}
                             </p>
                           </div>
                         </div>
@@ -594,7 +610,7 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                   <button
                     type="button"
                     className="btn btn-cta-200 btn-action w-100 py-3 d-none d-lg-block"
-                    onClick={() => onClose(modalRef)}
+                    onClick={() => handleCloseModal()}
                   >
                     完成管理
                   </button>
@@ -607,13 +623,21 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                 <h2 className="small ls-1 text-neutral-600 mb-4">訂閱方案</h2>
                 {/* 訂閱方案標題 */}
                 <div className="d-flex gap-3 mb-17">
-                  <img
-                    src="./images/Subscription_Page/season_theme_pic_thumbnail.png"
-                    alt="甜點主題圖片"
-                  />
+                  <div className="theme-wrapper">
+                    <img
+                      className="rounded-2"
+                      src={subscription.theme.images.square}
+                      alt="甜點主題圖片"
+                    />
+                  </div>
                   <div>
-                    <h3 className="fs-7 ls-1 mb-1">季節限定甜點盒</h3>
-                    <p className="small text-neutral-600">12個月 · 1盒</p>
+                    <h3 className="fs-7 ls-1 mb-1">
+                      {subscription.theme.title}
+                    </h3>
+                    <p className="small text-neutral-600">
+                      {subscription.plan.durationMonths}個月 ·
+                      {subscription.quantity}盒
+                    </p>
                   </div>
                 </div>
                 {/* 訂閱方案詳情 */}
@@ -621,23 +645,35 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
                   <div className="small mb-3">
                     <p className="d-flex justify-content-between">
                       <span className="text-neutral-600">方案價格</span>
-                      <span>$675 / 月</span>
+                      <span>
+                        ${subscription.unitPrice * subscription.quantity} / 月
+                      </span>
                     </p>
                     <div className="subscription-info-divider"></div>
                     <p className="d-flex justify-content-between">
                       <span className="text-neutral-600">扣款卡片</span>
-                      <span>VISA **** 1234</span>
+                      <span className="d-flex gap-1">
+                        <span>
+                          {formatToUpperCase(
+                            subscription.paymentSnapshot.cardBrand
+                          )}
+                        </span>
+                        <span>****</span>
+                        <span>{subscription.paymentSnapshot.lastFour}</span>
+                      </span>
                     </p>
                     <div className="subscription-info-divider"></div>
                     <p className="d-flex justify-content-between">
                       <span className="text-neutral-600">下次扣款日期</span>
-                      <span>2026-03-28</span>
+                      <span>{subscription.nextPaymentDate}</span>
                     </p>
                   </div>
                   <div className="rounded-4 p-4 bg-neutral-100">
                     <p className="text-neutral-600 small mb-3">自動扣款</p>
                     <p className="d-flex justify-content-between align-items-end">
-                      <span className="h3 ls-1">$675</span>
+                      <span className="h3 ls-1">
+                        ${subscription.unitPrice * subscription.quantity}
+                      </span>
                       <span className="small text-neutral-600">
                         NTD / Monthly
                       </span>
@@ -674,7 +710,7 @@ function PaymentModal({ modalRef, isOpen, onClose, isAdd, onToggleAddCard }) {
               <button
                 type="button"
                 className="btn btn-cta-200 btn-action w-100 py-3"
-                onClick={() => onClose(modalRef)}
+                onClick={() => handleCloseModal()}
               >
                 完成管理
               </button>
