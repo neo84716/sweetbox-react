@@ -91,7 +91,7 @@ function CartCheckout() {
                     expiryYear: Number(formData.expiryYear),
                     isDefault: true,
                     isDeleted: false,
-                    creatAt: nowIsoString
+                    createdAt: nowIsoString
                 });
 
                 finalPaymentMethodId = newCardRes.data.id; // 獲取新卡 ID
@@ -168,7 +168,8 @@ function CartCheckout() {
                     isProcessed: false,
                     note: formData.note || "",
                     paymentMethodId: finalPaymentMethodId,
-                    paymentMethod: {
+                    paymentSnapshot: {
+                        cardOwner: formData.cardOwner,
                         cardBrand: currentCardBrand,
                         lastFour,
                         expiryMonth: Number(formData.expiryMonth),
@@ -211,6 +212,7 @@ function CartCheckout() {
                     },
                     isArchived: false
                 });
+                
 
                 return subRes.data; // 回傳給 Promise.all
             };
