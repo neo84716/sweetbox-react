@@ -33,9 +33,11 @@ function Subscription() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   const navigate = useNavigate();
+
+  const currentPage = Number(searchParams.get('page')) || 1;
 
   const fetchSubscriptions = useCallback(async () => {
     try {
@@ -46,9 +48,10 @@ function Subscription() {
       // 取得篩選條件
       const themeId = searchParams.get('themeId');
       const status = searchParams.get('status');
+      const page = Number(searchParams.get('page')) || 1; 
 
       // 組合 subscriptions
-      let url = `/subscriptions?userId=${userId}&_expand=plan&_expand=theme&_sort=createdAt&_order=desc&_page=${currentPage}`;
+      let url = `/subscriptions?userId=${userId}&_expand=plan&_expand=theme&_sort=createdAt&_order=desc&_page=${page}&_limit=5`;
 
       if (themeId) {
         url += `&themeId=${themeId}`;
@@ -72,14 +75,17 @@ function Subscription() {
         map.get(key).push(order);
         return map;
       };
+      // 取得所有訂閱
+      const totalCount = Number(itemsRes.headers.get('x-Total-Count'));
 
       const ordersMap = ordersRes.data.reduce(groupByOrders, new Map());
-
+      
       const items = itemsRes.data.map((item) => ({
         ...item,
         orders: ordersMap.get(item.id) ?? [],
       }));
-
+      
+      setTotalItems(totalCount);
       setSubscriptions(items);
     } catch (error) {
       console.error('取得訂閱資料失敗：', error?.message);
@@ -92,7 +98,7 @@ function Subscription() {
         setIsLoading(false);
       }, 300);
     }
-  }, [navigate, searchParams, currentPage]);
+  }, [navigate, searchParams]);
   
   // 組合訂閱列表和主題資料
   useEffect(() => {
@@ -103,13 +109,14 @@ function Subscription() {
   if (error) { return <h1 className='d-flex justify-content-center align-items-center vh-100'>{error}</h1> }
 
   const handelThemeChange = (value) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams);
 
     if (value) {
       params.set('themeId', value);
     } else {
       params.delete('themeId');
     }
+    params.set('page', 1);
     setSearchParams(params);
   }
 
@@ -121,10 +128,18 @@ function Subscription() {
     } else {
       params.delete('status');
     }
+    params.set('page', 1);
     setSearchParams(params);
   };
 
   const hasFilters = searchParams.get('themeId') || searchParams.get('status');
+
+  const handlePageChange = (page) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set('page', page);
+    setSearchParams(params);
+  }
 
   return (
     <div className="py-sm-11 pt-20 pb-5 bg-neutral-300">
@@ -169,13 +184,13 @@ function Subscription() {
         )}
 
         {/* 分頁 */}
-        {subscriptions.length > 0 && (
+        {totalItems > 0 && (
           <div className="d-flex justify-content-center">
             <Pagination
               currentPage={currentPage}
-              totalItems={subscriptions.length}
+              totalItems={totalItems}
               itemsPerPage={5}
-              onChangePage={setCurrentPage}
+              onChangePage={handlePageChange}
             />
           </div>
         )}
