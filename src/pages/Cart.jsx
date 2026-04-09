@@ -34,8 +34,8 @@ function Cart() {
     const discountTotalRef = useRef(0);
     const couponIdRef = useRef(null);
     const deletingItemsRef = useRef(new Set());
-
     const currentUserId = user?.id;
+    const currentTwTime = dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
 
     // 保持 Refs 與 最新 State 同步
     useEffect(() => {
@@ -103,8 +103,6 @@ function Cart() {
     const syncCartTotals = async (currentItems, currentCouponId) => {
         if (!cartMain) return;
 
-        // const newSubTotal = currentItems.reduce((sum, item) => sum + (item.plan?.discountPrice || 0) * item.quantity, 0);
-        // const newFinalTotal = Math.max(0, newSubTotal - currentDiscount);
         const currentTwTime = dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
 
         // 確保前端的 cartMain 狀態與資料庫一致
@@ -186,7 +184,7 @@ function Cart() {
             setUpdatingItemId(itemId);
 
             try {
-                await api.patch(`/cart_items/${itemId}`, { quantity: newQty });
+                await api.patch(`/cart_items/${itemId}`, { quantity: newQty, updatedAt:currentTwTime });
 
                 await syncCartTotals(
                     cartItemsRef.current,
@@ -227,11 +225,11 @@ function Cart() {
         setCartItems(newCartItems);
 
         try {
-            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId })
+            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId, updatedAt:currentTwTime })
             await syncCartTotals(
                 newCartItems,
                 discountTotalRef.current,
-                couponIdRef.current,
+                couponIdRef.current
             );
 
         } catch (err) {
@@ -285,13 +283,12 @@ function Cart() {
             setSuccess(true);
             setError("");
 
-            const updatedCart = {
-                ...cartMain,
+            await api.patch(`/carts/${cartMain.id}`, {
                 couponId: coupon.id,
-                discountTotal: finalDiscount
-            }
-            await api.put(`/carts/${cartMain.id}`, updatedCart);
-            setCartMain(updatedCart);
+                discountTotal: finalDiscount,
+                updatedAt:currentTwTime
+            });
+            setCartMain(prev => ({ ...prev, couponId: coupon.id, discountTotal: finalDiscount }));
 
             syncCartTotals(cartItemsRef.current, coupon.id);
 
@@ -310,11 +307,8 @@ function Cart() {
             setSuccess(false);
             setError("");
 
-            await api.put(`/carts/${cartMain.id}`, {
-                ...cartMain,
-                couponId: null,
-                discountTotal: null
-            });
+            await api.patch(`/carts/${cartMain.id}`, { couponId: null, discountTotal: null, updatedAt:currentTwTime });
+            setCartMain(prev => ({ ...prev, couponId: null, discountTotal: null, updatedAt:currentTwTime }));
 
             syncCartTotals(cartItemsRef.current, null);
 
@@ -331,7 +325,7 @@ function Cart() {
             await api.patch(`/carts/${cartMain.id}`, {
                 couponId,
                 discountTotal,
-                updatedAt: dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+                updatedAt: currentTwTime
             });
             navigate("/cartCheckout");
         } catch (err) {
