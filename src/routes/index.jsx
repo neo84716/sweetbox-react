@@ -28,11 +28,11 @@ const routes = [
       },
       {
         path: "cart",
-        element: 
+        element:
           <ProtectedRoute>
-            <Cart /> 
+            <Cart />
           </ProtectedRoute>
-        
+
       },
       {
         path: "cartCheckout",
@@ -56,11 +56,17 @@ const routes = [
       },
       {
         path: "admin/subscribe",
-        element: <Subscribe />
+        element:
+          <ProtectedRoute requireAdmin>
+            <Subscribe />
+          </ProtectedRoute>
       },
       {
         path: "admin/subscribeDetail/:id",
-        element: <SubscribeDetail />
+        element:
+          <ProtectedRoute requireAdmin>
+            <SubscribeDetail />
+          </ProtectedRoute>
       },
       {
         path: "*",
