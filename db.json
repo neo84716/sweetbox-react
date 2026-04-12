@@ -248,24 +248,22 @@
   ],
   "carts": [
     {
-      "id": "c0000001",
+      "id": "1",
       "userId": "u0000001",
-      "couponId": null,
-      "discountTotal": null,
       "createdAt": "2026-04-05T13:50:19.655Z",
       "updatedAt": "2026-04-06T18:10:42.445Z"
     }
   ],
   "cart_items": [
     {
-      "id": "ci0000001",
-      "cartId": "c0000001",
+      "id": "1",
+      "cartId": "1",
       "planId": "p0000001",
       "quantity": 1
     },
     {
-      "id": "ci0000002",
-      "cartId": "c0000001",
+      "id": "2",
+      "cartId": "1",
       "planId": "p0000011",
       "quantity": 2
     }

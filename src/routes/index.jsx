@@ -12,7 +12,6 @@ import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "../components/ProtectedRoute";
 
-
 const routes = [
   {
     path: "/",
@@ -76,5 +75,6 @@ const routes = [
     ]
   }
 ];
+
 
 export default routes;
