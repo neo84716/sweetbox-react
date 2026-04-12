@@ -63,11 +63,7 @@ function SubscribeDetail() {
   }
 
   // 抓取使用者資料 users
-  useEffect(()=>{
-    if(!isAdmin) {
-      navigate("/")
-      return
-    }
+  useEffect(() => {
     const fetchData = async () => {
       const result = await getSubscriptionWithInfo(id)
       console.log("result11:", result)
@@ -83,15 +79,15 @@ function SubscribeDetail() {
   const archivedData = editedOrders.filter(item => item.isArchived)
   // 已出貨筆數
   const shippedCount = editedOrders.filter(item => item.shippingStatus === "shipped").length
-  const shippedProgress = (shippedCount / subscriptionData?.durationMonths)*100
+  const shippedProgress = (shippedCount / subscriptionData?.durationMonths) * 100
   const defaultCard = subscriptionData?.paymentSnapshot
   // 計算未歸檔數量
   const unArchivedCount = editedOrders.filter((order) => {
     return order.isArchived !== true
   }).length
-  
+
   const userInfo = subscriptionData.user
-  
+
   // 手機版，管理滾動，對置頂列跟按鈕列的效果
   useEffect(() => {
     const handleScroll = () => {
@@ -129,8 +125,8 @@ function SubscribeDetail() {
           return (
             // 找到被按的那筆，展開後覆寫新的狀態，不是該筆就回傳原本的資料
             order.id === id
-            ? {...order, shippingStatus: newStatus}
-            : order
+              ? { ...order, shippingStatus: newStatus }
+              : order
           )
         })
       })
@@ -160,9 +156,9 @@ function SubscribeDetail() {
       setEditedOrders(prev => {
         return prev.map(order => {
           return (
-            order.id === id 
-            ? {...order, shippingDate: newDate}
-            : order
+            order.id === id
+              ? { ...order, shippingDate: newDate }
+              : order
           )
         })
       })
@@ -184,15 +180,15 @@ function SubscribeDetail() {
     // })
   }
   // 更新歸檔
-  const updateArchived = async (item)=>{
+  const updateArchived = async (item) => {
     try {
-      if ((item.paymentStatus === "paid")&&(item.shippingStatus==="shipped")&&(item.shippingDate !== null)) {
+      if ((item.paymentStatus === "paid") && (item.shippingStatus === "shipped") && (item.shippingDate !== null)) {
         setEditedOrders(prev => {
           return prev.map(order => {
             return (
               order.id === item.id
-              ? {...order, isArchived: !item.isArchived}
-              : order 
+                ? { ...order, isArchived: !item.isArchived }
+                : order
             )
           })
         })
@@ -202,14 +198,14 @@ function SubscribeDetail() {
         // getOrderData()
         // console.log('update:', res.data.isArchived)
       }
-      
+
     } catch (err) {
       console.log("archived error:", err)
     }
   }
   // 取消變更
   const cancelChange = () => {
-   setEditedOrders(allOrders) 
+    setEditedOrders(allOrders)
   }
   // 儲存變更
   const saveChange = async () => {
@@ -255,7 +251,7 @@ function SubscribeDetail() {
           <div className={`order-mobile d-flex align-items-center subscribeDetail-underline  `}>
             <div className="icon me-2">
               <NavLink to={"/admin/subscribe"}>
-                <Icon icon={"material-symbols:chevron-left"} width={"22px"}/>
+                <Icon icon={"material-symbols:chevron-left"} width={"22px"} />
               </NavLink>
             </div>
             <div className="order-info d-flex justify-content-between align-items-center pe-3 w-100">
@@ -265,8 +261,8 @@ function SubscribeDetail() {
               </div>
               <div className="order-status">
                 <button type="button" className={`btn orderStatusBtn ${unArchivedCount === 0 ? "allDone" : ""}`}>
-                {unArchivedCount === 0 ? "已處理" : "未處理"}
-              </button>
+                  {unArchivedCount === 0 ? "已處理" : "未處理"}
+                </button>
               </div>
             </div>
           </div>
@@ -278,7 +274,7 @@ function SubscribeDetail() {
           {/* 訂單編號 */}
           <section className="mb-8 d-none d-lg-block">
             <div className="d-flex align-items-center p-3">
-              <Icon icon={"material-symbols:chevron-left"} className="me-1"/>
+              <Icon icon={"material-symbols:chevron-left"} className="me-1" />
               <NavLink to={"/admin/subscribe"}>
                 <p className="backList neutral-800 fs-8">返回列表</p>
               </NavLink>
@@ -291,10 +287,10 @@ function SubscribeDetail() {
                 </button>
               </div>
               <div className="d-flex gap-3">
-                <button type="button" className="cancelButton px-6 py-3 text-neutral-800" onClick={()=>cancelChange()}>取消</button>
-                <button type="button" className="saveButton fw-bold text-neutral-100" onClick={()=>{
+                <button type="button" className="cancelButton px-6 py-3 text-neutral-800" onClick={() => cancelChange()}>取消</button>
+                <button type="button" className="saveButton fw-bold text-neutral-100" onClick={() => {
                   const isConfirm = window.confirm("確定儲存嗎?")
-                  if(isConfirm) {
+                  if (isConfirm) {
                     saveChange()
                     alert("已儲存變更")
                   }
@@ -330,7 +326,7 @@ function SubscribeDetail() {
                   </div>
                   <div className="d-flex gap-8 mb-2 fs-8">
                     <p className="text-neutral-600">支付方式</p>
-                    <p className="text-neutral-800">信用卡 ****-{defaultCard?.lastFour || defaultCard?.map(card=>card.last_four)}</p>
+                    <p className="text-neutral-800">信用卡 ****-{defaultCard?.lastFour || defaultCard?.map(card => card.last_four)}</p>
                   </div>
                 </div>
               </div>
@@ -359,7 +355,7 @@ function SubscribeDetail() {
                   <div className="title">
                     <p className="mb-2">收件人姓名 </p>
                     <p className="mb-2">Email
-</p>
+                    </p>
                     <p className="mb-2">電子載具 </p>
                     <p className="mb-2">統一編號 </p>
                     <p className="mb-2">配送地址 </p>
@@ -375,14 +371,14 @@ function SubscribeDetail() {
               </div>
             </div>
           </section>
-          
+
           {/* 未處理訂單 桌機版 */}
           <section className="unprocessed d-none d-lg-block bg-neutral-200 rounded-6 mb-6">
             <div className="p-6">
               <p className="mb-2 fw-bold text-neutral-800">
                 未處理訂單
               </p>
-              <div className="border-bottom" style={{marginTop: '6px', marginBottom: '14px'}}></div>
+              <div className="border-bottom" style={{ marginTop: '6px', marginBottom: '14px' }}></div>
               <table className="subscribeDetailTable column-table bg-neutral-200 fs-8">
                 <thead>
                   <tr className="text-neutral-600">
@@ -402,22 +398,22 @@ function SubscribeDetail() {
                       return (
                         <tr key={item.orderNo}>
                           <th scope="row" className="ps-4 fw-normal text-semantic-link">{item.orderNo}</th>
-                          <td className="text-center fw-normal">{item.cycle}{/* 取訂單編號的後兩碼轉換成數字，這樣如果是01就會變1 */}</td>  
+                          <td className="text-center fw-normal">{item.cycle}{/* 取訂單編號的後兩碼轉換成數字，這樣如果是01就會變1 */}</td>
                           <td className="text-center fw-normal">{item.amount}</td>
                           <td className="text-center fw-normal">{item.paymentDate}</td>
                           <td className="text-center fw-normal">
-                            <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"}/>
+                            <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"} />
                           </td>
                           <td className="text-center fw-normal">
-                            <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={()=> setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>  
+                            <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={() => setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status) => updateShipStatusChange(item.id, status)} />
                           </td>
                           <td className="text-center fw-normal">
                             {/* <ShipDate record={item} isDatePickerOpen={openDatePicker[item.orderID] || false} onToggleDatePicker={toggleDatePicker}/> */}
-                            <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={()=>{setOpenDateId(openDateId === item.orderNo ? null : item.orderNo)}} onChange={(date)=>updateShipDateChange(item.id, date)} />
+                            <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={() => { setOpenDateId(openDateId === item.orderNo ? null : item.orderNo) }} onChange={(date) => updateShipDateChange(item.id, date)} />
                           </td>
                           <td className="text-center fw-normal">
                             <span className={`badge rounded-pill fileBadge text-center fw-bold fs-9 ${item.shippingStatus === "failed" ? "shipped-failed" : item.shippingStatus === "shipped" ? "pointer" : ""}`} onClick={() => {
-                              if (item.paymentStatus !=="failed") {
+                              if (item.paymentStatus !== "failed") {
                                 updateArchived(item)
                               }
                             }}>
@@ -439,7 +435,7 @@ function SubscribeDetail() {
             </div>
             <div className="order-list d-flex flex-column gap-3">
               {
-                orderData.slice().reverse().map((item)=>{
+                orderData.slice().reverse().map((item) => {
                   return (
                     <div className="order-card px-4 py-6 bg-neutral-200 rounded-6" key={item.orderNo}>
                       <div className="order-content mb-17">
@@ -452,10 +448,10 @@ function SubscribeDetail() {
                               {item.orderNo}
                             </div>
                           </div>
-                          <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"}/>
+                          <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"} />
                         </div>
                         <div className="order-mobile-divider"></div>
-                        
+
                         {/* 金額&期數&付款日期 */}
                         <div className="order-info fs-8 mt-2 mb-2">
                           <div className="row g-0">
@@ -480,33 +476,33 @@ function SubscribeDetail() {
                           <div className="ship-status d-flex justify-content-between align-items-center mb-3">
                             <div className="ship-text fs-8 text-neutral-600">出貨狀態</div>
                             <div className="ship-button">
-                              <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={()=> setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>
+                              <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={() => setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status) => updateShipStatusChange(item.id, status)} />
                             </div>
                           </div>
                           <div className="ship-status d-flex justify-content-between align-items-center">
                             <div className="ship-text fs-8 text-neutral-600">預計出貨日</div>
                             <div className="ship-button">
-                              <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={()=>setOpenDateId(openDateId === item.orderNo ? null : item.orderNo)} onChange={(date)=>updateShipDateChange(item.id, date)} />
+                              <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={() => setOpenDateId(openDateId === item.orderNo ? null : item.orderNo)} onChange={(date) => updateShipDateChange(item.id, date)} />
                             </div>
                           </div>
                         </div>
                       </div>
                       {/* 結案歸檔按鈕 */}
-                      <div className="order-button" onClick={()=>updateArchived(item)}>結案歸檔</div>
+                      <div className="order-button" onClick={() => updateArchived(item)}>結案歸檔</div>
                     </div>
                   )
                 })
               }
-              
+
             </div>
-          </div>       
+          </div>
           {/* 已歸檔訂單 桌機版 */}
           <section className="archived d-none d-lg-block bg-neutral-200 rounded-6 mb-6">
             <div className="p-6">
               <p className="mb-2 fw-bold text-neutral-800">
                 已歸檔訂單
               </p>
-              <div className="border-bottom" style={{marginTop: '6px', marginBottom: '14px'}}></div>
+              <div className="border-bottom" style={{ marginTop: '6px', marginBottom: '14px' }}></div>
               <table className="subscribeDetailTable column-table bg-neutral-200 fs-8">
                 <thead>
                   <tr className="text-neutral-600">
@@ -534,7 +530,7 @@ function SubscribeDetail() {
                             </span>
                           </td>
                           <td className="text-center fw-normal">
-                            <ShippingStatus record={item} />  
+                            <ShippingStatus record={item} />
                           </td>
                           <td className="text-center fw-normal">
                             {/* disable 跟 archived 沒互動效果 */}
@@ -554,7 +550,7 @@ function SubscribeDetail() {
                                 </div>
                               )
                             } */}
-                            <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={()=>setOpenDateId(openDateId === item.orderNo ? null : item.orderNo)} onChange={(date)=>updateShipDateChange(item.id, date)} />
+                            <ShippedDate record={item} isOpen={openDateId === item.orderNo} onToggle={() => setOpenDateId(openDateId === item.orderNo ? null : item.orderNo)} onChange={(date) => updateShipDateChange(item.id, date)} />
                           </td>
                         </tr>
                       )
@@ -571,7 +567,7 @@ function SubscribeDetail() {
             </div>
             <div className="order-list d-flex flex-column gap-3">
               {
-                archivedData.map((item)=>{
+                archivedData.map((item) => {
                   return (
                     <div className="archived-order-card p-6 bg-neutral-200 rounded-5" key={item.orderNo}>
                       <div className="order-header mb-6">
@@ -584,8 +580,8 @@ function SubscribeDetail() {
                           </div>
                         </div>
                         <div className="order-status d-flex justify-content-start gap-3 mb-3">
-                          <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"}/>
-                          <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={()=> setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status)=>updateShipStatusChange(item.id, status)}/>
+                          <PayStatusBadge currentStatus={item.paymentStatus} isArchived={item.isArchived} isFailed={item.paymentStatus === "failed"} />
+                          <ShippingStatus record={item} isOpen={openId === item.orderNo} onToggle={() => setOpenId(openId === item.orderNo ? null : item.orderNo)} onChange={(status) => updateShipStatusChange(item.id, status)} />
                         </div>
                         <div className="order-mobile-divider"></div>
                       </div>
@@ -615,8 +611,8 @@ function SubscribeDetail() {
                   )
                 })
               }
-              
-              
+
+
             </div>
           </div>
         </div>
