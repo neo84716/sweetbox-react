@@ -1,12 +1,28 @@
+import { useState, useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { getUser, logout } from "../../src/utils/auth"
+
 function Footer() {
+    const [user, setUser] = useState(getUser());
+    const location = useLocation();
+
+    useEffect(() => {
+        setUser(getUser());
+    }, [location]);
+
     return (
         <footer className="footer bg-neutral-400 position-relative">
+            <div className="footer-wave"></div>
             <nav className="container d-flex flex-column flex-lg-row justify-content-between align-items-center mb-3 px-0">
-                <a href="index.html"><img className="footer-logo mb-3 mb-lg-0" src="./images/Home_Page/sweetBox_logo.svg"
-                    alt="一盒甜logo" /></a>
+                <NavLink to="/"><img className="footer-logo mb-3 mb-lg-0" src="./images/Home_Page/sweetBox_logo.svg"
+                    alt="一盒甜logo" /></NavLink>
                 <ul className="d-flex gap-1 gap-lg-6 mb-3 mb-lg-0">
-                    <li className="footer-nav-item"><a href="theme.html">主題一覽</a></li>
-                    <li className="footer-nav-item"><a href="#">會員中心</a></li>
+                    <li className="footer-nav-item"><NavLink to="/theme">主題一覽</NavLink></li>
+                    {user?.isAdmin ? (
+                        <li className="footer-nav-item"><NavLink to="/admin/subscribe">後台管理</NavLink></li>
+                    ) : (
+                        <li className="footer-nav-item"><NavLink to="/subscription">會員中心</NavLink></li>
+                    )}
                 </ul>
                 <ul className="d-flex gap-6">
                     <li>

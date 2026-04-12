@@ -22,6 +22,8 @@
 @import "./components/badge";
 @import "./components/shipStatus";
 @import "./components/shipDate";
+@import "./components/modal";
+@import "./components/form";
 
 // Layout
 @import "./layout/header";
@@ -35,3 +37,4 @@
 @import "./pages/subscription";
 @import "./pages/admin/subscribeDetail";
 @import "./pages/admin/subscribe";
+@import "./pages/login";

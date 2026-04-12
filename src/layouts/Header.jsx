@@ -1,6 +1,15 @@
 import { NavLink } from "react-router-dom";
+import { getUser, logout } from "../../src/utils/auth"
+import { useNavigate } from "react-router-dom";
+
 
 function Header() {
+    const navigate = useNavigate()
+    const handleLogout = () => {
+        logout()
+        navigate("/")
+    }
+    const user = getUser()
     return (
         <nav className="navbar pt-3 px-3 pt-lg-5 px-lg-0">
             <div className="container header py-1 px-4 py-lg-2 px-lg-9">
@@ -25,38 +34,52 @@ function Header() {
                         ><span className="underline">主題一覽</span>
                         </NavLink>
                     </li>
+                    {!user?.isAdmin && (
+                        <>
+                            <li className="nav-item">
+                                <a href="#" className="nav-icon service-icon" aria-label="客服圖示"></a>
+                            </li>
+                            <li className="nav-item">
+                                <NavLink
+                                    to='/cart'
+                                    className="nav-icon cart-icon"
+                                    aria-label="購物車圖示">
+                                </NavLink>
+                            </li>
+                        </>
+                    )}
                     <li className="nav-item">
-                        <a href="#" className="nav-icon service-icon" aria-label="客服圖示"></a>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink
-                            to='/cart'
-                            className="nav-icon cart-icon"
-                            aria-label="購物車圖示">
-                        </NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <div className="dropdown">
-                            <button
-                                type="button"
-                                className="btn dropdown-toggle dropdown-toggle-login d-flex align-items-center py-3 px-6 border-0"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                <div className="avatar me-2">
-                                    <img
-                                        className="d-block"
-                                        src="./images/Home_Page/avatar.jpg"
-                                        alt="使用者頭像"
-                                    />
+                        {
+                            user ? (
+                                <div className="dropdown">
+                                    <button
+                                        type="button"
+                                        className="btn dropdown-toggle dropdown-toggle-login d-flex align-items-center py-3 px-6 border-0"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                    >
+                                        <div className="avatar me-2">
+                                            <img
+                                                className="d-block"
+                                                src={`${user?.avatar? user.avatar : "./images/Home_Page/avatar-default.jpg"}`}
+                                                alt="使用者頭像"
+                                            />
+                                        </div>
+                                        <span className="user-name">{user?.name || "訪客"}</span>
+                                    </button>
+                                    <ul className="dropdown-menu dropdown-menu-avatar">
+                                        {user?.isAdmin ? (
+                                            <li><NavLink className="dropdown-item d-block" to="/admin/subscribe">後台管理</NavLink></li>
+                                        ) : (
+                                            <li><NavLink className="dropdown-item d-block" to="/subscription">訂閱管理</NavLink></li>
+                                        )}
+                                        <li><NavLink className="dropdown-item d-block" to="/login" onClick={handleLogout}>登出</NavLink></li>
+                                    </ul>
                                 </div>
-                                <span className="user-name">歐拉</span>
-                            </button>
-                            <ul className="dropdown-menu dropdown-menu-avatar">
-                                <li><a className="dropdown-item d-block" href="#">會員中心</a></li>
-                                <li><a className="dropdown-item d-block" href="#">登出</a></li>
-                            </ul>
-                        </div>
+                            ) : (
+                                <NavLink to="/login">登入</NavLink>
+                            )
+                        }
                     </li>
                 </ul>
 
@@ -86,22 +109,32 @@ function Header() {
                     </button>
                     <ul className="dropdown-menu fs-6 dropdown-menu-burger d-lg-none">
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item active" href="index.html">首頁</a>
+                            <NavLink className="dropdown-item" to="/">首頁</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="theme.html">主題一覽</a>
+                            <NavLink className="dropdown-item" to="/theme">主題一覽</NavLink>
                         </li>
+                        {user?.isAdmin ? (
+                            // 管理者顯示
+                            <li className="dropdown-item-wrapper">
+                                <NavLink className="dropdown-item" to="/admin/subscribe">後台管理</NavLink>
+                            </li>
+                        ) : (
+                            // 訪客、一般使用者顯示
+                            <>
+                                <li className="dropdown-item-wrapper">
+                                    <NavLink className="dropdown-item" to="/service">客服諮詢</NavLink>
+                                </li>
+                                <li className="dropdown-item-wrapper">
+                                    <NavLink className="dropdown-item" to="/cart">購物車</NavLink>
+                                </li>
+                                <li className="dropdown-item-wrapper">
+                                    <NavLink className="dropdown-item" to="/member">會員中心</NavLink>
+                                </li>
+                            </>
+                        )}
                         <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="#">客服諮詢</a>
-                        </li>
-                        <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="cart.html">購物車</a>
-                        </li>
-                        <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="#">會員中心</a>
-                        </li>
-                        <li className="dropdown-item-wrapper">
-                            <a className="dropdown-item" href="#">登出</a>
+                            <NavLink className="dropdown-item" to="/login" onClick={handleLogout}>登出</NavLink>
                         </li>
                         <li className="dropdown-item-wrapper">
                             <button
@@ -125,8 +158,8 @@ function Header() {
                             </button>
                         </li>
                     </ul>
-                </div>
-            </div>
+                </div >
+            </div >
         </nav >
     )
 }
