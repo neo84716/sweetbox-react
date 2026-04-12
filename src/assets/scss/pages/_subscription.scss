@@ -1,12 +1,27 @@
+.custom-input {
+  background-color: $neutral-250;
+
+  &::placeholder {
+    color: $neutral-600;
+  }
+
+  &:focus {
+    background-color: $neutral-100;
+    color: $neutral-800
+  }
+}
+
 .subscription-info {
   &-title {
     font-size: 14px;
     color: $neutral-600;
   }
+
   &-content {
     font-size: 14px;
     color: $neutral-800;
   }
+
   &-divider {
     display: block;
     width: 100%;
@@ -14,13 +29,8 @@
     margin-top: 6px;
     margin-bottom: 6px;
     background-color: $neutral-400;
-    @media (min-width: 1200px) {
-      display: none;
-    }
   }
 }
-
-
 
 .vertical-divider {
   width: 1px;
@@ -41,6 +51,7 @@
       color: $neutral-600;
       text-align: center;
     }
+
     th:first-child {
       text-align: left;
     }
@@ -52,19 +63,244 @@
     tr:hover {
       background-color: $neutral-300;
     }
+
     th,
     td {
       background-color: transparent;
       padding: 20px 24px;
       text-align: center;
+
       button {
         padding: 6px;
       }
     }
+
     th {
       text-align: left;
       font-weight: normal;
       color: $semantic-link;
     }
   }
+}
+
+.filterBadge {
+  background-color: $primary-600;
+  width: 20px;         
+  height: 20px;        
+  display: flex;
+  align-items: center;  
+  justify-content: center; 
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1.2;
+  color: #fff;
+  top: 0;
+  right:0;
+}
+
+.textBadge{
+  width: 32px;         
+  height: 32px;        
+  display: flex;
+  align-items: center;  
+  justify-content: center; 
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.2;
+  color: #fff;
+
+}
+.mobile-button-bar{
+  z-index: 9999;
+}
+.custom-checkbox .form-check-input {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;    /* 邊框粗細 */
+  border-color: $neutral-800;   /* 邊框顏色 */
+}
+
+.custom-checkbox .form-check-input:checked {
+  background-color: $neutral-800; 
+  border-color: $neutral-800;
+}
+
+// 付款 modal
+.credit-card-logo {
+  width: 40px;
+  height: 24px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: $neutral-100;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    vertical-align: top;
+  }
+}
+
+.credit-card {
+  &-image {
+    max-width: 400px;
+    height: 254px;
+    padding: 24px;
+    border-radius: 16px;
+    background: linear-gradient(#322D26, #48423B);
+  }
+
+  &-list {
+    max-height: 144px;
+    overflow: auto;
+    @media (min-width: 576px) {
+      max-height: 78px;
+    }
+  }
+}
+
+.credit-card-number {
+  display: flex;
+
+  .masked-number {
+    letter-spacing: -0.3rem;
+
+    &-compact {
+      letter-spacing: -0.66rem;
+    }
+  }
+}
+
+.payment-button-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px;
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;
+  background-color: $neutral-250;
+  box-shadow: 0 -2px 4px 0 rgba($black, 0.06);
+}
+
+.subscription-modal-left-section {
+  flex: 2;
+  min-width: 0;
+}
+
+.subscription-modal-right-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-info-card {
+  padding: 24px;
+  border-radius: 16px;
+  background-color: rgba($neutral-100, 0.4);
+}
+
+.notice-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  background-color: $neutral-700;
+  color: $neutral-100;
+  border-radius: 100px;
+}
+
+.cancel-modal {
+  height: 616px;
+}
+
+.cancel-modal-title {
+  font-size: 28px;
+
+  @media (min-width: 576px) {
+    font-size: 24px;
+  }
+
+  &.desktop-title {
+    display: none;
+
+    @media (min-width: 576px) {
+      display: block;
+    }
+  }
+  &.mobile-title {
+    display: block;
+
+    @media (min-width: 576px) {
+      display: none;
+    }
+  }
+}
+
+.cancel-modal-left {
+  flex: 1;
+
+  .cancel-modal-left-content {
+    padding: 24px;
+    @media (min-width: 576px) {
+      padding: 32px 48px;
+    }
+  }
+}
+
+.cancel-modal-right {
+  flex: 1.5;
+
+  .cancel-modal-reminder-content {
+    padding: 24px 24px 120px;
+  }
+
+  .cancel-modal-confirm-content {
+    padding: 12px 24px 120px;
+  }
+
+  .cancel-modal-reminder-content,
+  .cancel-modal-confirm-content {
+    @media (min-width: 576px) {
+      padding: 32px 32px 48px 48px;
+    }
+  }
+}
+
+.text-label {
+  font-size: 14px;
+  color: $neutral-600;
+}
+
+.subscription-summary {
+  padding: 16px;
+  border: 1px solid $neutral-400;
+  border-radius: 12px;
+  font-size: 14px;
+
+  &-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+}
+
+.arrow-down-icon {
+  transform: rotate(0deg);
+  transition: transform .5s ease;
+  &.rotate {
+    transform: rotate(180deg);
+  }
+}
+
+.plan-image {
+  width: 90px;
+  border-radius: 9px;
+  @media (min-width: 1200px) {
+    width: 264px;
+    border-radius: 20px;
+  }
+}
+
+.theme-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
 }

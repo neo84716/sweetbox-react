@@ -208,6 +208,9 @@
 
 .dropdown-menu-neutral-250 {
   &.show {
+    min-width: 108px;   // 保持原本寬度
+    max-width: 200px;   // 避免超寬
+    width: auto;        // 讓它依內容，但不超過 max-width
     border-radius: 8px;
     background-color: $neutral-100;
     box-shadow: 0 2px 4px 0 rgba($black, 0.06);
@@ -218,7 +221,8 @@
       font-size: 14px;
     }
 
-    li:hover {
+    li:hover,
+    li.active {
       background-color: $primary-200;
       cursor: pointer;
     }
@@ -330,7 +334,6 @@
   .btn {
     width: 100%;
     justify-content: space-between;
-    padding: 12px 16px !important;
   }
   .custom-dropdown {
     padding: 4px;

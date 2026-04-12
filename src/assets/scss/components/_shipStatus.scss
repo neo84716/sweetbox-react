@@ -13,11 +13,14 @@
     align-items: center;
     gap: 4px;
     color: $semantic-link; // 藍色
-    cursor: pointer;
+    // cursor: pointer;
     position: relative;
-    padding-bottom: 4px;
+    &.pointer {
+      cursor: pointer;
+    }
     .ship-label {
       border-bottom: 1px dashed currentColor;
+      padding-bottom: 4px;
     }
     &:hover {
       color: $neutral-800;

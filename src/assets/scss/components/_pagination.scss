@@ -6,7 +6,7 @@
     width: 48px;
     height: 48px;
 
-    &:hover {
+    &:not(.disabled):hover {
         .page-link {
             background-color: $neutral-800;
             color: $neutral-100;
@@ -19,6 +19,10 @@
             color: $neutral-100;
         }
 
+    }
+
+    &.disabled {
+        background-color: transparent;
     }
 }
 
@@ -33,6 +37,7 @@
     color: $neutral-900;
     font-size: 14px;
     flex-shrink: 0;
+
     & svg {
         flex-shrink: 0; // 避免被壓縮 
 

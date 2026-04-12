@@ -1,13 +1,17 @@
 import App from "../App";
 import Cart from "../pages/Cart";
 import CartCheckout from "../pages/CartCheckout";
-import EmptyCart from "../pages/EmptyCart";
+import CartFinish from "../pages/CartFinish";
 import Home from "../pages/Home";
 import Subscription from "../pages/Subscription";
 import Theme from "../pages/Theme";
 import ThemeDetail from "../pages/ThemeDetail";
 import Subscribe from "../pages/admin/Subscribe";
 import SubscribeDetail from "../pages/admin/SubscribeDetail";
+import Login from "../pages/Login";
+import NotFound from "../pages/NotFound";
+import ProtectedRoute from "../components/ProtectedRoute";
+
 
 const routes = [
   {
@@ -19,20 +23,32 @@ const routes = [
         element: <Home />
       },
       {
+        path: "login",
+        element: <Login />
+      },
+      {
         path: "cart",
-        element: <Cart />
+        element: 
+          <ProtectedRoute>
+            <Cart /> 
+          </ProtectedRoute>
+        
+      },
+      {
+        path: "cartCheckout",
+        element: <CartCheckout />
+      },
+      {
+        path: "cartFinish",
+        element: <CartFinish />
       },
       {
         path: "theme",
         element: <Theme />
       },
       {
-        path: "themeDetail",
+        path: "themeDetail/:id",
         element: <ThemeDetail />
-      },
-      {
-        path: "emptyCart",
-        element: <EmptyCart />
       },
       {
         path: "subscription",
@@ -43,13 +59,14 @@ const routes = [
         element: <Subscribe />
       },
       {
-        path: "admin/subscribeDetail",
+        path: "admin/subscribeDetail/:id",
         element: <SubscribeDetail />
       },
-      { 
-        path: "cartCheckout", 
-        element: <CartCheckout /> 
+      {
+        path: "*",
+        element: <NotFound />
       }
+
     ]
   }
 ];

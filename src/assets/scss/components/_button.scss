@@ -153,7 +153,7 @@
   }
 }
 
-.btn-icon-leading {
+.btn-icon-leading, .btn-simple-icon {
   background-color: transparent;
   color: $neutral-800;
   padding: 12px 12px;
@@ -175,6 +175,10 @@
   &:disabled {
     color: $neutral-500;
   }
+}
+
+.btn-simple-icon{
+  padding: 0;
 }
 
 .btn-icon-tailing {
@@ -349,4 +353,18 @@
 
 .btn-md {
   padding: 12px 24px;
+}
+
+.btn-close-md {
+  width: 24px;
+  height: 24px;
+}
+
+.btn-action {
+  border: 0;
+  border-radius: 100px;
+  font-weight: bold;
+  line-height: 1.2;
+  letter-spacing: 0.1rem;
+  color: $neutral-100;
 }
