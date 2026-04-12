@@ -184,7 +184,7 @@ function Cart() {
             setUpdatingItemId(itemId);
 
             try {
-                await api.patch(`/cart_items/${itemId}`, { quantity: newQty, updatedAt:currentTwTime });
+                await api.patch(`/cart_items/${itemId}`, { quantity: newQty, updatedAt: currentTwTime });
 
                 await syncCartTotals(
                     cartItemsRef.current,
@@ -225,7 +225,7 @@ function Cart() {
         setCartItems(newCartItems);
 
         try {
-            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId, updatedAt:currentTwTime })
+            await api.patch(`/cart_items/${itemId}`, { planId: newPlanId, updatedAt: currentTwTime })
             await syncCartTotals(
                 newCartItems,
                 discountTotalRef.current,
@@ -286,7 +286,7 @@ function Cart() {
             await api.patch(`/carts/${cartMain.id}`, {
                 couponId: coupon.id,
                 discountTotal: finalDiscount,
-                updatedAt:currentTwTime
+                updatedAt: currentTwTime
             });
             setCartMain(prev => ({ ...prev, couponId: coupon.id, discountTotal: finalDiscount }));
 
@@ -307,8 +307,17 @@ function Cart() {
             setSuccess(false);
             setError("");
 
-            await api.patch(`/carts/${cartMain.id}`, { couponId: null, discountTotal: null, updatedAt:currentTwTime });
-            setCartMain(prev => ({ ...prev, couponId: null, discountTotal: null, updatedAt:currentTwTime }));
+            await api.put(`/carts/${cartMain.id}`, {
+                id: cartMain.id,
+                userId: cartMain.userId,
+                discountTotal: 0,
+                createdAt: cartMain.createdAt,
+                updatedAt: currentTwTime
+            });
+            setCartMain(prev => {
+                const { couponId, ...rest } = prev;  // couponId 從 state 移除，避免 delete 報錯
+                return { ...rest, discountTotal: 0, updatedAt: currentTwTime };
+            });
 
             syncCartTotals(cartItemsRef.current, null);
 

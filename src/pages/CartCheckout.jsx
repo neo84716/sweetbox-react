@@ -79,10 +79,10 @@ function CartCheckout() {
                     .filter(n => !isNaN(n))
                     .reduce((max, n) => Math.max(max, n), 0);
                 const newCardId = `pm${String(maxPaymentMethodId + 1).padStart(6, '0')}`
-                
+
                 // 3. 儲存新卡資訊
                 const newCardRes = await api.post('/payment_methods', {
-                    id:newCardId,
+                    id: newCardId,
                     userId: userId,
                     cardOwner: formData.cardOwner,
                     cardBrand: currentCardBrand,
@@ -197,7 +197,7 @@ function CartCheckout() {
                     id: newOrderId,
                     subscriptionId: newSubId,
                     orderNo: firstOrderNo,
-                    cycle:1,
+                    cycle: 1,
                     amount: firstOrderAmount,
                     createdAt: nowIsoString,
                     paymentDueDate: todayStr,
@@ -212,13 +212,17 @@ function CartCheckout() {
                     },
                     isArchived: false
                 });
-                
+
 
                 return subRes.data; // 回傳給 Promise.all
             };
 
-            // --- 3. Promise.all 同時發送所有請求
-            const results = await Promise.all(preCalculatedItems.map(item => createSubscriptionTask(item)));
+            // --- 3. Promise.all 循序執行(json server 不支援同時寫入)
+            const results = [];
+            for (const item of preCalculatedItems) {
+                const result = await createSubscriptionTask(item);
+                results.push(result);
+            }
 
             // 將結果存入 createdSubscriptions 供導頁使用
             createdSubscriptions.push(...results);

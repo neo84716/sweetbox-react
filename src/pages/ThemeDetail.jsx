@@ -73,9 +73,8 @@ function ThemeDetail() {
           : 0;
 
         cart = {
-          id: `c${String(maxCartId + 1).padStart(7, "0")}`,
+          id: maxCartId + 1,
           userId: userObj.id,
-          couponId: null,
           createdAt: new Date().toISOString(),
         };
         console.log("建立新購物車:", cart);
@@ -87,7 +86,7 @@ function ThemeDetail() {
       const cartItems = itemsRes.data.filter(item => item.cartId === cart.id);
 
       const maxItemId = itemsRes.data.length > 0
-        ? Math.max(...itemsRes.data.map(item => parseInt(item.id.replace("ci", ""))))
+        ? Math.max(...itemsRes.data.map(item => item.id))
         : 0;
 
       const existingItem = cartItems.find(item => item.planId === activePlan.id);
@@ -107,7 +106,7 @@ function ThemeDetail() {
         };
       } else {
         const newCartItem = {
-          id: `ci${String(maxItemId + 1).padStart(7, "0")}`,
+          id: maxItemId + 1,
           cartId: cart.id,
           planId: activePlan.id,
           quantity,
