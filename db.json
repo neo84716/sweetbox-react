@@ -1,7 +1,7 @@
 {
   "themes": [
     {
-      "id": "t0000001",
+      "id": 1,
       "title": "精選甜點",
       "titleEn": "select",
       "titleAbbr": "SL",
@@ -13,7 +13,7 @@
       }
     },
     {
-      "id": "t0000002",
+      "id": 2,
       "title": "季節限定",
       "titleEn": "seasonal",
       "titleAbbr": "SS",
@@ -25,7 +25,7 @@
       }
     },
     {
-      "id": "t0000003",
+      "id": 3,
       "title": "在地甜點",
       "titleEn": "local",
       "titleAbbr": "LC",
@@ -37,7 +37,7 @@
       }
     },
     {
-      "id": "t0000004",
+      "id": 4,
       "title": "異國風味",
       "titleEn": "global",
       "titleAbbr": "GB",
@@ -49,7 +49,7 @@
       }
     },
     {
-      "id": "t0000005",
+      "id": 5,
       "title": "無負擔甜點",
       "titleEn": "guilt-Free",
       "titleAbbr": "GF",
@@ -61,7 +61,7 @@
       }
     },
     {
-      "id": "t0000006",
+      "id": 6,
       "title": "素食甜點",
       "titleEn": "veggie",
       "titleAbbr": "VG",
@@ -75,7 +75,7 @@
   ],
   "users": [
     {
-      "id": "u0000001",
+      "id": 1,
       "name": "Lucas Wang",
       "email": "lucas@example.com",
       "password": "123456",
@@ -91,7 +91,7 @@
       }
     },
     {
-      "id": "u0000002",
+      "id": 2,
       "name": "管理員",
       "email": "admin@example.com",
       "password": "admin01",
@@ -102,7 +102,7 @@
       "address": null
     },
     {
-      "id": "u0000003",
+      "id": 3,
       "name": "Jennie",
       "email": "jennie.nichols@example.com",
       "password": "000000",
@@ -120,127 +120,127 @@
   ],
   "plans": [
     {
-      "id": "p0000001",
-      "themeId": "t0000001",
+      "id": 1,
+      "themeId": 1,
       "originalPrice": 911,
       "discountPrice": 710,
       "durationMonths": 3
     },
     {
-      "id": "p0000002",
-      "themeId": "t0000001",
+      "id": 2,
+      "themeId": 1,
       "originalPrice": 911,
       "discountPrice": 700,
       "durationMonths": 6
     },
     {
-      "id": "p0000003",
-      "themeId": "t0000001",
+      "id": 3,
+      "themeId": 1,
       "originalPrice": 911,
       "discountPrice": 675,
       "durationMonths": 12
     },
     {
-      "id": "p0000004",
-      "themeId": "t0000002",
+      "id": 4,
+      "themeId": 2,
       "originalPrice": 750,
       "discountPrice": 740,
       "durationMonths": 3
     },
     {
-      "id": "p0000005",
-      "themeId": "t0000002",
+      "id": 5,
+      "themeId": 2,
       "originalPrice": 750,
       "discountPrice": 720,
       "durationMonths": 6
     },
     {
-      "id": "p0000006",
-      "themeId": "t0000002",
+      "id": 6,
+      "themeId": 2,
       "originalPrice": 750,
       "discountPrice": 700,
       "durationMonths": 12
     },
     {
-      "id": "p0000007",
-      "themeId": "t0000003",
+      "id": 7,
+      "themeId": 3,
       "originalPrice": 750,
       "discountPrice": 740,
       "durationMonths": 3
     },
     {
-      "id": "p0000008",
-      "themeId": "t0000003",
+      "id": 8,
+      "themeId": 3,
       "originalPrice": 750,
       "discountPrice": 720,
       "durationMonths": 6
     },
     {
-      "id": "p0000009",
-      "themeId": "t0000003",
+      "id": 9,
+      "themeId": 3,
       "originalPrice": 750,
       "discountPrice": 700,
       "durationMonths": 12
     },
     {
-      "id": "p0000010",
-      "themeId": "t0000004",
+      "id": 10,
+      "themeId": 4,
       "originalPrice": 750,
       "discountPrice": 740,
       "durationMonths": 3
     },
     {
-      "id": "p0000011",
-      "themeId": "t0000004",
+      "id": 11,
+      "themeId": 4,
       "originalPrice": 750,
       "discountPrice": 720,
       "durationMonths": 6
     },
     {
-      "id": "p0000012",
-      "themeId": "t0000004",
+      "id": 12,
+      "themeId": 4,
       "originalPrice": 750,
       "discountPrice": 700,
       "durationMonths": 12
     },
     {
-      "id": "p0000013",
-      "themeId": "t0000005",
+      "id": 13,
+      "themeId": 5,
       "originalPrice": 730,
       "discountPrice": 720,
       "durationMonths": 3
     },
     {
-      "id": "p0000014",
-      "themeId": "t0000005",
+      "id": 14,
+      "themeId": 5,
       "originalPrice": 730,
       "discountPrice": 700,
       "durationMonths": 6
     },
     {
-      "id": "p0000015",
-      "themeId": "t0000005",
+      "id": 15,
+      "themeId": 5,
       "originalPrice": 730,
       "discountPrice": 690,
       "durationMonths": 12
     },
     {
-      "id": "p0000016",
-      "themeId": "t0000006",
+      "id": 16,
+      "themeId": 6,
       "originalPrice": 730,
       "discountPrice": 720,
       "durationMonths": 3
     },
     {
-      "id": "p0000017",
-      "themeId": "t0000006",
+      "id": 17,
+      "themeId": 6,
       "originalPrice": 730,
       "discountPrice": 700,
       "durationMonths": 6
     },
     {
-      "id": "p0000018",
-      "themeId": "t0000006",
+      "id": 18,
+      "themeId": 6,
       "originalPrice": 730,
       "discountPrice": 690,
       "durationMonths": 12
@@ -248,33 +248,33 @@
   ],
   "carts": [
     {
-      "id": "1",
-      "userId": "u0000001",
+      "id": 1,
+      "userId": 1,
       "createdAt": "2026-04-05T13:50:19.655Z",
       "updatedAt": "2026-04-06T18:10:42.445Z"
     }
   ],
   "cart_items": [
     {
-      "id": "1",
-      "cartId": "1",
-      "planId": "p0000001",
+      "id": 1,
+      "cartId": 1,
+      "planId": 1,
       "quantity": 1
     },
     {
-      "id": "2",
-      "cartId": "1",
-      "planId": "p0000011",
+      "id": 2,
+      "cartId": 1,
+      "planId": 8,
       "quantity": 2
     }
   ],
   "subscriptions": [
     {
-      "id": "s0000001",
-      "userId": "u0000001",
-      "planId": "p0000003",
-      "themeId": "t0000001",
+      "id": 1,
       "subscriptionNumber": "SL12A7K29X",
+      "userId": 1,
+      "planId": 3,
+      "themeId": 1,
       "quantity": 3,
       "unitPrice": 675,
       "durationMonths": 12,
@@ -285,7 +285,7 @@
       "isProcessed": true,
       "note": "請直接放門口。",
       "createdAt": "2025-12-10T00:00:00Z",
-      "paymentMethodId": "pm000001",
+      "paymentMethodId": 1,
       "paymentSnapshot": {
         "cardOwner": "WANG LU",
         "cardBrand": "visa",
@@ -302,7 +302,7 @@
         "phone": "0912345678"
       },
       "invoiceInfo": {
-        "type": "default_carrier",
+        "type": "default",
         "carrier": "/ABC1234",
         "taxId": null,
         "companyName": null,
@@ -311,11 +311,11 @@
       }
     },
     {
-      "id": "s0000002",
-      "userId": "u0000001",
-      "themeId": "t0000002",
-      "planId": "p0000005",
+      "id": 2,
       "subscriptionNumber": "SS06M4P82Q",
+      "userId": 1,
+      "themeId": 2,
+      "planId": 5,
       "quantity": 2,
       "unitPrice": 720,
       "durationMonths": 6,
@@ -326,7 +326,7 @@
       "isProcessed": true,
       "note": "放門口即可。",
       "createdAt": "2026-01-15T00:00:00Z",
-      "paymentMethodId": "pm000001",
+      "paymentMethodId": 1,
       "paymentSnapshot": {
         "cardOwner": "WANG LU",
         "cardBrand": "visa",
@@ -343,7 +343,7 @@
         "phone": "0912345678"
       },
       "invoiceInfo": {
-        "type": "default_carrier",
+        "type": "default",
         "carrier": "/DEF5678",
         "taxId": null,
         "companyName": null,
@@ -352,11 +352,11 @@
       }
     },
     {
-      "id": "s0000003",
-      "userId": "u0000001",
-      "themeId": "t0000003",
-      "planId": "p0000007",
+      "id": 3,
       "subscriptionNumber": "LC03Z9T61L",
+      "userId": 1,
+      "themeId": 3,
+      "planId": 7,
       "quantity": 1,
       "durationMonths": 3,
       "unitPrice": 740,
@@ -367,7 +367,7 @@
       "isProcessed": false,
       "note": "放門口即可。",
       "createdAt": "2026-01-01T00:00:00Z",
-      "paymentMethodId": "pm000001",
+      "paymentMethodId": 1,
       "paymentSnapshot": {
         "cardOwner": "WANG LU",
         "cardBrand": "visa",
@@ -384,21 +384,20 @@
         "phone": "0912345678"
       },
       "invoiceInfo": {
-        "type": "default_carrier",
+        "type": "default",
         "carrier": "/GHI9012",
         "taxId": null,
         "companyName": null,
         "companyEmail": null,
         "donateCode": null
-      },
-      "updated_at": "2026-04-06T18:13:35.736Z"
+      }
     },
     {
-      "id": "s0000004",
-      "userId": "u0000003",
-      "planId": "p0000011",
-      "themeId": "t0000004",
+      "id": 4,
       "subscriptionNumber": "GB06ST73X7",
+      "userId": 3,
+      "planId": 11,
+      "themeId": 4,
       "quantity": 2,
       "unitPrice": 720,
       "durationMonths": 6,
@@ -409,7 +408,7 @@
       "isProcessed": true,
       "note": "請直接放門口。",
       "createdAt": "2025-11-20T00:00:00Z",
-      "paymentMethodId": "pm000002",
+      "paymentMethodId": 2,
       "paymentSnapshot": {
         "cardOwner": "張美惠",
         "cardBrand": "jcb",
@@ -426,7 +425,7 @@
         "phone": "0979040888"
       },
       "invoiceInfo": {
-        "type": "default_carrier",
+        "type": "default",
         "carrier": "/J8RC1H34",
         "taxId": null,
         "companyName": null,
@@ -435,11 +434,11 @@
       }
     },
     {
-      "id": "s0000005",
-      "userId": "u0000001",
-      "planId": "p0000001",
-      "themeId": "t0000001",
+      "id": 5,
       "subscriptionNumber": "SL03MF6IJZ",
+      "userId": 1,
+      "planId": 1,
+      "themeId": 1,
       "quantity": 1,
       "unitPrice": 710,
       "durationMonths": 3,
@@ -450,7 +449,7 @@
       "isProcessed": false,
       "note": "afadwdwad",
       "createdAt": "2026-04-05T00:00:00Z",
-      "paymentMethodId": "pm000001",
+      "paymentMethodId": 1,
       "paymentSnapshot": {
         "cardOwner": "WANG LU",
         "cardBrand": "visa",
@@ -469,18 +468,17 @@
       "invoiceInfo": {
         "type": "na",
         "carrier": "",
-        "tax_id": "",
-        "company_name": "",
-        "company_email": "",
-        "donate_code": ""
-      },
-      "updated_at": "2026-04-06T18:15:12.097Z"
+        "taxId": "",
+        "companyName": "",
+        "companyEmail": "",
+        "donateCode": ""
+      }
     }
   ],
   "orders": [
     {
-      "id": "o0000001",
-      "subscriptionId": "s0000001",
+      "id": 1,
+      "subscriptionId": 1,
       "orderNo": "SL12A7K29X01",
       "cycle": 1,
       "amount": 2025,
@@ -498,8 +496,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000002",
-      "subscriptionId": "s0000002",
+      "id": 2,
+      "subscriptionId": 2,
       "orderNo": "SS06M4P82Q01",
       "cycle": 1,
       "amount": 1440,
@@ -517,8 +515,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000003",
-      "subscriptionId": "s0000002",
+      "id": 3,
+      "subscriptionId": 2,
       "orderNo": "SS06M4P82Q02",
       "cycle": 2,
       "amount": 1440,
@@ -536,8 +534,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000004",
-      "subscriptionId": "s0000002",
+      "id": 4,
+      "subscriptionId": 2,
       "orderNo": "SS06M4P82QCF",
       "cycle": 3,
       "amount": 90,
@@ -555,8 +553,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000005",
-      "subscriptionId": "s0000003",
+      "id": 5,
+      "subscriptionId": 3,
       "orderNo": "LC03Z9T61L01",
       "cycle": 1,
       "amount": 740,
@@ -574,8 +572,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000006",
-      "subscriptionId": "s0000003",
+      "id": 6,
+      "subscriptionId": 3,
       "orderNo": "LC03Z9T61L02",
       "cycle": 2,
       "amount": 740,
@@ -593,8 +591,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000007",
-      "subscriptionId": "s0000003",
+      "id": 7,
+      "subscriptionId": 3,
       "orderNo": "LC03Z9T61L03",
       "cycle": 3,
       "amount": 740,
@@ -612,8 +610,8 @@
       "isArchived": false
     },
     {
-      "id": "o0000008",
-      "subscriptionId": "s0000004",
+      "id": 8,
+      "subscriptionId": 4,
       "orderNo": "GB06ST73X701",
       "cycle": 1,
       "amount": 1440,
@@ -631,8 +629,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000009",
-      "subscriptionId": "s0000004",
+      "id": 9,
+      "subscriptionId": 4,
       "orderNo": "GB06ST73X702",
       "cycle": 2,
       "amount": 1440,
@@ -650,8 +648,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000010",
-      "subscriptionId": "s0000004",
+      "id": 10,
+      "subscriptionId": 4,
       "orderNo": "GB06ST73X703",
       "cycle": 3,
       "amount": 1440,
@@ -669,8 +667,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000011",
-      "subscriptionId": "s0000004",
+      "id": 11,
+      "subscriptionId": 4,
       "orderNo": "GB06ST73X704",
       "cycle": 4,
       "amount": 1440,
@@ -688,8 +686,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000012",
-      "subscriptionId": "s0000004",
+      "id": 12,
+      "subscriptionId": 4,
       "orderNo": "GB06ST73X705",
       "cycle": 5,
       "amount": 1440,
@@ -707,8 +705,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000013",
-      "subscriptionId": "s0000005",
+      "id": 13,
+      "subscriptionId": 5,
       "orderNo": "SL03MF6IJZ01",
       "cycle": 1,
       "amount": 710,
@@ -726,8 +724,8 @@
       "isArchived": false
     },
     {
-      "id": "o0000014",
-      "subscriptionId": "s0000001",
+      "id": 14,
+      "subscriptionId": 1,
       "orderNo": "SL12A7K29X02",
       "cycle": 2,
       "amount": 2025,
@@ -745,8 +743,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000015",
-      "subscriptionId": "s0000001",
+      "id": 15,
+      "subscriptionId": 1,
       "orderNo": "SL12A7K29X03",
       "cycle": 3,
       "amount": 2025,
@@ -764,8 +762,8 @@
       "isArchived": true
     },
     {
-      "id": "o0000016",
-      "subscriptionId": "s0000001",
+      "id": 16,
+      "subscriptionId": 1,
       "orderNo": "SL12A7K29X04",
       "cycle": 4,
       "amount": 2025,
@@ -785,8 +783,8 @@
   ],
   "payment_methods": [
     {
-      "id": "pm000001",
-      "userId": "u0000001",
+      "id": 1,
+      "userId": 1,
       "cardOwner": "WANG LU",
       "cardBrand": "visa",
       "lastFour": "4242",
@@ -797,8 +795,8 @@
       "createdAt": "2025-12-10T00:00:00Z"
     },
     {
-      "id": "pm000002",
-      "userId": "u0000003",
+      "id": 2,
+      "userId": 3,
       "cardOwner": "張美惠",
       "cardBrand": "jcb",
       "lastFour": "8301",
@@ -811,7 +809,7 @@
   ],
   "coupons": [
     {
-      "id": "c8f3k2p1q",
+      "id": 1,
       "code": "SWEET2026",
       "type": "fixed",
       "discountValue": 100,
@@ -822,13 +820,13 @@
   ],
   "reviews": [
     {
-      "id": "r0000001",
+      "id": 1,
       "rating": 4,
       "title": "終於不用再開甜點單選半天了",
       "comment": "以前每天滑社群軟體收藏各種甜點照片，看到漂亮的蛋糕、餅乾、布丁就會想試試看，但真的要下單時卻又猶豫半天，最後常常什麼都沒買，收藏清單越來越長卻始終沒動作。有時候甚至會因為選項太多，反而覺得壓力很大，乾脆放棄不買🙈。後來開始訂「一盒甜」之後，真的完全解決了我的選擇障礙！每個月的主題都超用心💝，從包裝設計到甜點搭配都很有驚喜感✨。打開盒子的瞬間，就像在拆生日禮物一樣療癒，會忍不住拍照分享給朋友。而且最重要的是，吃了好幾個月下來，每次都覺得品質很穩定，完全沒有踩過雷，每個品項都好吃又有特色😍，常常讓我發現新的喜好。現在已經養成習慣，變成每月最期待的小確幸🥰！",
       "likeCount": 3,
-      "userId": "u0000001",
-      "subscriptionId": "s0000001",
+      "userId": 1,
+      "subscriptionId": 1,
       "images": [],
       "createAt": "2026-03-20T14:30:00Z"
     }
