@@ -21,6 +21,8 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Asia/Taipei");
 
+const nowIsoString = new Date().toISOString();
+
 function CartCheckout() {
     const navigate = useNavigate();
 
@@ -47,7 +49,6 @@ function CartCheckout() {
             const createdSubscriptions = [];
             const userId = user?.id;
             const todayStr = dayjs().format('YYYY-MM-DD');
-            const nowIsoString = new Date().toISOString();
             const currentSubTotal = subTotal;
             const currentDiscountTotal = discountTotal;
 
@@ -72,17 +73,8 @@ function CartCheckout() {
                     await api.patch(`/payment_methods/${oldCard.id}`, { isDefault: false });
                 }
 
-                // 2. 算新id
-                const PaymentMethodsRes = await api.get('/payment_methods');
-                const maxPaymentMethodId = PaymentMethodsRes.data
-                    .map(pm => parseInt(pm.id.replace('pm', '')))
-                    .filter(n => !isNaN(n))
-                    .reduce((max, n) => Math.max(max, n), 0);
-                const newCardId = `pm${String(maxPaymentMethodId + 1).padStart(6, '0')}`
-
                 // 3. 儲存新卡資訊
                 const newCardRes = await api.post('/payment_methods', {
-                    id: newCardId,
                     userId: userId,
                     cardOwner: formData.cardOwner,
                     cardBrand: currentCardBrand,
@@ -102,21 +94,6 @@ function CartCheckout() {
                 finalPaymentMethodId = defaultCardRes.data[0]?.id || "";
             }
 
-            const [subsRes, ordersRes] = await Promise.all([
-                api.get('/subscriptions'),
-                api.get('/orders')
-            ]);
-
-            const maxSubId = subsRes.data
-                .map(s => parseInt(s.id.replace('s', '')))
-                .filter(n => !isNaN(n))
-                .reduce((max, n) => Math.max(max, n), 0);
-
-            const maxOrderId = ordersRes.data
-                .map(o => parseInt(o.id.replace('o', '')))
-                .filter(n => !isNaN(n))
-                .reduce((max, n) => Math.max(max, n), 0);
-
             let remainingDiscount = currentDiscountTotal;
             const preCalculatedItems = cartItems.map((item, index) => {
                 const itemSubTotal = (item.plan?.discountPrice || 0) * item.quantity; //折前小計
@@ -135,86 +112,100 @@ function CartCheckout() {
 
 
                 return {
-                    ...item,
-                    itemSubTotal,
-                    itemDiscount,
-                    firstOrderAmount: itemSubTotal - itemDiscount,
-                    newSubId: `s${String(maxSubId + 1 + index).padStart(7, '0')}`,
-                    newOrderId: `o${String(maxOrderId + 1 + index).padStart(7, '0')}`
+                  ...item,
+                  itemSubTotal,
+                  itemDiscount,
+                  firstOrderAmount: itemSubTotal - itemDiscount,
                 };
             });
 
             // 訂閱Task
             const createSubscriptionTask = async (item) => {
-                const { itemSubTotal, itemDiscount, firstOrderAmount, newSubId, newOrderId } = item;  //折前小計
-                const subNo = generateSubNumber(item.theme?.titleAbbr, item.plan?.durationMonths);
-                const endDateStr = dayjs().add(item.plan?.durationMonths - 1, 'month').format('YYYY-MM-DD');
-                const nextPaymentStr = dayjs().add(1, 'month').format('YYYY-MM-DD');
-                const firstOrderNo = `${subNo}01`;
+              const {
+                firstOrderAmount,
+              } = item; //折前小計
+              const subNo = generateSubNumber(
+                item.theme?.titleAbbr,
+                item.plan?.durationMonths,
+              );
+              const endDateStr = dayjs()
+                .add(item.plan?.durationMonths - 1, 'month')
+                .format('YYYY-MM-DD');
+              const nextPaymentStr = dayjs()
+                .add(1, 'month')
+                .format('YYYY-MM-DD');
+              const firstOrderNo = `${subNo}01`;
 
-                const subscriptionPayload = {
-                    id: newSubId,
-                    userId,
-                    planId: item.planId,
-                    themeId: item.theme?.id,
-                    subscriptionNumber: subNo,
-                    quantity: item.quantity,
-                    unitPrice: item.plan?.discountPrice || 0,
-                    durationMonths: item.plan?.durationMonths,
-                    startDate: todayStr,
-                    endDate: endDateStr,
-                    nextPaymentDate: nextPaymentStr,
-                    status: "active",
-                    isProcessed: false,
-                    note: formData.note || "",
-                    paymentMethodId: finalPaymentMethodId,
-                    paymentSnapshot: {
-                        cardOwner: formData.cardOwner,
-                        cardBrand: currentCardBrand,
-                        lastFour,
-                        expiryMonth: Number(formData.expiryMonth),
-                        expiryYear: Number(formData.expiryYear)
-                    },
-                    shippingInfo: {
-                        zipCode: zipCodeStr, city, district,
-                        street: formData.street, name: formData.name, phone: formData.phone
-                    },
-                    invoiceInfo: {
-                        type: formData.type,
-                        carrier: formData.carrier || "",
-                        tax_id: formData.taxId || "",
-                        company_name: formData.companyName || "",
-                        company_email: formData.companyEmail || "",
-                        donate_code: formData.donateCode || ""
-                    }
-                };
+              const subscriptionPayload = {
+                userId,
+                planId: item.planId,
+                themeId: item.theme?.id,
+                subscriptionNumber: subNo,
+                quantity: item.quantity,
+                unitPrice: item.plan?.discountPrice || 0,
+                durationMonths: item.plan?.durationMonths,
+                startDate: todayStr,
+                endDate: endDateStr,
+                nextPaymentDate: nextPaymentStr,
+                status: 'active',
+                isProcessed: false,
+                note: formData.note || '',
+                createdAt: nowIsoString,
+                paymentMethodId: finalPaymentMethodId,
+                paymentSnapshot: {
+                  cardOwner: formData.cardOwner,
+                  cardBrand: currentCardBrand,
+                  lastFour,
+                  expiryMonth: Number(formData.expiryMonth),
+                  expiryYear: Number(formData.expiryYear),
+                },
+                shippingInfo: {
+                  zipCode: zipCodeStr,
+                  city,
+                  district,
+                  street: formData.street,
+                  name: formData.name,
+                  phone: formData.phone,
+                },
+                invoiceInfo: {
+                  type: formData.type,
+                  carrier: formData.carrier || '',
+                  taxId: formData.taxId || '',
+                  companyName: formData.companyName || '',
+                  companyEmail: formData.companyEmail || '',
+                  donateCode: formData.donateCode || '',
+                },
+              };
 
-                // 1 先 POST Subscription 取得 ID
-                const subRes = await api.post('/subscriptions', subscriptionPayload);
+              // 1 先 POST Subscription 取得 ID
+              const subRes = await api.post(
+                '/subscriptions',
+                subscriptionPayload,
+              );
 
-                // 2 POST Order
-                await api.post('/orders', {
-                    id: newOrderId,
-                    subscriptionId: newSubId,
-                    orderNo: firstOrderNo,
-                    cycle: 1,
-                    amount: firstOrderAmount,
-                    createdAt: nowIsoString,
-                    paymentDueDate: todayStr,
-                    paymentStatus: "paid",
-                    paymentDate: todayStr,
-                    shippingStatus: "pending",
-                    shippingDate: null,
-                    invoice: {
-                        number: `AB-${Math.floor(Math.random() * 100000000)}`,
-                        date: nowIsoString,
-                        fileUrl: null
-                    },
-                    isArchived: false
-                });
+              const realSubId = subRes.data.id; // ← 拿真實 id
 
+              // 2 POST Order
+              await api.post('/orders', {
+                subscriptionId: realSubId,
+                orderNo: firstOrderNo,
+                cycle: 1,
+                amount: firstOrderAmount,
+                createdAt: nowIsoString,
+                paymentDueDate: todayStr,
+                paymentStatus: 'paid',
+                paymentDate: todayStr,
+                shippingStatus: 'pending',
+                shippingDate: null,
+                invoice: {
+                  number: `AB-${Math.floor(Math.random() * 100000000)}`,
+                  date: nowIsoString,
+                  fileUrl: null,
+                },
+                isArchived: false,
+              });
 
-                return subRes.data; // 回傳給 Promise.all
+              return subRes.data; // 回傳給 Promise.all
             };
 
             // --- 3. Promise.all 循序執行(json server 不支援同時寫入)
@@ -231,17 +222,18 @@ function CartCheckout() {
             const subIds = results.map(sub => sub.id).join(',');
             message.success({
                 content: "訂閱成功！感謝您的支持。", key: 'checkout', duration: 2,
-                onClose: () => {
-                    // 清理購物車
-                    const cleanup = async () => {
-                        try {
-                            const deletePromises = cartItems.map(item => api.delete(`/cart_items/${item.id}`));
-                            await Promise.allSettled(deletePromises);
-                            if (cartMain?.id) await api.delete(`/carts/${cartMain.id}`);
-                        } catch (e) { console.warn("清理失敗", e); }
-                    };
-                    cleanup();
-                    navigate(`/cartFinish?sub_ids=${subIds}`, { replace: true });
+                onClose: async () => {
+                  // 清理購物車
+                  try {
+                    for (const item of cartItems) {
+                        await api.delete(`/cart_items/${item.id}`);
+                    }
+                    if (cartMain?.id) await api.delete(`/carts/${cartMain.id}`);
+                  } catch (e) {
+                    console.warn('清理失敗', e);
+                  }
+                  // 清理完成後才導頁
+                  navigate(`/cartFinish?sub_ids=${subIds}`, { replace: true });
                 }
             });
 
@@ -296,56 +288,58 @@ function CartCheckout() {
     const { user } = useAuth();
     const [cartMain, setCartMain] = useState(null);
     const [cartItems, setCartItems] = useState([]);
-    const [themes, setThemes] = useState([]);
-    const [plans, setPlans] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const cartRes = await api.get(`/carts?userId=${user.id}&_embed=cart_items`);
-                const userCart = cartRes.data[0];
+      const fetchData = async () => {
+        try {
+          const cartRes = await api.get(
+            `/carts?userId=${user.id}&_embed=cart_items`,
+          );
+          const userCart = cartRes.data[0];
 
-                // 防呆：如果沒有購物車 or 購物車空的，導回 '/cart'
-                if (!userCart || !userCart.cart_items || userCart.cart_items.length === 0) {
-                    navigate('/cart');
-                    return;
-                }
-                setCartMain(userCart);
+          // 防呆：如果沒有購物車 or 購物車空的，導回 '/cart'
+          if (
+            !userCart ||
+            !userCart.cart_items ||
+            userCart.cart_items.length === 0
+          ) {
+            navigate('/cart');
+            return;
+          }
+          setCartMain(userCart);
 
-                const [themesRes, plansRes] = await Promise.all([
-                    api.get("/themes"),
-                    api.get("/plans")
-                ])
-                const plansData = plansRes.data;
-                const themesData = themesRes.data;
+          const [themesRes, plansRes] = await Promise.all([
+            api.get('/themes'),
+            api.get('/plans'),
+          ]);
+          const plansData = plansRes.data;
+          const themesData = themesRes.data;
 
-                setPlans(plansData);
-                setThemes(themesData);
+          //資料組合
+          const enrichedItems = userCart.cart_items.map((item) => {
+            const planDetail = plansData.find((p) => p.id === item.planId);
+            const themeDetail = themesData.find(
+              (t) => t.id === planDetail?.themeId,
+            );
+            return {
+              ...item,
+              plan: planDetail || null,
+              theme: themeDetail || null,
+            };
+          });
 
-                //資料組合
-                const enrichedItems = userCart.cart_items.map(item => {
-                    const planDetail = plansData.find(p => p.id === item.planId);
-                    const themeDetail = themesData.find(t => t.id === planDetail?.themeId);
-                    return {
-                        ...item,
-                        plan: planDetail || null,
-                        theme: themeDetail || null
-                    }
-                })
-
-                setCartItems(enrichedItems);
-
-            } catch (err) {
-                console.error("資料讀取失敗", err);
-                message.error("無法取得訂單資訊");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchData();
-    }, [navigate]);
+          setCartItems(enrichedItems);
+        } catch (err) {
+          console.error('資料讀取失敗', err);
+          message.error('無法取得訂單資訊');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }, [navigate, user.id]);
 
     // 地址
     const currentCity = watch('city');
