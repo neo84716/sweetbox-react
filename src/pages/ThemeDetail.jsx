@@ -61,33 +61,29 @@ function ThemeDetail() {
       const userData = localStorage.getItem("user");
       const userObj = JSON.parse(userData);
       console.log("目前使用者:", userObj);
-
+      if (!userObj) {
+        navigate('/login');
+        return;
+      } 
       // 先抓購物車
       const res = await api.get("/carts");
       let cart = res.data.find(c => c.userId === userObj.id);
 
       // 如果沒有購物車，建立一筆新的
       if (!cart) {
-        const maxCartId = res.data.length > 0
-          ? Math.max(...res.data.map(c => parseInt(c.id.replace("c", ""))))
-          : 0;
 
         cart = {
-          id: maxCartId + 1,
           userId: userObj.id,
           createdAt: new Date().toISOString(),
         };
         console.log("建立新購物車:", cart);
-        await api.post("/carts", cart);
+        const cartRes = await api.post("/carts", cart);
+        cart = cartRes.data;
       }
 
       // 取得 cart_items
       const itemsRes = await api.get("/cart_items");
       const cartItems = itemsRes.data.filter(item => item.cartId === cart.id);
-
-      const maxItemId = itemsRes.data.length > 0
-        ? Math.max(...itemsRes.data.map(item => item.id))
-        : 0;
 
       const existingItem = cartItems.find(item => item.planId === activePlan.id);
 
@@ -106,7 +102,6 @@ function ThemeDetail() {
         };
       } else {
         const newCartItem = {
-          id: maxItemId + 1,
           cartId: cart.id,
           planId: activePlan.id,
           quantity,
@@ -142,8 +137,8 @@ function ThemeDetail() {
   useEffect(() => {
     Promise.all([api.get("/themes"), api.get("/plans")])
       .then(([themesRes, plansRes]) => {
-        const theme = themesRes.data.find(item => item.id === id);
-        const relatedPlans = plansRes.data.filter(plan => plan.themeId === id);
+        const theme = themesRes.data.find(item => item.id === Number(id));
+        const relatedPlans = plansRes.data.filter(plan => plan.themeId === Number(id));
 
         const combined = {
           ...theme,
@@ -228,7 +223,7 @@ function ThemeDetail() {
                     <ul className="nav flex-lg-column side-menu gap-2 py-2 py-lg-0">
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/t0000001`}
+                          to={`/themeDetail/1`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -238,7 +233,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/t0000002`}
+                          to={`/themeDetail/2`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -248,7 +243,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/t0000003`}
+                          to={`/themeDetail/3`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -258,7 +253,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/t0000004`}
+                          to={`/themeDetail/4`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -268,7 +263,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/t0000005`}
+                          to={`/themeDetail/5`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
@@ -278,7 +273,7 @@ function ThemeDetail() {
                       </li>
                       <li className="nav-item">
                         <NavLink
-                          to={`/themeDetail/t0000006`}
+                          to={`/themeDetail/6`}
                           className={({ isActive }) =>
                             "nav-link d-flex align-items-center" + (isActive ? " active" : "")
                           }
