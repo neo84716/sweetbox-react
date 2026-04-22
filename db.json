@@ -8,6 +8,7 @@
       "subtitle": "我們幫你挑最值得期待的那一盒",
       "description": "不論是人氣爆款還是話題聯名，通通不錯過。喜歡嚐鮮的你一定會愛上。",
       "images": {
+        "home": "./images/Home_Page/pic_feature.png",
         "main": "./images/Theme_Page/pic_theme_feature.png",
         "square": "./images/Cart_Page/pic_feature.jpg"
       }
@@ -20,6 +21,7 @@
       "subtitle": "春夏秋冬, 不同的甜點最值得期待",
       "description": "當月份限定的口味與質地, 只在這時登場。錯過了, 就要再等一年。",
       "images": {
+        "home": "./images/Home_Page/pic_season.png",
         "main": "./images/Theme_Page/pic_theme_season.png",
         "square": "./images/Cart_Page/pic_season.jpg"
       }
@@ -32,6 +34,7 @@
       "subtitle": "重新品味土地的美味，熟悉中遇見驚喜",
       "description": "精選以台灣食材與職人手藝製作的特色甜點, 簡單卻令人回味無窮。",
       "images": {
+        "home": "./images/Home_Page/pic_local.png",
         "main": "./images/Theme_Page/pic_theme_local.png",
         "square": "./images/Cart_Page/pic_local.jpg"
       }
