@@ -27,9 +27,7 @@ function Cart() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const [updatingItemId, setUpdatingItemId] = useState(null);
-    const tiemerRefs = useRef({});
+    const timerRefs = useRef({});
     const cartItemsRef = useRef(cartItems);
     const discountTotalRef = useRef(0);
     const couponIdRef = useRef(null);
@@ -45,62 +43,67 @@ function Cart() {
     }, [cartItems, discountTotal, couponId]);
 
     useEffect(() => {
+        const timers = timerRefs.current;
+
         return () => {
-            // 取出 tiemerRefs 內所有的計時器 ID 並逐一清除
-            Object.values(tiemerRefs.current).forEach(timerId => {
-                if (timerId) clearTimeout(timerId);
+            // 取出 timerRefs 內所有的計時器 ID 並逐一清除
+            Object.values(timers).forEach((timerId) => {
+              if (timerId) clearTimeout(timerId);
             });
         };
     }, []);
 
     useEffect(() => {
-        if (!isLogin) {
-            navigate("/login");
-            return;
+      if (!isLogin) {
+        navigate('/login');
+        return;
+      }
+
+      const fetchData = async () => {
+        try {
+          const cartRes = await api.get(
+            `/carts?userId=${currentUserId}&_embed=cart_items`,
+          );
+          const userCart = cartRes.data[0];
+          setCartMain(userCart);
+
+          if (userCart) {
+            setCartMain(userCart);
+            setDiscountTotal(userCart.discountTotal || 0);
+            setCouponId(userCart.couponId || null);
+
+            const [themesRes, plansRes] = await Promise.all([
+              api.get('/themes'),
+              api.get('/plans'),
+            ]);
+            const plansData = plansRes.data;
+            const themesData = themesRes.data;
+            setPlans(plansData);
+
+            // 資料組合 (Cart > cart_items > plan + theme)
+            const enrichedItems = userCart.cart_items.map((item) => {
+              const planDetail = plansData.find((p) => p.id === item.planId);
+              const themeDetail = themesData.find(
+                (t) => t.id === planDetail?.themeId,
+              );
+              return {
+                ...item,
+                plan: planDetail || null,
+                theme: themeDetail || null,
+              };
+            });
+            setCartItems(enrichedItems);
+          }
+        } catch (err) {
+          console.error('資料讀取失敗', err);
+        } finally {
+          setIsLoading(false);
         }
+      };
+      fetchData();
+    }, [isLogin, currentUserId, navigate]);
 
-        const fetchData = async () => {
-            try {
-                const cartRes = await api.get(`/carts?userId=${currentUserId}&_embed=cart_items`);
-                const userCart = cartRes.data[0];
-                setCartMain(userCart);
-
-                if (userCart) {
-
-                    setCartMain(userCart);
-                    setDiscountTotal(userCart.discountTotal || 0);
-                    setCouponId(userCart.couponId || null);
-
-                    const [themesRes, plansRes] = await Promise.all([
-                        api.get("/themes"),
-                        api.get("/plans")
-                    ])
-                    const plansData = plansRes.data;
-                    const themesData = themesRes.data;
-                    setPlans(plansData);
-
-                    // 資料組合 (Cart > cart_items > plan + theme)
-                    const enrichedItems = userCart.cart_items.map(item => {
-                        const planDetail = plansData.find(p => p.id === item.planId);
-                        const themeDetail = themesData.find(t => t.id === planDetail?.themeId);
-                        return {
-                            ...item,
-                            plan: planDetail || null,
-                            theme: themeDetail || null
-                        };
-                    });
-                    setCartItems(enrichedItems);
-                }
-            } catch (err) {
-                console.error("資料讀取失敗", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchData();
-    }, [isLogin, currentUserId]);
-
-    const syncCartTotals = async (currentItems, currentCouponId) => {
+    const syncCartTotals = async (currentCouponId) => {
         if (!cartMain) return;
 
         const currentTwTime = dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
@@ -130,7 +133,7 @@ function Cart() {
             await api.delete(`/cart_items/${itemId}`);
             const newCartItems = cartItems.filter(item => item.id !== itemId);
             setCartItems(newCartItems);
-            syncCartTotals(newCartItems, couponIdRef.current);
+            syncCartTotals(couponIdRef.current);
 
         } catch (err) {
             console.error("刪除失敗", err);
@@ -154,9 +157,9 @@ function Cart() {
         const newQty = target.quantity + delta;
 
         if (newQty === 0) {
-            if (tiemerRefs.current[itemId]) {
-                clearTimeout(tiemerRefs.current[itemId]);
-                delete tiemerRefs.current[itemId];
+            if (timerRefs.current[itemId]) {
+                clearTimeout(timerRefs.current[itemId]);
+                delete timerRefs.current[itemId];
             }
             handleRemove(itemId);
             return;
@@ -173,24 +176,16 @@ function Cart() {
 
         // B.防抖攔截
         // 若 500ms 內使用者再次點擊，則清除前一次的計時器
-        if (tiemerRefs.current[itemId]) {
-            clearTimeout(tiemerRefs.current[itemId]);
+        if (timerRefs.current[itemId]) {
+            clearTimeout(timerRefs.current[itemId]);
         }
 
         // 重設定時器
-        tiemerRefs.current[itemId] = setTimeout(async () => {
-            // 啟動 UI 鎖定
-            setIsUpdating(true);
-            setUpdatingItemId(itemId);
-
+        timerRefs.current[itemId] = setTimeout(async () => {
             try {
                 await api.patch(`/cart_items/${itemId}`, { quantity: newQty, updatedAt: currentTwTime });
 
-                await syncCartTotals(
-                    cartItemsRef.current,
-                    discountTotalRef.current,
-                    couponIdRef.current
-                );
+                await syncCartTotals(couponIdRef.current);
 
             } catch (err) {
                 console.error("更新數量失敗", err);
@@ -199,10 +194,7 @@ function Cart() {
                     item.id === itemId ? { ...item, quantity: target.quantity } : item
                 ))
             } finally {
-                // 解除 UI 鎖定狀態與計時器紀錄
-                setIsUpdating(false);
-                setUpdatingItemId(null);
-                delete tiemerRefs.current[itemId];
+                delete timerRefs.current[itemId];
 
             }
         }, 500)
@@ -226,11 +218,7 @@ function Cart() {
 
         try {
             await api.patch(`/cart_items/${itemId}`, { planId: newPlanId, updatedAt: currentTwTime })
-            await syncCartTotals(
-                newCartItems,
-                discountTotalRef.current,
-                couponIdRef.current
-            );
+            await syncCartTotals(couponIdRef.current);
 
         } catch (err) {
             console.error("更新方案失敗", err)
@@ -290,7 +278,7 @@ function Cart() {
             });
             setCartMain(prev => ({ ...prev, couponId: coupon.id, discountTotal: finalDiscount }));
 
-            syncCartTotals(cartItemsRef.current, coupon.id);
+            syncCartTotals(coupon.id);
 
         } catch (err) {
             console.error("優惠代碼驗證失敗。", err);
@@ -319,7 +307,7 @@ function Cart() {
                 return { ...rest, discountTotal: 0, updatedAt: currentTwTime };
             });
 
-            syncCartTotals(cartItemsRef.current, null);
+            syncCartTotals(null);
 
         } catch (err) {
             console.error("取消優惠代碼失敗。", err);
@@ -332,7 +320,7 @@ function Cart() {
         if (!cartMain || cartItems.length === 0) return;
         try {
             await api.patch(`/carts/${cartMain.id}`, {
-                couponId,
+                ...(couponId && { couponId }),
                 discountTotal,
                 updatedAt: currentTwTime
             });
@@ -378,7 +366,7 @@ function Cart() {
                             <h1 className="empty-cart-title mb-2">購物車裡還沒有甜點呢</h1>
                             <p className="lh-base mb-6 mb-sm-8">快來挑選一盒，讓生活多一點甜</p>
 
-                            <Link to="/themedetail/t0000001" className="btn-primary-icon fw-bold px-lg-8">
+                            <Link to="/themedetail/1" className="btn-primary-icon fw-bold px-lg-8">
                                 帶我去挑甜點
                                 <svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     <path fill="currentColor" d="M15 7.586L22.414 15H2v-2h15.586l-4-4z" />
@@ -416,7 +404,7 @@ function Cart() {
                         <div
                             className="d-flex justify-content-between align-items-center mb-2 mb-lg-6">
                             <h1 className="cart-title p-3 py-lg-2 px-lg-4">購物車</h1>
-                            <NavLink to={`/themedetail/t0000001`} className='btn py-3 px-4 px-lg-8 border-0 btn-shopping'>
+                            <NavLink to={`/themedetail/1`} className='btn py-3 px-4 px-lg-8 border-0 btn-shopping'>
                                 繼續購物
                             </NavLink>
 

@@ -12,13 +12,13 @@ import SubscriptionList from "../components/subscriptions/user/SubscriptionList"
 import EmptySubscription from '../components/subscriptions/user/EmptySubscription';
 
 const themeOptions = [
-  { label: '全部主題', value: '' },
-  { label: '精選甜點', value: 't0000001' },
-  { label: '季節限定', value: 't0000002' },
-  { label: '在地甜點', value: 't0000003' },
-  { label: '異國風味', value: 't0000004' },
-  { label: '無負擔甜點', value: 't0000005' },
-  { label: '素食甜點', value: 't0000006' },
+  { label: '全部主題', value: null },
+  { label: '精選甜點', value: 1 },
+  { label: '季節限定', value: 2 },
+  { label: '在地甜點', value: 3 },
+  { label: '異國風味', value: 4 },
+  { label: '無負擔甜點', value: 5 },
+  { label: '素食甜點', value: 6 },
 ];
 
 const statusOptions = [
@@ -121,7 +121,7 @@ function Subscription() {
   }
 
   const handelStatusChange = (value) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams);
 
     if (value) {
       params.set('status', value);

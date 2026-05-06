@@ -21,10 +21,13 @@ function Dropdown({ options, width = '108px', variant = "default", value, onChan
   // 當外部 value 改變時，更新內部顯示
   useEffect(() => {
     const matched = options.find((opt) => opt.value === value);
-    if (matched) {
-      setOption(matched.label);
-      setIsSelected(value !== options[0].value); // 第一個通常是 "全部"
+    const updateOption = (isMatched, options) => {
+      if (isMatched) {
+        setOption(isMatched.label);
+        setIsSelected(value !== options[0].value); // 第一個通常是 "全部"
+      }
     }
+    updateOption(matched, options);
   }, [value, options]);
 
   useEffect(() => {
