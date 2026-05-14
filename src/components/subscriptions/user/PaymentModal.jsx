@@ -9,20 +9,11 @@ import Select from '../../Select';
 import FormError from '../../FormError';
 
 // js 工具
-import {
-  formatCardNumber,
-  getCardType,
-} from '../../../assets/utils/paymentUtils';
-import {
-  creditCardYears,
-  creditCardMonths,
-} from '../../../assets/utils/formOptions';
+import { formatCardNumber, getCardType } from '../../../assets/utils/paymentUtils';
+import { creditCardYears, creditCardMonths } from '../../../assets/utils/formOptions';
 
 // 最多的卡片數量
 const maxCards = 5;
-
-// 模擬操作時間
-const mockNow = '2026-04-08T10:00:00.000Z';
 
 // 信用卡 icon 樣式
 const cardIcons = {
@@ -37,8 +28,9 @@ function PaymentModal({
   isAdd,
   onToggleAddCard,
   subscription,
+  onSubscriptionUpdated,
+  fetchSubscriptions,
 }) {
-
   const [cards, setCards] = useState([]);
 
   const {
@@ -61,16 +53,11 @@ function PaymentModal({
     mode: 'onBlur',
   });
 
-  const defaultCard = cards?.find((card) => card?.isDefault) || cards?.[0];
-  const activeCards = cards?.filter(
-    (card) => !card?.isDeleted,
-  );
-  // console.log(subscription.theme.images.square)
   const fetchPaymentData = useCallback(async () => {
     const userId = subscription?.userId;
     try {
       const paymentsRes = await api.get(`/payment_methods?userId=${userId}`);
-      
+
       setCards(paymentsRes.data);
     } catch (error) {
       console.error('載入付款資料失敗：', error?.message);
@@ -86,7 +73,11 @@ function PaymentModal({
   // 確定有拿到訂閱資料才開 Modal
   if (!subscription) return null;
 
-  // console.log(subscription.theme.images.square);
+  // 現在時間
+  const currentTime = new Date().toISOString();
+
+  const currentCard = subscription.paymentSnapshot;
+  const activeCards = cards?.filter((card) => !card?.isDeleted);
 
   const handleAddCard = () => {
     onToggleAddCard(true);
@@ -111,20 +102,33 @@ function PaymentModal({
     setValue('cvc', formattedValue, { shouldValidate: true });
   };
 
-  const handleDefaultCard = async (cardId) => {
-    const currentDefaultCard = cards.find((card) => card.isDefault)
+  const handleSelectPaymentMethod = async (card, subscriptionId) => {
+    const { id: cardId, cardBrand, cardOwner, expiryMonth, expiryYear, lastFour } = card;
 
+    // 選擇信用卡作為下期付款的卡片
     try {
-      await Promise.all([
-        currentDefaultCard && 
-          await api.patch(`/payment_methods/${currentDefaultCard.id}`, {
-            isDefault: false,
-          }),
-        await api.patch(`/payment_methods/${cardId}`, {
-          isDefault: true
-        })
-      ]);
-      fetchPaymentData();
+      await api.patch(`/subscriptions/${subscriptionId}`, {
+        paymentMethodId: cardId,
+        paymentSnapshot: {
+          cardOwner,
+          cardBrand,
+          lastFour,
+          expiryMonth,
+          expiryYear,
+        },
+      });
+
+      // 更新父層的 subscription 資料
+      onSubscriptionUpdated({
+        paymentMethodId: cardId,
+        paymentSnapshot: {
+          cardOwner,
+          cardBrand,
+          lastFour,
+          expiryMonth,
+          expiryYear,
+        },
+      });
     } catch (error) {
       console.error('設定預設信用卡失敗', error?.message);
     }
@@ -133,11 +137,11 @@ function PaymentModal({
   const handleRemoveCard = async (cardId) => {
     try {
       await api.patch(`/payment_methods/${cardId}`, {
-        isDeleted: true
+        isDeleted: true,
       });
       fetchPaymentData();
     } catch (error) {
-      console.error('移除信用卡失敗', error?.message || '請重新再試！')
+      console.error('移除信用卡失敗', error?.message || '請重新再試！');
     }
   };
 
@@ -151,25 +155,14 @@ function PaymentModal({
       expiryMonth,
       expiryYear,
       isDeleted: false,
-      isDefault: true,
-      createdAt: mockNow,
+      createdAt: currentTime,
     };
 
     try {
-      // 找出使用者預設信用卡
-      const currentDefaultCard = cards.find((card) => card.isDefault);
-
-      if(currentDefaultCard) {
-        await api.patch(`/payment_methods/${currentDefaultCard.id}`, {
-          isDefault: false
-        })
-      }
-
       await api.post('/payment_methods', creditCard);
       fetchPaymentData();
-
     } catch (error) {
-      console.error('新增信用卡失敗：', error?.message || '請重新輸入卡號')
+      console.error('新增信用卡失敗：', error?.message || '請重新輸入卡號');
     }
 
     onToggleAddCard(false);
@@ -188,10 +181,7 @@ function PaymentModal({
           {/* Modal header */}
           <div className="modal-header p-0 justify-content-center justify-content-lg-between mb-0 mb-lg-6">
             <div className="text-start">
-              <h1
-                className="ls-1 mb-0 mb-lg-2 modal-title"
-                id="paymentManageModalLabel"
-              >
+              <h1 className="ls-1 mb-0 mb-lg-2 modal-title" id="paymentManageModalLabel">
                 設定付款方式
               </h1>
               <p className="small text-neutral-700 d-none d-lg-block">
@@ -202,7 +192,9 @@ function PaymentModal({
               type="button"
               className="btn-close btn-close-lg align-self-start me-0 mt-0 d-none d-lg-block"
               aria-label="Close"
-              onClick={() => handleCloseModal()}
+              onClick={() => {
+                handleCloseModal();
+              }}
             ></button>
           </div>
           {/* Modal 內容 */}
@@ -212,9 +204,7 @@ function PaymentModal({
               {isAdd ? (
                 <>
                   {/* 新增信用卡表單 */}
-                  <h2 className="py-3 fs-8 ls-1 text-neutral-600 mb-6">
-                    新增付款方式
-                  </h2>
+                  <h2 className="py-3 fs-8 ls-1 text-neutral-600 mb-6">新增付款方式</h2>
                   <form
                     className="flex-grow-1 d-flex flex-column"
                     onSubmit={handleSubmit(handlePaymentSubmit)}
@@ -227,16 +217,8 @@ function PaymentModal({
                           <div className="mx-2 mb-2 small d-flex justify-content-between align-items-center">
                             <span>信用卡卡號</span>
                             <div className="d-flex gap-3">
-                              <Icon
-                                icon="logos:visaelectron"
-                                width="28"
-                                height="16"
-                              />
-                              <Icon
-                                icon="logos:mastercard"
-                                width="24"
-                                height="16"
-                              />
+                              <Icon icon="logos:visaelectron" width="28" height="16" />
+                              <Icon icon="logos:mastercard" width="24" height="16" />
                               <Icon icon="logos:jcb" width="24" height="16" />
                             </div>
                           </div>
@@ -294,9 +276,7 @@ function PaymentModal({
                       </div>
                       {/* 有效期限 */}
                       <div>
-                        <label className="form-label mx-2 small">
-                          有效期限
-                        </label>
+                        <label className="form-label mx-2 small">有效期限</label>
                         <div className="d-flex gap-3">
                           <div className="flex-grow-1">
                             <Controller
@@ -310,11 +290,7 @@ function PaymentModal({
                                   if (!currentYear) return true;
 
                                   const now = new Date();
-                                  const expiration = new Date(
-                                    Number(currentYear),
-                                    Number(val),
-                                    1,
-                                  );
+                                  const expiration = new Date(Number(currentYear), Number(val), 1);
 
                                   if (now >= expiration) {
                                     return '信用卡已過期';
@@ -366,10 +342,7 @@ function PaymentModal({
                           </div>
                         </div>
                         <FormError
-                          message={
-                            errors?.expiryMonth?.message ||
-                            errors?.expiryYear?.message
-                          }
+                          message={errors?.expiryMonth?.message || errors?.expiryYear?.message}
                         />
                       </div>
                       {/* 安全碼 */}
@@ -412,10 +385,7 @@ function PaymentModal({
                       >
                         取消新增
                       </button>
-                      <button
-                        type="submit"
-                        className="btn btn-cta-200 btn-action py-3 px-6"
-                      >
+                      <button type="submit" className="btn btn-cta-200 btn-action py-3 px-6">
                         確認並儲存
                       </button>
                     </div>
@@ -425,10 +395,10 @@ function PaymentModal({
                 <>
                   {/* 信用卡圖片 */}
                   <div className="mb-4">
-                    {defaultCard ? (
+                    {currentCard ? (
                       <>
                         <h2 className="p-2 py-lg-3 small ls-1 text-neutral-600 mb-2 mb-lg-1">
-                          預設付款方式
+                          目前付款方式
                         </h2>
                         <div className="credit-card-image d-flex flex-column justify-content-between">
                           <div className="d-flex justify-content-between">
@@ -441,10 +411,7 @@ function PaymentModal({
                             ></div>
                             <div className="px-2 rounded-1 bg-neutral-100 align-self-start">
                               <Icon
-                                icon={
-                                  cardIcons[defaultCard.cardBrand] ||
-                                  'logos:visaelectron'
-                                }
+                                icon={cardIcons[currentCard.cardBrand] || 'logos:visaelectron'}
                                 width="28"
                                 height="16"
                               />
@@ -455,23 +422,19 @@ function PaymentModal({
                               <span className="masked-number">••••</span>
                               <span className="masked-number">••••</span>
                               <span className="masked-number">••••</span>
-                              {defaultCard.lastFour}
+                              {currentCard.lastFour}
                             </p>
                             <div className="d-flex justify-content-between text-neutral-100">
                               <div>
-                                <p className="text-neutral-600 fs-9">
-                                  CARD HOLDER
-                                </p>
-                                <p className="fs-8">
-                                  {formatToUpperCase(defaultCard.cardOwner)}
-                                </p>
+                                <p className="text-neutral-600 fs-9">CARD HOLDER</p>
+                                <p className="fs-8">{formatToUpperCase(currentCard.cardOwner)}</p>
                               </div>
                               <div className="text-end">
                                 <p className="text-neutral-600 fs-9">EXPIRES</p>
                                 <p className="fs-8">
                                   {formatExpiryDate(
-                                    defaultCard.expiryMonth,
-                                    defaultCard.expiryYear,
+                                    currentCard.expiryMonth,
+                                    currentCard.expiryYear,
                                   )}
                                 </p>
                               </div>
@@ -499,12 +462,7 @@ function PaymentModal({
                         className="btn d-none d-lg-flex align-items-center p-3 border-0"
                         onClick={() => handleAddCard()}
                       >
-                        <Icon
-                          icon="ic:round-plus"
-                          width="16"
-                          height="16"
-                          className="me-1"
-                        />
+                        <Icon icon="ic:round-plus" width="16" height="16" className="me-1" />
                         <span className="small">新增卡片</span>
                       </button>
                     ) : (
@@ -522,40 +480,30 @@ function PaymentModal({
                       >
                         <div className="d-flex justify-content-start justify-content-sm-between gap-3 mb-4 mb-sm-0">
                           <div className="credit-card-logo align-self-center">
-                            <Icon
-                              icon={cardIcons[card.cardBrand]}
-                              width="24"
-                              height="16"
-                            />
+                            <Icon icon={cardIcons[card.cardBrand]} width="24" height="16" />
                           </div>
                           <div className="small">
                             <p className="mb-1 d-flex flex-column flex-sm-row">
-                              <span className="mb-1 mb-sm-0">
-                                {card.cardBrand.toUpperCase()}
-                              </span>
+                              <span className="mb-1 mb-sm-0">{card.cardBrand.toUpperCase()}</span>
                               <span>{`• • • • ${card.lastFour}`}</span>
                             </p>
                             <p className="text-neutral-600">
-                              到期日{' '}
-                              {formatExpiryDate(
-                                card.expiryMonth,
-                                card.expiryYear,
-                              )}
+                              到期日 {formatExpiryDate(card.expiryMonth, card.expiryYear)}
                             </p>
                           </div>
                         </div>
-                        {/* 編輯和設為預設按鈕 */}
+                        {/* 編輯和使用這張卡按鈕 */}
                         <div className="d-none d-sm-block">
-                          {card.isDefault ? (
-                            <span className="badge-completed">預設</span>
+                          {card.id === subscription.paymentMethodId ? (
+                            <span className="badge-completed">使用中</span>
                           ) : (
                             <>
                               <button
                                 type="button"
                                 className="btn p-3 fs-8 border-0"
-                                onClick={() => handleDefaultCard(card.id)}
+                                onClick={() => handleSelectPaymentMethod(card, subscription.id)}
                               >
-                                設為預設
+                                使用
                               </button>
                               <button
                                 type="button"
@@ -567,19 +515,19 @@ function PaymentModal({
                             </>
                           )}
                         </div>
-                        {/* 編輯和設為預設按鈕-mobile */}
-                        {card.isDefault ? (
+                        {/* 編輯和使用這張卡按鈕-mobile */}
+                        {card.id === subscription.paymentMethodId ? (
                           <span className="badge-completed d-block d-sm-none text-center align-self-center">
-                            預設
+                            使用中
                           </span>
                         ) : (
                           <div className="d-sm-none d-flex w-100 gap-2">
                             <button
                               type="button"
                               className="btn btn-neutral-300 rounded-pill flex-fill py-2 py-sm-3 px-3 px-sm-6 fs-9"
-                              onClick={() => handleDefaultCard(card.id)}
+                              onClick={() => handleSelectPaymentMethod(card, subscription.id)}
                             >
-                              設為預設
+                              使用
                             </button>
                             <button
                               type="button"
@@ -598,19 +546,17 @@ function PaymentModal({
                       className="btn btn-neutral-100 w-100 opacity-70 border-neutral-300 rounded-4 py-3 d-block d-lg-none"
                       onClick={() => handleAddCard()}
                     >
-                      <Icon
-                        icon="ic:round-plus"
-                        width="16"
-                        height="16"
-                        className="me-1"
-                      />
+                      <Icon icon="ic:round-plus" width="16" height="16" className="me-1" />
                       <span className="small">新增卡片</span>
                     </button>
                   )}
                   <button
                     type="button"
                     className="btn btn-cta-200 btn-action w-100 py-3 d-none d-lg-block"
-                    onClick={() => handleCloseModal()}
+                    onClick={() => {
+                      handleCloseModal();
+                      fetchSubscriptions();
+                    }}
                   >
                     完成管理
                   </button>
@@ -631,12 +577,9 @@ function PaymentModal({
                     />
                   </div>
                   <div>
-                    <h3 className="fs-7 ls-1 mb-1">
-                      {subscription.theme.title}
-                    </h3>
+                    <h3 className="fs-7 ls-1 mb-1">{subscription.theme.title}</h3>
                     <p className="small text-neutral-600">
-                      {subscription.plan.durationMonths}個月 ·
-                      {subscription.quantity}盒
+                      {subscription.plan.durationMonths}個月 ·{subscription.quantity}盒
                     </p>
                   </div>
                 </div>
@@ -645,19 +588,13 @@ function PaymentModal({
                   <div className="small mb-3">
                     <p className="d-flex justify-content-between">
                       <span className="text-neutral-600">方案價格</span>
-                      <span>
-                        ${subscription.unitPrice * subscription.quantity} / 月
-                      </span>
+                      <span>${subscription.unitPrice * subscription.quantity} / 月</span>
                     </p>
                     <div className="subscription-info-divider"></div>
                     <p className="d-flex justify-content-between">
                       <span className="text-neutral-600">扣款卡片</span>
                       <span className="d-flex gap-1">
-                        <span>
-                          {formatToUpperCase(
-                            subscription.paymentSnapshot.cardBrand
-                          )}
-                        </span>
+                        <span>{formatToUpperCase(subscription.paymentSnapshot.cardBrand)}</span>
                         <span>****</span>
                         <span>{subscription.paymentSnapshot.lastFour}</span>
                       </span>
@@ -674,9 +611,7 @@ function PaymentModal({
                       <span className="h3 ls-1">
                         ${subscription.unitPrice * subscription.quantity}
                       </span>
-                      <span className="small text-neutral-600">
-                        NTD / Monthly
-                      </span>
+                      <span className="small text-neutral-600">NTD / Monthly</span>
                     </p>
                   </div>
                 </div>
@@ -710,7 +645,10 @@ function PaymentModal({
               <button
                 type="button"
                 className="btn btn-cta-200 btn-action w-100 py-3"
-                onClick={() => handleCloseModal()}
+                onClick={() => {
+                  handleCloseModal();
+                  fetchSubscriptions();
+                }}
               >
                 完成管理
               </button>

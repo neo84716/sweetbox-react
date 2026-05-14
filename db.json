@@ -794,7 +794,6 @@
       "expiryMonth": 2,
       "expiryYear": 2027,
       "isDeleted": false,
-      "isDefault": true,
       "createdAt": "2025-12-10T00:00:00Z"
     },
     {
@@ -806,7 +805,6 @@
       "expiryMonth": 6,
       "expiryYear": 2030,
       "isDeleted": false,
-      "isDefault": true,
       "createdAt": "2025-11-20T08:00:00Z"
     }
   ],

@@ -108,6 +108,16 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
     Modal.getInstance(ref.current)?.hide();
   };
 
+  const handleSubscriptionUpdated = (patch) => {
+    setModalState((prev) => ({
+      ...prev,
+      subscription: {
+        ...prev.subscription,
+        ...patch
+      }
+    }))
+  }
+
   // 確定訂閱取到值才開啟 modal
   useEffect(() => {
     if (!modalState.type || !modalState.subscription) return;
@@ -137,24 +147,22 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
         isAdd={isAdd}
         onToggleAddCard={(value) => setIsAdd(value)}
         subscription={modalState.subscription}
+        onSubscriptionUpdated={handleSubscriptionUpdated}
+        fetchSubscriptions={fetchSubscriptions}
       />
 
       {/* 取消訂閱提醒 Modal */}
       <CancelReminderModal
         cancelReminderModalRef={cancelReminderModalRef}
         handleCloseModal={() => handleCloseModal(cancelReminderModalRef)}
-        handleModalState={(type, subscription) =>
-          setModalState({ type, subscription })
-        }
+        handleModalState={(type, subscription) => setModalState({ type, subscription })}
         subscription={modalState.subscription}
       />
       {/* 取消訂閱確認 Modal */}
       <CancelConfirmModal
         cancelConfirmModalRef={cancelConfirmModalRef}
         handleCloseModal={() => handleCloseModal(cancelConfirmModalRef)}
-        handleModalState={(type, subscription) =>
-          setModalState({ type, subscription })
-        }
+        handleModalState={(type, subscription) => setModalState({ type, subscription })}
         subscription={modalState.subscription}
         fetchSubscriptions={fetchSubscriptions}
       />
@@ -162,10 +170,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
         const { id, subscriptionNumber, theme, plan, orders } = item;
 
         return (
-          <div
-            key={id}
-            className="accordion-item bg-neutral-250 p-sm-8 p-6 rounded-6 border-0"
-          >
+          <div key={id} className="accordion-item bg-neutral-250 p-sm-8 p-6 rounded-6 border-0">
             <div className="accordion-header mb-0 mb-xl-8">
               <div className="d-flex flex-xl-row flex-column gap-6 gap-xl-8">
                 {/* 甜點主題圖片 */}
@@ -197,9 +202,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                       {`訂閱編號：${subscriptionNumber}`}
                     </p>
                     <div className="d-flex align-items-center">
-                      <h2 className="h4 d-inline-block fw-bold ls-1 me-3">
-                        {theme.title}
-                      </h2>
+                      <h2 className="h4 d-inline-block fw-bold ls-1 me-3">{theme.title}</h2>
                       <span className={statusBadgeMap[item.status]}>
                         {subStatusMap[item.status]}
                       </span>
@@ -229,8 +232,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                       <div>
                         <p className="subscription-info-title">下次付款日</p>
                         <p className="subscription-info-content">
-                          {statusDateMap[item.status]?.(item.nextPaymentDate) ??
-                            '--'}
+                          {statusDateMap[item.status]?.(item.nextPaymentDate) ?? '--'}
                         </p>
                       </div>
                     </div>
@@ -412,9 +414,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                       {/* 訂單編號與狀態 */}
                       <div>
                         <div className="mb-3">
-                          <h3 className="mb-1 fs-9 ls-1 text-neutral-600">
-                            訂單編號
-                          </h3>
+                          <h3 className="mb-1 fs-9 ls-1 text-neutral-600">訂單編號</h3>
                           <p className="h5">{order.orderNo}</p>
                         </div>
                         <div>
