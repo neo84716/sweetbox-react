@@ -51,3 +51,8 @@ $utilities: map-merge(
 .ls-1 {
   letter-spacing: 0.1rem;
 }
+
+.flex-equal {
+  flex: 1 1 0;
+  min-width: 0;
+}

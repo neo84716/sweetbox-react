@@ -8,6 +8,13 @@ import PaymentModal from './PaymentModal';
 import CancelReminderModal from './CancelReminderModal';
 import CancelConfirmModal from './CancelConfirmModal';
 
+// 信用卡 icon 樣式
+const cardIcons = {
+  visa: 'logos:visaelectron',
+  mastercard: 'logos:mastercard',
+  jcb: 'logos:jcb',
+};
+
 // 狀態對照表
 const subStatusMap = {
   active: '進行中',
@@ -18,7 +25,7 @@ const subStatusMap = {
 const paymentStatusMap = {
   pending: '未付款',
   paid: '已付款',
-  failed: '付款失敗'
+  failed: '付款失敗',
 };
 
 const shippingStatusMap = {
@@ -28,15 +35,14 @@ const shippingStatusMap = {
   not_required: '無須出貨',
 };
 
-
 // 狀態樣式
 const paymentStatusClassMap = {
   pending: 'text-neutral-700',
-  failed: 'text-semantic-error'
+  failed: 'text-semantic-error',
 };
 
 const shippingStatusClassMap = {
-  pending: 'text-neutral-700'
+  pending: 'text-neutral-700',
 };
 
 const statusBadgeMap = {
@@ -67,11 +73,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
 
   // Modal 初始化
   useEffect(() => {
-    const modalRefs = [
-      paymentModalRef,
-      cancelReminderModalRef,
-      cancelConfirmModalRef,
-    ];
+    const modalRefs = [paymentModalRef, cancelReminderModalRef, cancelConfirmModalRef];
 
     const handleHide = () => {
       if (document.activeElement instanceof HTMLElement) {
@@ -97,9 +99,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
   // 切換 accordion
   const handleToggleAccordion = (id) => {
     setExpandedIds((prev) =>
-      expandedIds.includes(id)
-        ? prev.filter((expandedId) => expandedId !== id)
-        : [...prev, id],
+      expandedIds.includes(id) ? prev.filter((expandedId) => expandedId !== id) : [...prev, id],
     );
   };
 
@@ -113,10 +113,10 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
       ...prev,
       subscription: {
         ...prev.subscription,
-        ...patch
-      }
-    }))
-  }
+        ...patch,
+      },
+    }));
+  };
 
   // 確定訂閱取到值才開啟 modal
   useEffect(() => {
@@ -188,14 +188,14 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                       {`訂閱編號：${subscriptionNumber}`}
                     </p>
                     <h2 className="fs-7 fw-bold ls-1">{theme.title}</h2>
-                    <span className={`${statusBadgeMap[item.status]} d-block`}>
+                    <span className={`${statusBadgeMap[item.status]} d-block align-self-start`}>
                       {subStatusMap[item.status]}
                     </span>
                   </div>
                 </div>
 
                 {/* 訂閱詳細內容 */}
-                <div className="flex-grow-1 py-xl-2 py-0 subscription-info">
+                <div className="flex-equal py-xl-2 py-0 subscription-info">
                   {/* 訂閱編號 */}
                   <div className="mb-8 d-none d-xl-block">
                     <p className="fs-8 text-neutral-600 mb-2">
@@ -211,7 +211,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                   <div className="subscription-info-divider d-xl-none"></div>
                   <div className="d-flex py-2 py-xl-0">
                     {/* 訂閱期數與價格 */}
-                    <div className="flex-grow-1">
+                    <div className="flex-equal">
                       <div className="mb-4">
                         <p className="subscription-info-title">期數</p>
                         <p className="subscription-info-content">{`${item.durationMonths}個月`}</p>
@@ -224,7 +224,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                       </div>
                     </div>
                     {/* 數量與下次付款日 */}
-                    <div className="flex-grow-1">
+                    <div className="flex-equal">
                       <div className="mb-4">
                         <p className="subscription-info-title">數量</p>
                         <p className="subscription-info-content">{`${item.quantity} 盒`}</p>
@@ -242,7 +242,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                 {/* 分隔線 */}
                 <div className="vertical-divider d-none d-xl-block"></div>
                 {/* 付款方式 */}
-                <div className="py-0 py-xl-2 flex-grow-1">
+                <div className="flex-equal py-0 py-xl-2">
                   <button
                     id={id}
                     className="accordion-button d-xl-flex justify-content-end align-items-center d-none"
@@ -270,7 +270,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                               'brightness(0) saturate(100%) invert(69%) sepia(22%) saturate(124%) hue-rotate(0deg) brightness(103%) contrast(96%)',
                           }
                         }
-                        icon="logos:visaelectron"
+                        icon={cardIcons[item.paymentSnapshot.cardBrand] || 'logos:visaelectron'}
                         width="44"
                         height="24"
                       />
@@ -280,7 +280,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                         <span className="masked-number-compact">••••</span>
                         <span className="masked-number-compact">••••</span>
                         <span className="masked-number-compact">••••</span>
-                        4321{' '}
+                        {item.paymentSnapshot.lastFour}{' '}
                       </div>
                     </div>
                   </div>
@@ -368,7 +368,7 @@ function SubscriptionList({ subscriptions, fetchSubscriptions }) {
                       return (
                         <tr key={id}>
                           <th scope="row">{orderNo}</th>
-                          <td>{cycle}</td>
+                          <td>{cycle ?? '-'}</td>
                           <td>{paymentDate}</td>
                           <td>{`NT$${amount}`}</td>
                           <td
