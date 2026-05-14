@@ -1,9 +1,6 @@
 import { Icon } from '@iconify/react';
 import api from '../../../api';
 
-// 模擬時間
-const mockNow = '2026-04-08T10:00:00.000Z';
-
 // 信用卡 icon 樣式
 const cardIcons = {
   visa: 'logos:visaelectron',
@@ -31,10 +28,12 @@ function CancelConfirmModal({
   handleCloseModal,
   handleModalState,
   subscription,
-  fetchSubscriptions
+  fetchSubscriptions,
 }) {
-
   if (!subscription) return null;
+
+  // 現在時間
+  const currentTime = new Date().toISOString();
 
   // 取得訂單編號
   const getOrderNo = (subscription) => {
@@ -48,9 +47,7 @@ function CancelConfirmModal({
   };
 
   // 計算罰金與已訂閱期數
-  const deliveredCount = Math.max(
-    ...subscription.orders.map((order) => order.cycle),
-  );
+  const deliveredCount = Math.max(...subscription.orders.map((order) => order.cycle));
   const { discountPrice, originalPrice } = subscription.plan;
   const difference = Math.abs(discountPrice - originalPrice);
 
@@ -69,28 +66,26 @@ function CancelConfirmModal({
         orderNo,
         cycle: '-',
         amount: penalty,
-        paymentDueDate: formatDate(mockNow),
-        createdAt: mockNow,
-        paymentStatus: 'pending',
-        paymentDate: formatDate(mockNow),
+        paymentDueDate: formatDate(currentTime),
+        createdAt: currentTime,
+        paymentStatus: 'paid',
+        paymentDate: formatDate(currentTime),
         shippingStatus: 'not_required',
         shippingDate: null,
         invoice: {
           number: invoiceNumber,
-          date: mockNow,
+          date: currentTime,
           fileUrl: `/invoices/${orderNo}.pdf`,
         },
         isArchived: false,
       };
 
       // 新增一筆訂單、修改訂閱狀態
-      await Promise.all([
-        api.post('/orders', newOrder),
-        api.patch(`/subscriptions/${subscriptionId}`, {
-          status: 'cancelled',
-          nextPaymentDate: formatDate(mockNow) })
-      ]);
-
+      await api.post('/orders', newOrder);
+      await api.patch(`/subscriptions/${subscriptionId}`, {
+        status: 'cancelled',
+        nextPaymentDate: formatDate(currentTime),
+      });
     } catch (error) {
       console.error('取消訂閱失敗:', error?.message || '請稍後再試！');
     }
@@ -126,9 +121,7 @@ function CancelConfirmModal({
                       <ul className="d-flex flex-column gap-3">
                         <li>
                           <p className="mb-1 text-label">訂閱編號</p>
-                          <p className="small">
-                            {subscription.subscriptionNumber}
-                          </p>
+                          <p className="small">{subscription.subscriptionNumber}</p>
                         </li>
                         <li>
                           <p className="mb-1 text-label">已配送期數</p>
@@ -162,9 +155,7 @@ function CancelConfirmModal({
                         height="16"
                       />
                     </div>
-                    <p>
-                      **** **** **** {subscription.paymentSnapshot.lastFour}
-                    </p>
+                    <p>**** **** **** {subscription.paymentSnapshot.lastFour}</p>
                   </div>
                 </div>
               </div>
@@ -216,9 +207,7 @@ function CancelConfirmModal({
                       </p>
                     </div>
                     <div className="rounded-3 p-4 bg-primary-200 d-flex justify-content-between">
-                      <span className="fs-8 fw-bold ls-1 lh-sm">
-                        補貼總額計算
-                      </span>
+                      <span className="fs-8 fw-bold ls-1 lh-sm">補貼總額計算</span>
                       <span className="fs-8 fw-bold ls-1 lh-sm text-primary-600">
                         ${difference} X {deliveredCount}期 = ${penalty}
                       </span>
@@ -229,8 +218,8 @@ function CancelConfirmModal({
                     <button
                       type="button"
                       className="btn btn-semantic-error rounded-pill px-6 py-3 ls-1 lh-sm"
-                      onClick={() => {
-                        handelCancelSubscription(subscription.id);
+                      onClick={async () => {
+                        await handelCancelSubscription(subscription.id);
                         handleCloseModal();
                         handleModalState(null, null);
                         fetchSubscriptions();
@@ -255,16 +244,12 @@ function CancelConfirmModal({
                     <div className="d-flex align-items-center gap-2">
                       <div className="py-1 px-2">
                         <Icon
-                          icon={
-                            cardIcons[subscription.paymentSnapshot.cardBrand]
-                          }
+                          icon={cardIcons[subscription.paymentSnapshot.cardBrand]}
                           width="28"
                           height="16"
                         />
                       </div>
-                      <span>
-                        **** **** **** {subscription.paymentSnapshot.lastFour}
-                      </span>
+                      <span>**** **** **** {subscription.paymentSnapshot.lastFour}</span>
                     </div>
                   </div>
                   {/* 行動版訂閱編號卡片 */}
@@ -280,9 +265,7 @@ function CancelConfirmModal({
                         <p className="fs-9 lh-sm ls-1 fw-bold text-neutral-600 mb-1">
                           訂閱編號：{subscription.subscriptionNumber}
                         </p>
-                        <p className="fs-8 fw-bold lh-sm ls-1">
-                          {subscription.theme.title}
-                        </p>
+                        <p className="fs-8 fw-bold lh-sm ls-1">{subscription.theme.title}</p>
                       </div>
                     </div>
                     {/* 訂閱內容 */}
@@ -293,9 +276,7 @@ function CancelConfirmModal({
                       </div>
                       <div className="flex-grow-1">
                         <p className="text-label mb-1">價格</p>
-                        <p>
-                          NT${subscription.unitPrice * subscription.quantity}/月
-                        </p>
+                        <p>NT${subscription.unitPrice * subscription.quantity}/月</p>
                       </div>
                       <div className="flex-grow-1">
                         <p className="text-label mb-1">已配送</p>
@@ -320,8 +301,8 @@ function CancelConfirmModal({
                 </button>
                 <button
                   className="btn btn-semantic-error btn-action py-3 w-100"
-                  onClick={() => {
-                    handelCancelSubscription(subscription.id);
+                  onClick={async () => {
+                    await handelCancelSubscription(subscription.id);
                     handleCloseModal();
                     handleModalState(null, null);
                     fetchSubscriptions();
