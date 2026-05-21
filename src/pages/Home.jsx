@@ -7,9 +7,29 @@ import SubBanner from "../components/home/SubBanner";
 import FeedbackSwiper from '../components/home/FeedbackSwiper';
 import BrandsSwiper from "../components/home/BrandsSwiper";
 import FaqSection from "../components/home/FaqSection";
+import {supabase}  from "../../supabaseClient";
+import { useEffect, useState } from "react";
 
 function Home() {
+  const [themes, setThemes] = useState([]);
 
+  // 讀取 themes
+  const fetchThemes = async () => {
+    const { data, error } = await supabase
+      .from("themes")
+      .select("*");
+
+    if (error) {
+      console.error("讀取 themes 失敗:", error.message);
+    } else {
+      setThemes(data);
+      console.log("主題資料:", data);
+    }
+  };
+
+  useEffect(() => {
+    fetchThemes();
+  }, []);
   return (
     <>
       {/* 隱藏超出的背景圖 */}
